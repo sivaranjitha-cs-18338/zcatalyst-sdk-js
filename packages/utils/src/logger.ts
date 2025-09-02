@@ -1,5 +1,3 @@
-import { log } from 'console';
-
 interface ICatalystLoggerOptions {
 	enable_info: boolean;
 	enable_warn: boolean;
@@ -86,7 +84,8 @@ class Logger {
 	}
 
 	#logToConsole(message: string): void {
-		log(message);
+		// eslint-disable-next-line no-console
+		console.log(message);
 	}
 
 	#resetLogLevels(): void {

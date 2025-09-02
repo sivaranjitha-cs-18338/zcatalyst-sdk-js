@@ -16,16 +16,6 @@
     "lint": "eslint -c ../../eslint.config.mjs \"src/**/*.ts\"",
     "format": "prettier  --ignore-path ../.prettierignore --write \"{src, test}/*.ts\""
   },
-  "browser": {
-    "./dist-cjs/index.js": "./dist-cjs/index.browser.js",
-    "./dist-es/index.js": "./dist-es/index.browser.js",
-    "./dist-types/index.d.ts": "./dist-types/index.browser.d.ts",
-    "./dist-cjs/validators.js": "./dist-cjs/validators.browser.js",
-    "./dist-es/validators.js": "./dist-es/validators.browser.js",
-    "./dist-cjs/logger.js": "./dist-cjs/logger.browser.js",
-    "./dist-es/logger.js": "./dist-es/logger.browser.js",
-    "url": false
-  },
   "engines": {
     "node": ">=20"
   },

@@ -1,7 +1,5 @@
 'use strict';
 
-import { URL } from 'url';
-
 import { CatalystAppError, CatalystError } from './errors';
 
 /**

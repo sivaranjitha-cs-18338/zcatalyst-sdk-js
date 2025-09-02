@@ -408,7 +408,6 @@ class ZCAuth {
 	}
 
 	async signOut(redirectURL: string): Promise<void> {
-		// TODO: check logics
 		if (this.configManager.AuthProtocol === Auth_Protocol.JwtTokenProtocol) {
 			document.cookie = `${this.configManager.jwtTokenCookieKey}=; path=/; expires=${new Date().toUTCString()};`;
 			document.cookie = `user_cred=; path=/; expires=${new Date().toUTCString()};`;
