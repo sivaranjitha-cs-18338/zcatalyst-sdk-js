@@ -42,7 +42,7 @@ const isValidUrl = (url: string): boolean => {
 		new URL(url);
 		return true;
 	} catch {
-		return false; // /^((https?:\/\/)?[\w.-]+(\.[\w.-]+)+\.?(:\d+)?(\/\S*)?(\?\S+)?)$/.test(url)
+		return /^https?:\/\/[^\s]+$/.test(url);
 	}
 };
 

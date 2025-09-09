@@ -167,8 +167,8 @@ export function isURL(
 
 		return true;
 	} catch {
-		// Fallback regex for basic URL pattern matching
-		return /^((https?:\/\/)?[\w.-]+(\.[\w.-]+)+\.?(:\d+)?(\/\S*)?(\?\S+)?)$/.test(urlStr);
+		// Simple fallback check for basic URL format without vulnerable nested quantifiers
+		return /^https?:\/\/[^\s]+$/.test(urlStr);
 	}
 }
 

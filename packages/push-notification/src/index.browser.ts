@@ -36,6 +36,11 @@ export class PushNotification implements Component {
 	private _retryCount = 0;
 	private readonly _maxRetries = 3;
 
+	/**
+	 * Creates a new PushNotification instance.
+	 *
+	 * @param {unknown} [app] - The application instance for configuration
+	 */
 	constructor(app?: unknown) {
 		this.requester = new Handler(app, this);
 	}
@@ -62,6 +67,14 @@ export class PushNotification implements Component {
 		return this._state === NotificationState.READY;
 	}
 
+	/**
+	 * Enables push notifications for the application.
+	 * Initializes the WMS connection and sets up message handlers.
+	 * Includes automatic retry logic with exponential backoff.
+	 *
+	 * @returns {Promise<void>} Promise that resolves when notifications are successfully enabled
+	 * @throws {Error} When notification configuration fetch fails or WMS initialization fails
+	 */
 	async enableNotification(): Promise<void> {
 		if (this._state === NotificationState.INITIALIZING) {
 			LOGGER.warn('Notification initialization already in progress');
@@ -98,6 +111,13 @@ export class PushNotification implements Component {
 		}
 	}
 
+	/**
+	 * Fetches the notification configuration from the server.
+	 *
+	 * @private
+	 * @returns {Promise<NotificationConfig>} Promise resolving to notification configuration
+	 * @throws {Error} When the config fetch fails or required fields are missing
+	 */
 	private async _fetchNotificationConfig(): Promise<NotificationConfig> {
 		const request: IRequestConfig = {
 			method: REQ_METHOD.get,
@@ -123,6 +143,15 @@ export class PushNotification implements Component {
 		return { url, sazuid, clientaccesstoken, uid };
 	}
 
+	/**
+	 * Dynamically injects the WMS script into the document head.
+	 * Prevents duplicate script injection by checking for existing scripts.
+	 *
+	 * @private
+	 * @param {string} src - The URL of the script to inject
+	 * @returns {Promise<void>} Promise that resolves when script is loaded
+	 * @throws {Error} When script fails to load
+	 */
 	private async _injectScript(src: string): Promise<void> {
 		return new Promise((resolve, reject) => {
 			// Check if script already exists
@@ -141,6 +170,15 @@ export class PushNotification implements Component {
 		});
 	}
 
+	/**
+	 * Initializes the WMS (Web Messaging Service) with the provided configuration.
+	 * Chooses between RTCP and ZMP initialization based on available credentials.
+	 *
+	 * @private
+	 * @param {NotificationConfig} config - The notification configuration object
+	 * @returns {Promise<void>} Promise that resolves when WMS is initialized
+	 * @throws {Error} When ZAID is missing or WMS libraries fail to load
+	 */
 	private async _initializeWms(config: NotificationConfig): Promise<void> {
 		const zaid = ConfigManager.getInstance().ZAID;
 		if (!zaid) {
@@ -157,6 +195,15 @@ export class PushNotification implements Component {
 		}
 	}
 
+	/**
+	 * Waits for WMS libraries to become available in the global scope.
+	 * Uses polling with a configurable timeout.
+	 *
+	 * @private
+	 * @param {number} [timeout=10000] - Maximum time to wait in milliseconds
+	 * @returns {Promise<void>} Promise that resolves when WMS libraries are available
+	 * @throws {Error} When WMS libraries don't load within the timeout period
+	 */
 	private async _waitForWms(timeout = 10000): Promise<void> {
 		const startTime = Date.now();
 
@@ -203,6 +250,12 @@ export class PushNotification implements Component {
 		}
 	}
 
+	/**
+	 * Sets up the message handler for incoming push notifications.
+	 * Filters messages by type and forwards to registered callback.
+	 *
+	 * @private
+	 */
 	private _setupMessageHandler(): void {
 		if (typeof WmsliteImpl !== 'undefined') {
 			WmsliteImpl.handleMessage = (
@@ -245,6 +298,16 @@ export class PushNotification implements Component {
 		}, delay);
 	}
 
+	/**
+	 * Initializes WMS with RTCP (Real-Time Communication Protocol) configuration.
+	 * Used when sazuid and clientaccesstoken are available.
+	 *
+	 * @private
+	 * @param {string} uid - User identifier
+	 * @param {string} zaid - Zone application identifier
+	 * @param {string} sazuid - Service application zone user identifier
+	 * @param {string} token - Client access token for authentication
+	 */
 	#initWmsRTCP(uid: string, zaid: string, sazuid: string, token: string): void {
 		WmsLite.setNoDomainChange();
 		WmsLite.enableCustomDomain();
@@ -253,6 +316,14 @@ export class PushNotification implements Component {
 		WmsLite.register('CY', sazuid);
 	}
 
+	/**
+	 * Initializes WMS with ZMP (Zone Messaging Protocol) configuration.
+	 * Used as fallback when RTCP credentials are not available.
+	 *
+	 * @private
+	 * @param {string} uid - User identifier
+	 * @param {string} zaid - Zone application identifier
+	 */
 	#initWmsZmp(uid: string, zaid: string): void {
 		WmsLite.useSameDomain();
 		WmsLite.setWmsContext('_wms');
@@ -260,6 +331,12 @@ export class PushNotification implements Component {
 		WmsLite.register('CY', uid, uid, false, null, null, zaid);
 	}
 
+	/**
+	 * Sets the message handler callback for incoming push notifications.
+	 * Automatically sets up the handler if notifications are already ready.
+	 *
+	 * @param {MessageCallback} callback - Function to call when messages are received
+	 */
 	public set messageHandler(callback: MessageCallback) {
 		this._messageCallback = callback;
 		// Set up handler if WMS is already available
@@ -268,12 +345,21 @@ export class PushNotification implements Component {
 		}
 	}
 
+	/**
+	 * Gets the current message handler callback.
+	 *
+	 * @returns {MessageCallback | undefined} The current message handler or undefined
+	 */
 	public get messageHandler(): MessageCallback | undefined {
 		return this._messageCallback;
 	}
 
 	/**
-	 * Manually trigger a retry of notification initialization
+	 * Manually trigger a retry of notification initialization.
+	 * Only works when the service is in an error state.
+	 * Resets the retry counter before attempting.
+	 *
+	 * @returns {Promise<void>} Promise that resolves when retry attempt completes
 	 */
 	public async retry(): Promise<void> {
 		if (this._state === NotificationState.ERROR) {
