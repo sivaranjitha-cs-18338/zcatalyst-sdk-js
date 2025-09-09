@@ -329,6 +329,11 @@ export function addDefaultAppHeaders(
 	}
 	normalizedHeaders['CATALYST-COMPONENT'] = 'true';
 
+	const conf = ConfigManager.getInstance();
+	if (typeof conf?.OrgId === 'string') {
+		normalizedHeaders['CATALYST-ORG'] = conf.OrgId;
+	}
+
 	return normalizedHeaders;
 }
 

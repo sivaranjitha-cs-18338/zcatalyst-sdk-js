@@ -206,14 +206,14 @@ export class PushNotification implements Component {
 	private _setupMessageHandler(): void {
 		if (typeof WmsliteImpl !== 'undefined') {
 			WmsliteImpl.handleMessage = (
-				mtype: number,
+				mtype: string,
 				msg: unknown,
 				meta: unknown,
 				prd_id: unknown
 			): void => {
 				try {
 					LOGGER.info(`Message received: ${JSON.stringify(msg)}`);
-					if (mtype === 2 && this._messageCallback) {
+					if (mtype === '2' && this._messageCallback) {
 						this._messageCallback(msg);
 					}
 				} catch (err) {

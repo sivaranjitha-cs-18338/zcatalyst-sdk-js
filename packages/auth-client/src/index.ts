@@ -37,13 +37,12 @@ export interface ICatalystAuthConfig {
 	credentialQR?: ICatalystAuthConfig;
 }
 
-// Modern URL validation using native URL constructor with fallback
 const isValidUrl = (url: string): boolean => {
 	try {
 		new URL(url);
 		return true;
 	} catch {
-		return /^((https?:\/\/)?[\w.-]+(\.[\w.-]+)+\.?(:\d+)?(\/\S*)?(\?\S+)?)$/.test(url);
+		return false; // /^((https?:\/\/)?[\w.-]+(\.[\w.-]+)+\.?(:\d+)?(\/\S*)?(\?\S+)?)$/.test(url)
 	}
 };
 

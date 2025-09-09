@@ -43,18 +43,17 @@ import { StratusObjectRequest } from './utils/types';
 const { REQ_METHOD, CREDENTIAL_USER, STRATUS_SUFFIX } = CONSTANTS;
 
 export class Bucket {
-	_requester: Handler;
+	#requester: Handler;
 	bucketDetails: IStratusBucket;
-	auth = true;
 	#util: Util;
 	#jwtAuth: JWTAuthHandler;
 	constructor(requester: Handler, bucket: IStratusBucket | string) {
-		this._requester = requester;
+		this.#requester = requester;
 		this.#jwtAuth = new JWTAuthHandler(this);
 		if (typeof bucket === 'string') {
 			const suffix =
 				typeof window === 'undefined'
-					? `${(this._requester.app?.config?.environment as string).toLowerCase()}${STRATUS_SUFFIX}`
+					? `${(this.#requester.app?.config?.environment as string).toLowerCase()}${STRATUS_SUFFIX}`
 					: (window.__catalyst?.environment as string)?.toLowerCase() +
 						'' +
 						window.__catalyst?.stratus_suffix;
@@ -69,7 +68,7 @@ export class Bucket {
 	}
 
 	public getAuthorizationClient(): Handler {
-		return this._requester;
+		return this.#requester;
 	}
 
 	/**
@@ -120,7 +119,7 @@ export class Bucket {
 			abortSignal: options?.abortSignal,
 			user: CREDENTIAL_USER.user
 		};
-		const resp = await this._requester.send(request);
+		const resp = await this.#requester.send(request);
 		return resp.data;
 	}
 
@@ -180,7 +179,7 @@ export class Bucket {
 			track: true,
 			user: CREDENTIAL_USER.user
 		};
-		const resp = await this._requester.send(request);
+		const resp = await this.#requester.send(request);
 		return { message: resp.resp.data as unknown as string };
 	}
 
@@ -273,7 +272,7 @@ export class Bucket {
 			abortSignal: uploadOptions?.abortSignal,
 			user: CREDENTIAL_USER.user
 		};
-		const resp = await this._requester.send(request);
+		const resp = await this.#requester.send(request);
 		if (resp.statusCode === 202) {
 			return resp.data;
 		}
@@ -315,7 +314,7 @@ export class Bucket {
 			external: true,
 			user: CREDENTIAL_USER.user
 		};
-		const resp = await this._requester.send(request);
+		const resp = await this.#requester.send(request);
 		return resp.statusCode === 200;
 	}
 
@@ -346,7 +345,7 @@ export class Bucket {
 			service: CatalystService.EXTERNAL,
 			user: CREDENTIAL_USER.user
 		};
-		const resp = await this._requester.send(request);
+		const resp = await this.#requester.send(request);
 		return resp.data as IStratusInitiateUpload;
 	}
 
@@ -384,7 +383,7 @@ export class Bucket {
 			auth: false,
 			user: CREDENTIAL_USER.user
 		};
-		const resp = await this._requester.send(request);
+		const resp = await this.#requester.send(request);
 		return resp.statusCode === 200;
 	}
 
@@ -409,7 +408,7 @@ export class Bucket {
 			track: true,
 			user: CREDENTIAL_USER.user
 		};
-		const resp = await this._requester.send(request);
+		const resp = await this.#requester.send(request);
 		return resp.statusCode === 202;
 	}
 
@@ -437,7 +436,7 @@ export class Bucket {
 			track: true,
 			user: CREDENTIAL_USER.user
 		};
-		const resp = await this._requester.send(request);
+		const resp = await this.#requester.send(request);
 		return resp.data as unknown as IStratusMultipartSummaryRes;
 	}
 
@@ -460,6 +459,7 @@ export class Bucket {
 
 		headers.Authorization = `Zoho-oauthtoken ${await this.#jwtAuth.getJWTAccessToken()}`;
 		params.zaid = this.#jwtAuth.zaid;
+		params.orgType = 70;
 
 		return { params, headers, url };
 	}
@@ -474,19 +474,18 @@ export class Bucket {
 }
 
 export class BucketAdmin extends Bucket {
-	_requester: Handler;
-	auth = true;
+	#requester: Handler;
 	#util: Util;
 	#cors: Cors;
 	constructor(requester: Handler, bucket: IStratusBucket | string) {
 		super(requester, bucket);
-		this._requester = requester;
+		this.#requester = requester;
 		this.#util = new Util(this);
 		this.#cors = new Cors(this);
 	}
 
 	getAuthorizationClient(): Handler {
-		return this._requester;
+		return this.#requester;
 	}
 
 	/**
@@ -546,7 +545,7 @@ export class BucketAdmin extends Bucket {
 			track: true,
 			user: CREDENTIAL_USER.admin
 		};
-		const resp = await this._requester.send(request);
+		const resp = await this.#requester.send(request);
 		const objects = resp.data.data as IStratusObjects;
 		const files: Array<StratusObject> = objects.contents.map(
 			(key) => new StratusObject(this, key as IStratusObjectDetails)
@@ -590,7 +589,7 @@ export class BucketAdmin extends Bucket {
 			track: true,
 			user: CREDENTIAL_USER.admin
 		};
-		const resp = await this._requester.send(request);
+		const resp = await this.#requester.send(request);
 		return resp.data.data[0] as IStratusBucket;
 	}
 
@@ -613,7 +612,7 @@ export class BucketAdmin extends Bucket {
 			track: true,
 			user: CREDENTIAL_USER.admin
 		};
-		const resp = await this._requester.send(request);
+		const resp = await this.#requester.send(request);
 		return resp.data.data;
 	}
 
@@ -652,7 +651,7 @@ export class BucketAdmin extends Bucket {
 			track: true,
 			user: CREDENTIAL_USER.admin
 		};
-		const resp = await this._requester.send(request);
+		const resp = await this.#requester.send(request);
 		return this.#serializeResponse(resp.data.data) as unknown as IStratusObjectCopyRes;
 	}
 
@@ -690,7 +689,7 @@ export class BucketAdmin extends Bucket {
 			track: true,
 			user: CREDENTIAL_USER.admin
 		};
-		const resp = await this._requester.send(request);
+		const resp = await this.#requester.send(request);
 		return resp.data.data as IStratusObjectRenameRes;
 	}
 
@@ -738,7 +737,7 @@ export class BucketAdmin extends Bucket {
 			track: true,
 			user: CREDENTIAL_USER.admin
 		};
-		const resp = await this._requester.send(request);
+		const resp = await this.#requester.send(request);
 		return resp.data.data as { signature: string };
 	}
 
@@ -770,7 +769,7 @@ export class BucketAdmin extends Bucket {
 			track: true,
 			user: CREDENTIAL_USER.admin
 		};
-		const resp = await this._requester.send(request);
+		const resp = await this.#requester.send(request);
 		return resp.data.data as IStratusObjectDetails;
 	}
 
@@ -801,7 +800,7 @@ export class BucketAdmin extends Bucket {
 			service: CatalystService.BAAS,
 			user: CREDENTIAL_USER.admin
 		};
-		const resp = await this._requester.send(request);
+		const resp = await this.#requester.send(request);
 		return resp.data.data as IStratusObjectDetails;
 	}
 
@@ -898,7 +897,7 @@ export class BucketAdmin extends Bucket {
 			track: true,
 			user: CREDENTIAL_USER.admin
 		};
-		const resp = await this._requester.send(request);
+		const resp = await this.#requester.send(request);
 		return resp.data.data as Record<string, string>;
 	}
 
@@ -939,7 +938,7 @@ export class BucketAdmin extends Bucket {
 	// 		external: true,
 	// 		user: CREDENTIAL_USER.user
 	// 	};
-	// 	const resp = await this._requester.send(request);
+	// 	const resp = await this.#requester.send(request);
 	// 	const finalRes = {
 	// 		data: resp.data as IncomingMessage,
 	// 		continuationToken: resp.headers['Continuation-Token'] as string
@@ -982,7 +981,7 @@ export class BucketAdmin extends Bucket {
 			track: true,
 			user: CREDENTIAL_USER.admin
 		};
-		const resp = await this._requester.send(request);
+		const resp = await this.#requester.send(request);
 		return this.#serializeResponse(resp.data.data) as unknown as IStratusUnzipRes;
 	}
 
@@ -1021,7 +1020,7 @@ export class BucketAdmin extends Bucket {
 			track: true,
 			user: CREDENTIAL_USER.admin
 		};
-		const resp = await this._requester.send(request);
+		const resp = await this.#requester.send(request);
 		return resp.data.data as IStratusUnzipStatus;
 	}
 
@@ -1083,7 +1082,7 @@ export class BucketAdmin extends Bucket {
 				track: true,
 				user: CREDENTIAL_USER.admin
 			};
-			const resp = await this._requester.send(request);
+			const resp = await this.#requester.send(request);
 			return resp.statusCode === 200;
 		} catch (err) {
 			if (!throwErr) {
