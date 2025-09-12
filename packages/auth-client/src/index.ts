@@ -172,11 +172,11 @@ class ZCAuth {
 		}
 	}
 
-	async hostedSignIn() {
+	async hostedSignIn(redirectUrl?: string): Promise<void> {
 		if (!this.configManager.Initialized) {
 			await this.init();
 		}
-		window.location.href = `/${URL_DIVIDER.RESERVED_URL}/${URL_DIVIDER.AUTH}/${URL_DIVIDER.LOGIN}`;
+		window.location.href = `/${URL_DIVIDER.RESERVED_URL}/${URL_DIVIDER.AUTH}/${URL_DIVIDER.LOGIN}?redirect_url=${encodeURIComponent(redirectUrl ?? '/')}`;
 	}
 
 	async #isValidUser(org_id?: string): Promise<Boolean> {
@@ -382,9 +382,14 @@ class ZCAuth {
 
 	#overrideValuesInI18N(iframe: HTMLIFrameElement) {
 		if (iframe.contentWindow?.I18N) {
-			const IAMi18nData = (iframe.contentWindow?.I18xN as Window)['data'] as Window;
-			IAMi18nData['IAM.PHONE.ENTER.VALID.MOBILE_NUMBER'] = AUTH_ERROR_MSG.emptyEmailAddress;
-			IAMi18nData['IAM.NEW.SIGNIN.ENTER.EMAIL.OR.MOBILE'] = AUTH_ERROR_MSG.emptyEmailAddress;
+			const IAMi18nData = (iframe.contentWindow?.I18N as { data?: Record<string, unknown> })
+				?.data;
+			if (IAMi18nData) {
+				IAMi18nData['IAM.PHONE.ENTER.VALID.MOBILE_NUMBER'] =
+					AUTH_ERROR_MSG.emptyEmailAddress;
+				IAMi18nData['IAM.NEW.SIGNIN.ENTER.EMAIL.OR.MOBILE'] =
+					AUTH_ERROR_MSG.emptyEmailAddress;
+			}
 		}
 	}
 
@@ -406,7 +411,7 @@ class ZCAuth {
 		}
 	}
 
-	async signOut(redirectURL: string): Promise<void> {
+	async signOut(redirectURL = '/'): Promise<void> {
 		if (this.configManager.AuthProtocol === Auth_Protocol.JwtTokenProtocol) {
 			document.cookie = `${this.configManager.jwtTokenCookieKey}=; path=/; expires=${new Date().toUTCString()};`;
 			document.cookie = `user_cred=; path=/; expires=${new Date().toUTCString()};`;
@@ -436,12 +441,6 @@ class ZCAuth {
 				window.location.href = this.#constructSignOutUrl(redirectURL);
 			}
 		}
-	}
-
-	async signOutUrl(redirectURL: string): Promise<unknown> {
-		return await this.makeRequest(this.#constructSignOutUrl(redirectURL), {
-			body: JSON.stringify({ data: { signout_url: this.#constructSignOutUrl(redirectURL) } })
-		});
 	}
 
 	public async signUp(body: BodyData): Promise<unknown> {
@@ -532,19 +531,20 @@ class ZCAuth {
 					? AUTH_STATIC_FILES.SIGNIN_WITH_PROVIDERS_ONLY
 					: AUTH_STATIC_FILES.SIGNIN
 			});
-		let serviceUrl: string =
+		const serviceUrl: string =
 			config.redirect_url ??
 			config.service_url ??
 			(new URLSearchParams(window.location.search).get('service_url') as string);
-		serviceUrl = encodeURIComponent(this.#constructRedirectUrl(serviceUrl));
+		const appDomain = `${location.protocol}//${location.host}`;
+		const signInRedirect = encodeURIComponent(this.#constructRedirectUrl(serviceUrl));
 
-		const recoveryUrl = `${location.protocol}//${location.host}/accounts/p/70-${this.configManager.ZAID}/password?servicename=ZohoCatalyst&&serviceurl=${serviceUrl}`;
+		const recoveryUrl = `${appDomain}/accounts/p/70-${this.configManager.ZAID}/password?servicename=ZohoCatalyst&&serviceurl=${signInRedirect}`;
 
-		const urlParams = {
+		const urlParams: Record<string, string | boolean> = {
 			css_url: cssUrl,
 			portal: this.configManager.ZAID,
 			servicename: 'ZohoCatalyst',
-			serviceurl: serviceUrl,
+			serviceurl: encodeURIComponent(this.#constructRedirectUrl(serviceUrl)),
 			hide_signup: true,
 			hide_fs: `${!isPublicSignupEnabled}`,
 			dcc: true,
@@ -552,9 +552,11 @@ class ZCAuth {
 			recoveryurl: encodeURIComponent(recoveryUrl)
 		};
 
-		const baseDomain = `${location.protocol}//${location.host}/accounts/p/${this.configManager.ZAID}/signin`;
-		const url = applyQueryString(baseDomain, urlParams);
-		return url;
+		const params = Object.keys(urlParams)
+			.map((key) => `${key}=${urlParams[key]}`)
+			.join('&');
+		const baseDomain = `${appDomain}/accounts/p/${this.configManager.ZAID}/signin?${params}`;
+		return baseDomain;
 	}
 
 	#getIAMForgotPasswordURL(config: ICatalystSignInConfig): string {
@@ -572,10 +574,10 @@ class ZCAuth {
 			css_url: cssUrl,
 			portal: this.configManager.ZAID,
 			servicename: 'ZohoCatalyst',
-			serviceurl: encodeURIComponent(`${location.protocol}//${location.host}/`),
+			serviceurl: `${location.protocol}//${location.host}/`,
 			hide_signup: true,
 			dcc: true,
-			LOGIN_ID: encodeURIComponent(loginInpElem.value.toString())
+			LOGIN_ID: loginInpElem.value.toString()
 		};
 		const url = applyQueryString(
 			`${location.protocol}//${location.host}/accounts/p/${this.configManager.ZAID}/password`,
