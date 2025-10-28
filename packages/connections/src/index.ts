@@ -21,29 +21,32 @@ export class Connections {
 	}
 
 	/**
-	 * Get the connection credentials for a specified connection.
+	 * Get the connection credentials for a specified connection link.
 	 *
-	 * @param {string} connectionName - The name of the connection to retrieve.
-	 * @returns {Connection} An instance of the requested connection.
-	 * @throws {CatalystConnectionError} If the connection JSON is invalid or required properties are missing.
+	 * @param {string} connectionLinkName - The name of the connection link to retrieve.
+	 * @returns {ICatalystConnectionsResponse} The connection credentials object.
+	 *
+	 * @throws {CatalystConnectionsError} If the connection link name is invalid.
 	 *
 	 * @example
 	 * try {
-	 *     const myConnection = catalystApp.getConnectionCredentials('connector_name');
-	 *     console.log(myConnection); // Instance of Connection
+	 *     const myConnection = catalystApp.getConnectionCredentials('connection_link_name');
+	 *     console.log(myConnection); // Outputs the connection credentials object
 	 * } catch (error) {
 	 *     console.error('Failed to get connection:', error.message);
 	 * }
 	 */
-	async getConnectionCredentials(connectionName: string): Promise<ICatalystConnectionsResponse> {
+	async getConnectionCredentials(
+		connectionLinkName: string
+	): Promise<ICatalystConnectionsResponse> {
 		await wrapValidatorsWithPromise(() => {
-			isValidInputString(connectionName, 'connection_name', true);
+			isValidInputString(connectionLinkName, 'connection_link_name', true);
 		}, CatalystConnectionsError);
 		const request: IRequestConfig = {
 			method: REQ_METHOD.get,
-			path: `/connection-details`,
+			path: '/connection-details',
 			qs: {
-				'connection-link-name': connectionName
+				'connection-link-name': connectionLinkName
 			},
 			type: RequestType.JSON,
 			expecting: ResponseType.JSON,

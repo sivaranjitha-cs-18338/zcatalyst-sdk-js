@@ -19,8 +19,7 @@
   },
   "dependencies": {
     "@zcatalyst/transport": "workspace:^",
-    "@zcatalyst/utils": "workspace:^",
-    "@zcatalyst/cache": "workspace:^"
+    "@zcatalyst/utils": "workspace:^"
   },
   "browser": {
     "./dist-cjs/index.js": "./dist-cjs/index.browser.js",
