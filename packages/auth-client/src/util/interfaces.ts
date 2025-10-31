@@ -58,67 +58,81 @@ export interface SimpleResponse {
 export interface StrKeyStrValueType {
 	[property: string]: string;
 }
+export interface RetryDetail {
+	count: number;
+	delay: number;
+}
 
-export interface RetryCount {
-	COUNT: number;
-	DELAY: number;
+export interface NetFailRetries {
+	[statusCode: number]: RetryDetail;
+}
+
+export interface SdkInfo {
+	initialized: boolean;
+	retries: {
+		netFail: NetFailRetries;
+	};
+	pollInterval: number;
+	pollThreshold: number;
+	tokenExpiryTime: number;
+}
+
+export enum AuthProtocol {
+	ZcrfTokenProtocol = 'ZcrfTokenProtocol',
+	OAuth2 = 'OAuth2',
+	JWT = 'JWT'
 }
 
 export interface ServiceInfo {
-	CATALYST_DOMAIN: string;
-	IAM_DOMAIN: string;
-	AUTH_PROTOCOL: Auth_Protocol;
-	TOKEN_PREFIX: string;
-	API_DOMAIN: string;
-	IS_APPSAIL: string;
-	STRATUS_DOMAIN: string;
-	IS_STRATUS: boolean;
-	ENVIRONMENT: string;
+	catalystDomain: string;
+	stratusDomain?: string;
+	iamDomain: string;
+	authProtocol: AuthProtocol;
+	apiDomain: string;
+	tokenPrefix: string;
+	isAppSail?: string;
+	environment?: string;
+}
+
+export interface Credentials {
+	refreshToken?: string;
+	clientId?: string;
+	clientSecret?: string;
+	redirectUri?: string;
+	grantType?: string;
+	authToken?: string;
+	projectDomain?: string;
+	projectId?: string;
+	zaid?: string;
+	csrfToken?: string;
+	orgId?: string;
+}
+
+export interface JwtAuth {
+	cookieTokenKey: string;
+	cookieExpiryKey: string;
+	fetchDetailsCallbackFn?: string | Function;
+	clientId?: string;
+	jwtToken?: string;
+	tokenPrefix?: string;
+	authToken?: string;
+	responseType: string;
+	tokenExpiry: number;
 }
 
 export interface UserInfo {
-	CREDENTIALS: {
-		REFRESH_TOKEN: string;
-		CLIENT_ID: string;
-		CLIENT_SECRET: string;
-		REDIRECT_URI: string;
-		GRANT_TYPE: string;
-		AUTH_TOKEN: string;
-		CSRF_TOKEN?: string;
-		ZAID?: string;
-		PROJECT_ID?: string;
-		PROJECT_DOMAIN: string;
-	};
-	JWT_AUTH: {
-		COOKIE_TOKEN_KEY: string;
-		COOKIE_EXPIRY_KEY: string;
-		FETCH_DETAILS_CALLBACK_FN: string | Function;
-		CLIENT_ID: string;
-		JWT_TOKEN: string;
-		TOKEN_PREFIX: string;
-		AUTH_TOKEN: string;
-		RESPONSE_TYPE: string;
-		TOKEN_EXPIRY: number;
-	};
-	CONFIG: {
-		ORG_ID: string | number;
-	};
-	CURRENT_CLIENT_PAGE_HOST: string;
-	CURRENT_CLIENT_PAGE_PROTOCOL: string;
-	CURRENT_CLIENT_PAGE_PORT: string;
-	CURRENT_CLIENT_PAGE_ORIGIN: string;
-	CURRENT_CLIENT_PAGE_HREF: string;
-	CURRENT_CLIENT_PATH_NAME: string;
+	credentials: Credentials;
+	jwtAuth: JwtAuth;
+	currentClientPageHost: string;
+	currentClientPageProtocol: string;
+	currentClientPagePort: string;
+	currentClientPageOrigin: string;
+	currentClientPageHref: string;
+	currentClientPathName: string;
 }
 
-export interface SDKInfo {
-	VERSION: string;
-	NAME: string;
-	INITIALIZED: boolean;
-	RETRIES: {
-		NETFAIL: Record<number, RetryCount>;
-	};
-	POLL_INTERVAL: number;
-	POLL_THRESHOLD: number;
-	TOKEN_EXPIRY_TIME: number;
+export interface CatalystConfig {
+	sdkInfo: SdkInfo;
+	serviceInfo: ServiceInfo;
+	userInfo: UserInfo;
 }

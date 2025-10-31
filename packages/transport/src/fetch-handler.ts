@@ -1,9 +1,9 @@
 import {
 	addDefaultAppHeaders,
 	Auth_Protocol,
-	ConfigManager,
-	getToken,
-	zcAuth
+	collectZCRFToken,
+	ConfigStore,
+	getToken
 } from '@zcatalyst/auth-client';
 import { CatalystService, CONSTANTS, getServicePath } from '@zcatalyst/utils';
 
@@ -76,7 +76,7 @@ export class DefaultHttpResponse {
 
 // ResponseHandler class
 export class ResponseHandler {
-	public static configManager = ConfigManager.getInstance();
+	static apiDomain = ConfigStore.get('projectConfig.serviceInfo.apiDomain');
 
 	constructor() {}
 
@@ -222,9 +222,7 @@ export class ResponseHandler {
 		};
 		if (requestCore.method !== REQ_METHOD.get && requestCore.body !== null)
 			options.body = requestCore.body;
-		const url = this.configManager.APIDomain
-			? `${this.configManager.APIDomain}${requestCore.url}`
-			: requestCore.url;
+		const url = this.apiDomain ? `${this.apiDomain}${requestCore.url}` : requestCore.url;
 		return await this.wrapResponse(await fetch(url, options));
 	}
 
@@ -235,9 +233,11 @@ export class ResponseHandler {
 		// Add default app headers
 		normalizedHeaders = addDefaultAppHeaders(normalizedHeaders);
 
+		const orgId = ConfigStore.get('projectConfig.userInfo.credentials.orgId');
+
 		// Add app-specific headers
-		if (typeof this.configManager?.OrgId === 'string') {
-			normalizedHeaders['CATALYST-ORG'] = this.configManager.OrgId;
+		if (orgId) {
+			normalizedHeaders['CATALYST-ORG'] = orgId;
 		}
 
 		return normalizedHeaders;
@@ -245,7 +245,10 @@ export class ResponseHandler {
 
 	// Method to attach authentication headers
 	public static attachZCAuthHeaders(headers: HeadersInit): Promise<HeadersInit> {
-		switch (this.configManager.AuthProtocol) {
+		const authProtocol: Auth_Protocol = ConfigStore.get(
+			'projectConfig.serviceInfo.authProtocol'
+		) as Auth_Protocol;
+		switch (authProtocol) {
 			case Auth_Protocol.ZcrfTokenProtocol:
 				return ResponseHandler.#followZcrfTokenProtocol(headers);
 			case Auth_Protocol.JwtTokenProtocol:
@@ -257,14 +260,13 @@ export class ResponseHandler {
 
 	// Method to follow Zcrf Token protocol
 	static async #followZcrfTokenProtocol(headers: HeadersInit): Promise<HeadersInit> {
-		return zcAuth
-			.collectZCRFToken()
+		const csrfToken = ConfigStore.get('projectConfig.userInfo.credentials.csrfToken');
+		return collectZCRFToken()
 			.then(() => {
-				(headers as Record<string, string>)[X_ZCSRF_TOKEN] =
-					`${ZD_CSRPARAM}=${this.configManager.CsrfToken}`;
+				(headers as Record<string, string>)[X_ZCSRF_TOKEN] = `${ZD_CSRPARAM}=${csrfToken}`;
 				return headers;
 			})
-			.catch((err) => {
+			.catch((err: Record<string, string>) => {
 				throw new CatalystAPIError('API_ERROR', err.message, err.status);
 			});
 	}
@@ -284,14 +286,14 @@ export class ResponseHandler {
 
 	// Method to get JWT authentication token
 	public static getJWTZCAuthToken(): Promise<jwtAccessTokenResponse> {
-		const conf = ConfigManager.getInstance();
+		const jwtPrefix = ConfigStore.get('projectConfig.userInfo.jwtAuth.tokenPrefix');
 		return new Promise((resolve, reject) => {
 			const jwtZCAuthToken = getToken() as unknown as string;
 			if (jwtZCAuthToken === '') {
 				reject('Unable to get the JWT Access Token.');
 			} else {
 				resolve({
-					access_token: `${conf.jwtAuthTokenPrefix} ${jwtZCAuthToken}`
+					access_token: `${jwtPrefix} ${jwtZCAuthToken}`
 				});
 			}
 		});
@@ -356,16 +358,16 @@ export class ResponseHandler {
 					headers['Content-Length'] = Buffer.byteLength(data) + '';
 			}
 		}
-		if (this.configManager.APIDomain === null && !options.origin) {
+		if (this.apiDomain === null && !options.origin) {
 			throw new CatalystAPIError('API_REQUEST_ERROR', 'Unable to get the base url');
 		}
 
 		if (options.service !== CatalystService.EXTERNAL && options.path) {
-			options.path = `${getServicePath(options.service)}/project/${this.configManager.ProjectID}${options.path}`;
+			options.path = `${getServicePath(options.service)}/project/${ConfigStore.get('projectConfig.userInfo.credentials.projectId')}${options.path}`;
 		}
 
 		const request = {
-			url: options.url ?? `${options.origin ?? this.configManager.APIDomain}${options.path}`,
+			url: options.url ?? `${options.origin ?? this.apiDomain}${options.path}`,
 			method: options.method,
 			...(data ? { body: data as BodyInit } : {}),
 			headers

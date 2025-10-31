@@ -1,18 +1,19 @@
 import https from 'https';
-import Form from '../src/utils/form-data';
-import { ZCAuth } from '../../auth/src';
-import { IRequestConfig, RequestType, Handler } from '../src';
+
+import { ZCAuth } from '../../auth-admin/src';
 import { CatalystService } from '../../utils/src';
+import { Handler, IRequestConfig, RequestType } from '../src';
 import { AuthorizedHttpClient, DefaultHttpResponse } from '../src/http-handler';
+import Form from '../src/utils/form-data';
 
 jest.mock('https');
 jest.mock('../src/utils/form-data');
-jest.mock('../../auth/src');
+jest.mock('../../auth-admin/src');
 jest.setTimeout(60000);
 jest.mock('../src', () => {
 	return {
 		Handler: jest.fn().mockImplementation(function _(
-			this: any,
+			this: unknown,
 			app?: unknown,
 			component?: unknown
 		) {
@@ -71,14 +72,14 @@ const options = {
 
 describe('http-handler', () => {
 	const app = new ZCAuth().init(options, { type: 'advancedio' });
-	let handler = new mockedHandler(app);
-	(Form as any).prototype.pipe.mockImplementation(
+	const handler = new mockedHandler(app);
+	(Form as unknown).prototype.pipe.mockImplementation(
 		<T extends NodeJS.WritableStream>(dest: T, _options?: { end?: boolean }): T => {
 			return dest;
 		}
 	);
-	(https as any).request.mockImplementation(
-		(options: any, callback: (res: unknown) => void): unknown => {
+	(https as unknown).request.mockImplementation(
+		(options: unknown, callback: (res: unknown) => void): unknown => {
 			const req = {
 				aborted: NaN,
 				on: (event: string, callback: (data?: string | Error) => void) => {

@@ -1,6 +1,6 @@
 'use strict';
 
-import { ConfigManager } from '@zcatalyst/auth-client';
+import { ConfigStore } from '@zcatalyst/auth-client';
 import { Handler, IRequestConfig, RequestType } from '@zcatalyst/transport';
 import { CatalystService, Component, CONSTANTS, LOGGER } from '@zcatalyst/utils';
 
@@ -180,7 +180,7 @@ export class PushNotification implements Component {
 	 * @throws {Error} When ZAID is missing or WMS libraries fail to load
 	 */
 	private async _initializeWms(config: NotificationConfig): Promise<void> {
-		const zaid = ConfigManager.getInstance().ZAID;
+		const zaid = ConfigStore.get('projectConfig.userInfo.credentials.zaid');
 		if (!zaid) {
 			throw new Error('Missing ZAID required for WMS initialization');
 		}
@@ -233,7 +233,7 @@ export class PushNotification implements Component {
 					LOGGER.info('Handling auth failure, refreshing tokens...');
 					const config = await this._fetchNotificationConfig();
 
-					const zaid = ConfigManager.getInstance().ZAID;
+					const zaid = ConfigStore.get('projectConfig.userInfo.credentials.zaid');
 					if (config.sazuid && config.clientaccesstoken && zaid) {
 						this.#initWmsRTCP(
 							config.uid,

@@ -21,11 +21,12 @@ export class JWTAuthHandler {
 
 	async initializeConfig() {
 		if (typeof window !== 'undefined') {
-			const { ConfigManager } = await import('@zcatalyst/auth-client');
-			const app = ConfigManager.getInstance();
-			this.projectDomain = app.ProjectDomain;
-			this.zaid = app.ZAID;
-			this.authPortal = app.IAMDomainUrl;
+			const { ConfigStore } = await import('@zcatalyst/auth-client');
+			this.projectDomain = ConfigStore.get(
+				'projectConfig.userInfo.credentials.projectDomain'
+			) as string;
+			this.zaid = ConfigStore.get('projectConfig.userInfo.credentials.zaid') as string;
+			this.authPortal = ConfigStore.get('projectConfig.serviceInfo.authPortal') as string;
 		} else {
 			this.zaid = this._requester.app?.config.projectKey as string;
 			this.projectDomain = this._requester.app?.config.projectDomain as string;

@@ -1,6 +1,6 @@
 'use strict';
 
-import { addDefaultAppHeaders, CatalystApp } from '@zcatalyst/auth';
+import { addDefaultAppHeaders, CatalystApp } from '@zcatalyst/auth-admin';
 import { CatalystService, CONSTANTS, getServicePath, LOGGER } from '@zcatalyst/utils';
 import http, { ClientRequest, IncomingHttpHeaders, IncomingMessage } from 'http';
 import https from 'https';

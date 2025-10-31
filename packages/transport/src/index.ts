@@ -1,6 +1,6 @@
 'use strict';
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CatalystApp, CatalystAppError, ZCAuth } from '@zcatalyst/auth';
+import { CatalystApp, CatalystAppError, ZCAuth } from '@zcatalyst/auth-admin';
 
 import { AuthorizedHttpClient, DefaultHttpResponse } from './http-handler';
 import FormData from './utils/form-data';

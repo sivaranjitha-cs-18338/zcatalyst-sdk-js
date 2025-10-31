@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@zcatalyst/transport": "workspace:^",
-    "@zcatalyst/auth": "workspace:^",
+    "@zcatalyst/auth-admin": "workspace:^",
     "@zcatalyst/utils": "workspace:^",
     "@zcatalyst/auth-client": "workspace:^"
   },

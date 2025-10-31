@@ -17,7 +17,7 @@
     "format": "prettier --ignore-path ../.prettierignore --write \"{src, test}/*.ts\""
   },
   "dependencies": {
-    "@zcatalyst/auth": "workspace:^",
+    "@zcatalyst/auth-admin": "workspace:^",
     "@zcatalyst/utils": "workspace:^",
     "@zcatalyst/auth-client": "workspace:^"
   },

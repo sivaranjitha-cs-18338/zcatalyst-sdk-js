@@ -80,6 +80,18 @@ importers:
 
   packages/auth:
     dependencies:
+      '@zcatalyst/auth-client':
+        specifier: workspace:^
+        version: link:../auth-client
+      '@zcatalyst/transport':
+        specifier: workspace:^
+        version: link:../transport
+      '@zcatalyst/utils':
+        specifier: workspace:^
+        version: link:../utils
+
+  packages/auth-admin:
+    dependencies:
       '@zcatalyst/utils':
         specifier: workspace:^
         version: link:../utils
@@ -255,9 +267,9 @@ importers:
 
   packages/stratus:
     dependencies:
-      '@zcatalyst/auth':
+      '@zcatalyst/auth-admin':
         specifier: workspace:^
-        version: link:../auth
+        version: link:../auth-admin
       '@zcatalyst/auth-client':
         specifier: workspace:^
         version: link:../auth-client
@@ -270,9 +282,9 @@ importers:
 
   packages/transport:
     dependencies:
-      '@zcatalyst/auth':
+      '@zcatalyst/auth-admin':
         specifier: workspace:^
-        version: link:../auth
+        version: link:../auth-admin
       '@zcatalyst/auth-client':
         specifier: workspace:^
         version: link:../auth-client
@@ -2130,7 +2142,7 @@ packages:
     dependencies:
       semver: 7.7.2
       shelljs: 0.8.5
-      typescript: 5.9.0-dev.20250714
+      typescript: 6.0.0-dev.20251031
     dev: true
 
   /eastasianwidth@0.2.0:
@@ -4710,8 +4722,8 @@ packages:
     hasBin: true
     dev: true
 
-  /typescript@5.9.0-dev.20250714:
-    resolution: {integrity: sha512-bwPEUBqpLyZu/skdNU1zkNggyohtulwmjMzkJKLRZLbMrmgPQuwDeSi4W2qADOI4TA3NMxyYF9gg3HdNTWD8/g==}
+  /typescript@6.0.0-dev.20251031:
+    resolution: {integrity: sha512-gJEMFg3G1A8sTe9zdcp2FxWDA09tpK5dLixOlltCgqvhXtv7a8tXHGJBjGS/k5IE0VaehoB7i+CdWfqo49I3WA==}
     engines: {node: '>=14.17'}
     hasBin: true
     dev: true

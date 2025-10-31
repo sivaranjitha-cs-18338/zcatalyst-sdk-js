@@ -79,3 +79,38 @@ export interface ICatalystCustomTokenResponse {
 	client_id: string;
 	scopes: Array<string>;
 }
+
+export interface ICatalystSignInConfig {
+	signInProvidersOnly?: boolean;
+	cssUrl?: string;
+	is_customize_forgot_password?: boolean;
+	forgotPasswordId?: string;
+	forgotPasswordCssUrl?: string;
+	serviceUrl?: string;
+	redirectUrl?: string;
+}
+
+export interface ICatalystAuthResponse {
+	status: number;
+	message?: string;
+	data: Record<string, unknown>;
+}
+
+export interface UserDataOptions {
+	zaid?: string;
+	zaaid?: string;
+	platform?: string;
+	redirect_url?: string;
+	user_details?: UserDetails;
+}
+
+export interface UserDetails {
+	name?: string;
+	first_name?: string;
+	last_name?: string;
+	email_id?: string;
+}
+
+export interface BodyData {
+	[key: string]: unknown; // allows any string as a key
+}

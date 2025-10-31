@@ -1,5 +1,3 @@
-import { AuthProtocol, CatalystConfig } from './interfaces';
-
 export const UM_URL_DIVIDER = {
 	PROJECT_USER: 'project-user',
 	DISABLE: 'disable',
@@ -75,58 +73,3 @@ export const IS_APPSAIL = 'IS_APPSAIL';
 export const ACCOUNTS_PORTAL_DOMAIN = 'AUTH_DOMAIN';
 export const API_DOMAIN = 'API_DOMAIN';
 export const PROJECT = 'project';
-
-export const defaultConfig: CatalystConfig = {
-	sdkInfo: {
-		initialized: false,
-		retries: {
-			netFail: {
-				404: { count: 0, delay: 0 }
-			}
-		},
-		pollInterval: 1000,
-		pollThreshold: 0,
-		tokenExpiryTime: 0
-	},
-	serviceInfo: {
-		catalystDomain: 'https://console.catalyst.zoho.com',
-		stratusDomain: '-development.zohostratus.com',
-		iamDomain: 'https://accounts.zohoportal.com',
-		authProtocol: AuthProtocol.ZcrfTokenProtocol,
-		apiDomain: 'https://api.catalyst.zoho.com',
-		tokenPrefix: 'Bearer',
-		isAppSail: 'false',
-		environment: 'development'
-	},
-	userInfo: {
-		credentials: {
-			refreshToken: '',
-			clientId: '',
-			clientSecret: '',
-			redirectUri: 'https://',
-			grantType: 'refresh_token',
-			authToken: '',
-			projectDomain: '',
-			projectId: '',
-			orgId: '',
-			csrfToken: ''
-		},
-		jwtAuth: {
-			cookieTokenKey: 'JWT_AUTH',
-			cookieExpiryKey: 'JWT_EXPIRES_AT',
-			fetchDetailsCallbackFn: '',
-			clientId: '',
-			jwtToken: '',
-			tokenPrefix: 'Zoho-oauthtoken',
-			authToken: '',
-			responseType: 'remote_token',
-			tokenExpiry: 0
-		},
-		currentClientPageHost: document.location.hostname,
-		currentClientPageProtocol: document.location.protocol,
-		currentClientPagePort: document.location.port,
-		currentClientPageOrigin: document.location.origin,
-		currentClientPageHref: document.location.href,
-		currentClientPathName: document.location.pathname
-	}
-};

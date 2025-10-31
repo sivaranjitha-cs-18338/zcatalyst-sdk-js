@@ -10,7 +10,3 @@ export function wrapWithPromise(targetFunction: () => unknown): Promise<unknown>
 		resolve('success');
 	});
 }
-
-export function setGlobal(key: string, value: unknown) {
-	(window as unknown as Record<string, unknown>)[key] = value;
-}
