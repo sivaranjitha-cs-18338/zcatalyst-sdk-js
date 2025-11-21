@@ -10,10 +10,10 @@ import {
 	isValidType,
 	ObjectHasProperties
 } from '@zcatalyst/utils';
-import { readFileSync } from 'fs';
 
 import {
 	AccessTokenCredential,
+	ApplicationCustomCredential,
 	ApplicationDefaultCredential,
 	CatalystCredential,
 	Credential,
@@ -25,7 +25,6 @@ const {
 	INIT_TYPE,
 	PROJECT_HEADER,
 	DEFAULT_ENV,
-	CATALYST_CONFIG_ENV_KEY,
 	DEFAULT_APP_NAME,
 	CREDENTIAL_USER,
 	CATALYST_ORIGIN,
@@ -45,7 +44,7 @@ export class ZCAuth {
 	#appCollection: Record<string, CatalystApp> = {};
 
 	init(
-		options: Record<string, string | number | Credential | Object>,
+		options: Record<string, string | number>,
 		{ type, appName, scope }: { type?: string; appName?: string; scope?: 'admin' | 'user' } = {
 			type: 'auto'
 		}
@@ -54,7 +53,7 @@ export class ZCAuth {
 			case INIT_TYPE.advancedio:
 				if (!options || typeof options.headers !== 'object') {
 					throw new CatalystAppError(
-						'INVALID_PROJECT_OPTIONS',
+						'INVALID_APP_OPTIONS',
 						'the options passed to initialize method is not valid',
 						options
 					);
@@ -69,7 +68,7 @@ export class ZCAuth {
 			case INIT_TYPE.basicio:
 				if (!options || typeof options.catalystHeaders !== 'object') {
 					throw new CatalystAppError(
-						'INVALID_PROJECT_OPTIONS',
+						'INVALID_APP_OPTIONS',
 						'the options passed to initialize method is not valid',
 						options
 					);
@@ -84,12 +83,22 @@ export class ZCAuth {
 			case INIT_TYPE.custom:
 				if (!options || !options['credential']) {
 					throw new CatalystAppError(
-						'INVALID_PROJECT_OPTIONS',
+						'INVALID_APP_OPTIONS',
 						'the options passed to initialize method is not valid',
 						options
 					);
 				}
+				if (appName && isNonEmptyString(appName) && appName in this.#appCollection) {
+					throw new CatalystAppError(
+						'APP_ALREADY_EXISTS',
+						`The app with name ${appName} already exists. Please use a different name.`,
+						appName
+					);
+				}
 				appOptions = options;
+				appOptions.credential = new ApplicationCustomCredential(
+					options['credential'] as unknown as Record<string, string>
+				);
 				break;
 			default:
 				if (options && typeof options.headers === 'object') {
@@ -148,7 +157,7 @@ export class ZCAuth {
 		}
 		if (!isNonEmptyString(appName)) {
 			throw new CatalystAppError(
-				'INVALID_PROJECT_NAME',
+				'INVALID_APP_NAME',
 				'Invalid app name provided. App name must be a non-empty string.',
 				appName
 			);
@@ -171,7 +180,7 @@ export class ZCAuth {
 		const environment = obj[PROJECT_HEADER.environment] || DEFAULT_ENV;
 		const projectDomain = obj[PROJECT_HEADER.domain] || CATALYST_ORIGIN;
 		const projectSecretKey = obj[PROJECT_HEADER.projectSecretKey];
-		if (!projectKey || !projectId) {
+		if (!projectId) {
 			throw new CatalystAppError(
 				'PROJECT_ERROR',
 				'Invalid project details. Failed to parse an object.',
@@ -188,19 +197,26 @@ export class ZCAuth {
 	}
 
 	#loadOptionsFromEnvVar(): { [x: string]: string | number } {
-		const config = process.env[CATALYST_CONFIG_ENV_KEY];
-		if (!isNonEmptyString(config)) {
+		const projectId = process.env[PROJECT_HEADER.id] as string;
+		const projectKey = process.env[PROJECT_HEADER.key] as string;
+		const environment = process.env[PROJECT_HEADER.environment] || DEFAULT_ENV;
+		const projectDomain = process.env[PROJECT_HEADER.domain] || CATALYST_ORIGIN;
+		const projectSecretKey = process.env[PROJECT_HEADER.projectSecretKey] as string;
+		if (!isNonEmptyString(!projectId)) {
 			return {};
 		}
 		try {
-			const contents = (config as string).startsWith('{')
-				? config
-				: readFileSync(config as string, 'utf8');
-			return JSON.parse(contents as string);
+			return {
+				projectId,
+				projectKey,
+				environment,
+				projectDomain,
+				projectSecretKey
+			};
 		} catch (err) {
 			// Throw a nicely formed error message if the file contents cannot be parsed
 			throw new CatalystAppError(
-				'INVALID_PROJECT_OPTIONS',
+				'INVALID_APP_OPTIONS',
 				'Failed to parse app options : ' + err,
 				err
 			);
@@ -231,10 +247,10 @@ export class CatalystApp {
 		}
 		this.credential = options.credential as Credential;
 		this.config = {
-			projectId: (options.project_id || options.projectId) + '',
+			projectId: (options.project_id || options.projectId) as string,
 			projectKey: (options.project_key || options.projectKey) as string,
 			projectDomain: (options.project_domain || options.projectDomain) as string,
-			environment: options.environment as string, // || DEFAULT_ENV,
+			environment: (options.environment as string) || DEFAULT_ENV,
 			projectSecretKey: (options.project_secret_key || options.projectSecretKey) as string
 		};
 	}

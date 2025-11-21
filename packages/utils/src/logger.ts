@@ -155,7 +155,7 @@ class Logger {
 }
 
 function getLogLevelFromEnv(): LEVEL {
-	if (typeof process !== 'undefined' && process.env && process.env.ZC_LOG_LVL) {
+	if (typeof process !== 'undefined' && process && process.env && process.env.ZC_LOG_LVL) {
 		const lvl = process.env.ZC_LOG_LVL.toUpperCase();
 		return LEVEL[lvl as keyof typeof LEVEL] || LEVEL.NONE;
 	}

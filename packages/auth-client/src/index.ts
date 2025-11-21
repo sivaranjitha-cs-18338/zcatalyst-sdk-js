@@ -1,13 +1,29 @@
 import { ConfigStore } from './config-store';
-import { CSRF_TOKEN_KEY, defaultConfig, REQUIREMENT, URL_DIVIDER } from './util/constants';
-import { Auth_Protocol } from './util/enums';
-import { CatalystAuthError } from './util/errors';
-import { setGlobal } from './util/functions';
-import { CatalystConfig } from './util/interfaces';
+import {
+	API_DOMAIN,
+	CSRF_TOKEN,
+	CSRF_TOKEN_KEY,
+	defaultConfig,
+	ENVIRONMENT,
+	IAM_DOMAIN,
+	INITIALIZED,
+	IS_APPSAIL,
+	ORG_ID,
+	PROJECT_DOMAIN,
+	PROJECT_ID,
+	REQUIREMENT,
+	STRATUS_DOMAIN,
+	URL_DIVIDER,
+	ZAID
+} from './utils/constants';
+import { Auth_Protocol } from './utils/enums';
+import { CatalystAuthError } from './utils/errors';
+import { setGlobal } from './utils/functions';
+import { CatalystConfig } from './utils/interfaces';
 
 export async function getCredentials() {
-	ConfigStore.set('projectConfig', defaultConfig);
 	try {
+		setDefaultProjectConfig();
 		const response = await fetch(`/${URL_DIVIDER.RESERVED_URL}/sdk/init`, {
 			headers: {
 				Accept: 'application/json'
@@ -25,26 +41,20 @@ export async function getCredentials() {
 		validateRequiredCredentials(finalCredentials);
 
 		ConfigStore.set(
-			'projectConfig.serviceInfo.stratusDomain',
+			STRATUS_DOMAIN,
 			`-${finalCredentials.environment}${finalCredentials.stratus_suffix}`
 		);
-		ConfigStore.set('projectConfig.serviceInfo.apiDomain', finalCredentials.api_domain);
-		ConfigStore.set('projectConfig.userInfo.credentials.zaid', finalCredentials.zaid);
-		ConfigStore.set(
-			'projectConfig.userInfo.credentials.projectId',
-			finalCredentials.project_id
-		);
-		ConfigStore.set('projectConfig.serviceInfo.iamDomain', finalCredentials.auth_domain);
-		ConfigStore.set('projectConfig.serviceInfo.environment', finalCredentials.environment);
-		ConfigStore.set('projectConfig.serviceInfo.isAppsail', finalCredentials.is_appsail);
-		ConfigStore.set(
-			'projectConfig.userInfo.credentials.projectDomain',
-			finalCredentials.project_domain
-		);
+		ConfigStore.set(API_DOMAIN, finalCredentials.api_domain);
+		ConfigStore.set(ZAID, finalCredentials.zaid);
+		ConfigStore.set(PROJECT_ID, finalCredentials.project_id);
+		ConfigStore.set(IAM_DOMAIN, finalCredentials.auth_domain);
+		ConfigStore.set(ENVIRONMENT, finalCredentials.environment);
+		ConfigStore.set(IS_APPSAIL, finalCredentials.is_appsail);
+		ConfigStore.set(PROJECT_DOMAIN, finalCredentials.project_domain);
 		if (finalCredentials.org_id) {
-			ConfigStore.set('projectConfig.userInfo.orgId', finalCredentials.org_id);
+			ConfigStore.set(ORG_ID, finalCredentials.org_id);
 		}
-		ConfigStore.set('projectConfig.initialized', true + '');
+		ConfigStore.set(INITIALIZED, true + '');
 		setGlobal('__catalyst', finalCredentials);
 	} catch (error) {
 		throw new CatalystAuthError(
@@ -52,6 +62,16 @@ export async function getCredentials() {
 			`Failed to fetch credentials: ${error instanceof Error ? error.message : 'Unknown error'}`,
 			500
 		);
+	}
+}
+
+export function setDefaultProjectConfig() {
+	for (const [key, value] of Object.entries(defaultConfig)) {
+		if (value !== undefined && value !== null) {
+			ConfigStore.set(String(key), value as unknown as string);
+		} else {
+			ConfigStore.set(String(key), '');
+		}
 	}
 }
 
@@ -81,7 +101,7 @@ export function addDefaultAppHeaders(headers: Record<string, string> = {}) {
 	}
 	normalizedHeaders['CATALYST-COMPONENT'] = 'true';
 
-	const orgId = ConfigStore.get('projectConfig.userInfo.orgId');
+	const orgId = ConfigStore.get(ORG_ID);
 	if (orgId) {
 		normalizedHeaders['CATALYST-ORG'] = orgId;
 	}
@@ -106,7 +126,7 @@ export function setToken(authObj: { access_token?: string; expires_in?: number }
 	document.cookie = `${key ? key : 'cookie'}=${authObj.access_token}; max-age=${authObj.expires_in}; path=/`;
 }
 
-export function collectZCRFToken(): Promise<unknown> {
+export async function collectZCRFToken(): Promise<unknown> {
 	return new Promise((resolve, reject) => {
 		try {
 			const cookies: Array<string> = document.cookie.split(';');
@@ -117,10 +137,7 @@ export function collectZCRFToken(): Promise<unknown> {
 					keyVal[0].trim() === CSRF_TOKEN_KEY &&
 					keyVal[1].trim().length > 0
 				) {
-					ConfigStore.set(
-						'projectConfig.userInfo.credentials.csrfToken',
-						keyVal[1].trim()
-					);
+					ConfigStore.set(CSRF_TOKEN, keyVal[1].trim());
 					resolve('success');
 					return;
 				}
@@ -133,3 +150,4 @@ export function collectZCRFToken(): Promise<unknown> {
 }
 
 export { Auth_Protocol, ConfigStore };
+export * from './utils/constants';

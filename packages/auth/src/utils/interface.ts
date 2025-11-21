@@ -96,14 +96,6 @@ export interface ICatalystAuthResponse {
 	data: Record<string, unknown>;
 }
 
-export interface UserDataOptions {
-	zaid?: string;
-	zaaid?: string;
-	platform?: string;
-	redirect_url?: string;
-	user_details?: UserDetails;
-}
-
 export interface UserDetails {
 	name?: string;
 	first_name?: string;
@@ -113,4 +105,28 @@ export interface UserDetails {
 
 export interface BodyData {
 	[key: string]: unknown; // allows any string as a key
+}
+
+export interface ICatalystAppConfig {
+	projectId: string;
+	projectKey?: string;
+	projectDomain?: string;
+	environment: string;
+	projectSecretKey?: string;
+}
+
+export interface ICatalystCredentials {
+	refresh_token?: string;
+	client_id?: string;
+	client_secret?: string;
+	access_token?: string;
+	ticket?: string;
+}
+
+export interface ICatalystSignUpConfig {
+	first_name: string;
+	redirect_url?: string;
+	platform_type?: string;
+	last_name: string;
+	email_id: string;
 }

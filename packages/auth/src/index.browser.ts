@@ -1,8 +1,28 @@
-import { ConfigStore, getCredentials } from '@zcatalyst/auth-client';
+import {
+	ConfigStore,
+	getCredentials,
+	JWT_COOKIE_PREFIX,
+	setDefaultProjectConfig
+} from '@zcatalyst/auth-client';
 import { Handler, IRequestConfig, RequestType, ResponseType } from '@zcatalyst/transport';
-import { CatalystService, CONSTANTS, isValidUrl } from '@zcatalyst/utils';
+import {
+	CatalystService,
+	CONSTANTS,
+	isNonEmptyString,
+	isValidUrl,
+	wrapValidatorsWithPromise
+} from '@zcatalyst/utils';
 
-import { AUTH_ERROR_MSG, AUTH_STATIC_FILES, UM_PROPERTY, URL_DIVIDER } from './utils/constants';
+import {
+	AUTH_ERROR_MSG,
+	AUTH_STATIC_FILES,
+	CURRENT_CLIENT_PAGE_HOST,
+	CURRENT_CLIENT_PAGE_PORT,
+	CURRENT_CLIENT_PAGE_PROTOCOL,
+	FETCH_DETAILS_CALLBACK_FN,
+	UM_URL_DIVIDER,
+	URL_DIVIDER
+} from './utils/constants';
 import { Auth_Protocol } from './utils/enums';
 import { CatalystAuthenticationError } from './utils/error';
 import { wrapCheck } from './utils/functions';
@@ -10,29 +30,23 @@ import {
 	BodyData,
 	ICatalystAuthResponse,
 	ICatalystSignInConfig,
-	UserDataOptions,
+	ICatalystSignUpConfig,
 	UserDetails
 } from './utils/interface';
 import { applyQueryString, hasSuffInfo } from './utils/validators';
 
 const { CREDENTIAL_USER, REQ_METHOD, COMPONENT } = CONSTANTS;
 
-export class Authentication {
+class Authentication {
 	requester: Handler;
-	zaid: string = ConfigStore.get('projectConfig.userInfo.credentials.zaid') as string;
-	projectId: string = ConfigStore.get('projectConfig.userInfo.credentials.projectId') as string;
-	currentPort: string = ConfigStore.get('projectConfig.currentClientPagePort') as string;
-	currentHost: string = ConfigStore.get('projectConfig.currentClientPageHost') as string;
-	currentProtocol: string = ConfigStore.get('projectConfig.currentClientPageProtocol') as string;
-	JWT_TOKEN_KEY = ConfigStore.get('projectConfig.userInfo.jwtAuth.cookieTokenKey');
-	authProtocol: Auth_Protocol = ConfigStore.get(
-		'projectConfig.serviceInfo.authProtocol'
-	) as Auth_Protocol;
-	isAppsail: string = ConfigStore.get('projectConfig.serviceInfo.isAppsail') as string;
+	zaid: string = ConfigStore.get('ZAID') as string;
+	projectId: string = ConfigStore.get('PROJECT_ID') as string;
+	isAppsail: string = ConfigStore.get('IS_APPSAIL') as string;
+	authProtocol: Auth_Protocol = ConfigStore.get('AUTH_PROTOCOL') as unknown as Auth_Protocol;
 	constructor(app?: unknown) {
 		this.requester = new Handler(app, this);
-		this.signIn = this.signIn.bind(this);
 		getCredentials();
+		this.signIn = this.signIn.bind(this);
 		this.signOut = this.signOut.bind(this);
 		this.isUserAuthenticated = this.isUserAuthenticated.bind(this);
 	}
@@ -62,6 +76,16 @@ export class Authentication {
 		} catch (err) {
 			await this.#notSignedIn(id, config);
 		}
+	}
+
+	async hostedSignIn(redirectUrl?: string): Promise<void> {
+		await getCredentials();
+		window.location.href = `/${URL_DIVIDER.RESERVED_URL}/${URL_DIVIDER.AUTH}/${URL_DIVIDER.LOGIN}?redirect_url=${encodeURIComponent(redirectUrl ?? '/')}`;
+	}
+
+	public signinWithJwt(callbackFn: () => void): void {
+		ConfigStore.set(FETCH_DETAILS_CALLBACK_FN, callbackFn);
+		ConfigStore.set('AUTH_PROTOCOL', Auth_Protocol.JwtTokenProtocol);
 	}
 
 	async publicSignup(): Promise<ICatalystAuthResponse> {
@@ -181,20 +205,25 @@ export class Authentication {
 	}
 
 	async signOut(redirectURL = '/'): Promise<void> {
+		setDefaultProjectConfig();
 		if (this.authProtocol === Auth_Protocol.JwtTokenProtocol) {
-			document.cookie = `${this.JWT_TOKEN_KEY}=; path=/; expires=${new Date().toUTCString()};`;
+			document.cookie = `${JWT_COOKIE_PREFIX}=; path=/; expires=${new Date().toUTCString()};`;
 			document.cookie = `user_cred=; path=/; expires=${new Date().toUTCString()};`;
+			// Force immediate redirect for JWT
+			window.location.replace(redirectURL);
+			return;
 		} else {
 			if (this.isAppsail === 'true') {
 				const validUser = await this.#isValidUser();
 				if (!validUser) {
 					if (redirectURL.startsWith('/')) {
 						redirectURL =
-							this.currentPort != ''
-								? `${this.currentProtocol}//${this.currentHost}:${this.currentPort}${redirectURL}`
-								: `${this.currentProtocol}//${this.currentHost}${redirectURL}`;
+							CURRENT_CLIENT_PAGE_PORT != ''
+								? `${CURRENT_CLIENT_PAGE_PROTOCOL}//${CURRENT_CLIENT_PAGE_HOST}:${CURRENT_CLIENT_PAGE_PORT}${redirectURL}`
+								: `${CURRENT_CLIENT_PAGE_PROTOCOL}//${CURRENT_CLIENT_PAGE_HOST}${redirectURL}`;
 					}
-					window.location.href = redirectURL;
+					window.location.replace(redirectURL);
+					return;
 				}
 
 				try {
@@ -205,12 +234,15 @@ export class Authentication {
 					};
 					await this.requester.send(request);
 					document.cookie = `CAUTH=; path=/accounts; expires=${new Date().toUTCString()};`;
-					window.location.href = redirectURL;
+					// Use replace instead of href for immediate navigation
+					window.location.replace(redirectURL);
 				} catch (err) {
-					window.location.href = this.#constructSignOutUrl(redirectURL);
+					// Use replace for error case too
+					window.location.replace(this.#constructSignOutUrl(redirectURL));
 				}
 			} else {
-				window.location.href = this.#constructSignOutUrl(redirectURL);
+				// Use replace instead of href for immediate navigation
+				window.location.replace(this.#constructSignOutUrl(redirectURL));
 			}
 		}
 	}
@@ -218,10 +250,9 @@ export class Authentication {
 	#constructSignOutUrl(redirectURL: string): string {
 		if (redirectURL.startsWith('/')) {
 			redirectURL =
-				this.currentPort != ''
-					? `${this.currentProtocol}/
-					/${this.currentHost}:${this.currentPort}${redirectURL}`
-					: `${this.currentProtocol}//${this.currentHost}${redirectURL}`;
+				CURRENT_CLIENT_PAGE_PORT != ''
+					? `${CURRENT_CLIENT_PAGE_PROTOCOL}//${CURRENT_CLIENT_PAGE_HOST}:${CURRENT_CLIENT_PAGE_PORT}${redirectURL}`
+					: `${CURRENT_CLIENT_PAGE_PROTOCOL}//${CURRENT_CLIENT_PAGE_HOST}${redirectURL}`;
 		}
 		return `/accounts/p/${this.zaid}/logout?servicename=ZohoCatalyst&serviceurl=${redirectURL}`;
 	}
@@ -368,29 +399,30 @@ export class Authentication {
 		return url;
 	}
 
-	public async signUp(body: BodyData): Promise<unknown> {
+	public async signUp(body: ICatalystSignUpConfig): Promise<unknown> {
 		await wrapCheck((): void => {
 			hasSuffInfo(body, [UM_PROPERTY.LAST_NAME, UM_PROPERTY.EMAIL_ID]);
 		});
-		const data: UserDataOptions = {};
+		const data: Record<string, unknown> = {};
 		data.zaid = this.zaid as string;
-		data.platform = (
-			body[UM_PROPERTY.PLATFORM] === undefined ? 'web' : body[UM_PROPERTY.PLATFORM]
+		data.platform_type = (
+			body.platform_type === undefined ? 'web' : body.platform_type
 		) as string;
-		if (body[UM_PROPERTY.REDIRECT_URL] !== undefined) {
-			data.redirect_url = body[UM_PROPERTY.REDIRECT_URL] as string;
+		if (body.redirect_url !== undefined) {
+			data.redirect_url = body.redirect_url as string;
 		}
 		const userDetails: UserDetails = {};
-		userDetails.last_name = body[UM_PROPERTY.LAST_NAME] as string;
-		userDetails.email_id = body[UM_PROPERTY.EMAIL_ID] as string;
-		if (body[UM_PROPERTY.FIRST_NAME] !== undefined) {
-			userDetails.first_name = body[UM_PROPERTY.FIRST_NAME] as string;
+		userDetails.last_name = body.last_name as string;
+		userDetails.email_id = body.email_id as string;
+		if (body.first_name !== undefined) {
+			userDetails.first_name = body.first_name as string;
 		}
 		data.user_details = userDetails;
 		const appDomain = `${location.protocol}//${location.host}`;
 		const request: IRequestConfig = {
-			method: REQ_METHOD.get,
+			method: REQ_METHOD.post,
 			url: appDomain + `/__catalyst/${this.projectId}/auth/signup`,
+			type: RequestType.JSON,
 			data: data as Record<string, unknown>,
 			service: CatalystService.EXTERNAL
 		};
@@ -444,8 +476,33 @@ export class Authentication {
 		const resp = await this.requester.send(request);
 		return resp.data;
 	}
+
+	async changePassword(oldPassword: string, newPassword: string): Promise<string> {
+		await wrapValidatorsWithPromise(() => {
+			isNonEmptyString(oldPassword, 'old_password', true);
+			isNonEmptyString(newPassword, 'new_password', true);
+		}, CatalystAuthenticationError);
+		const changePasswordUrl = `/${UM_URL_DIVIDER.PROJECT_USER}/${URL_DIVIDER.CHANGE_PASSWORD}`;
+		const request: IRequestConfig = {
+			method: REQ_METHOD.put,
+			path: changePasswordUrl,
+			type: RequestType.JSON,
+			qs: {
+				old_password: oldPassword,
+				new_password: newPassword
+			},
+			service: CatalystService.BAAS,
+			track: true,
+			user: CREDENTIAL_USER.user
+		};
+		const resp = await this.requester.send(request);
+		return resp.data as unknown as string;
+	}
 }
 export { UserManagement } from './user-management';
+export * from './utils/constants';
+
+export const zcAuth = new Authentication();
 
 declare global {
 	interface Window {

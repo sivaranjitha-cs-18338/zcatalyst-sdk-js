@@ -180,7 +180,7 @@ export class PushNotification implements Component {
 	 * @throws {Error} When ZAID is missing or WMS libraries fail to load
 	 */
 	private async _initializeWms(config: NotificationConfig): Promise<void> {
-		const zaid = ConfigStore.get('projectConfig.userInfo.credentials.zaid');
+		const zaid = ConfigStore.get('ZAID');
 		if (!zaid) {
 			throw new Error('Missing ZAID required for WMS initialization');
 		}
@@ -233,7 +233,7 @@ export class PushNotification implements Component {
 					LOGGER.info('Handling auth failure, refreshing tokens...');
 					const config = await this._fetchNotificationConfig();
 
-					const zaid = ConfigStore.get('projectConfig.userInfo.credentials.zaid');
+					const zaid = ConfigStore.get('ZAID');
 					if (config.sazuid && config.clientaccesstoken && zaid) {
 						this.#initWmsRTCP(
 							config.uid,

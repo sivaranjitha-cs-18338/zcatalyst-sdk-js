@@ -11,7 +11,6 @@ import { CatalystAuthError } from './errors';
 
 const {
 	CREDENTIAL_SUFFIX,
-	CATALYST_AUTH_ENV_KEY,
 	REQ_METHOD,
 	CREDENTIAL_HEADER,
 	CREDENTIAL_TYPE,
@@ -63,18 +62,19 @@ function fromPath(filePath: string): { [x: string]: string } | null {
 }
 
 function fromEnv(): { [x: string]: string } | null {
-	const jsonString: string | undefined = process.env[CATALYST_AUTH_ENV_KEY];
-	if (jsonString === undefined) {
-		return null;
-	}
-	try {
-		return JSON.parse(jsonString);
-	} catch (err) {
-		// Throw a nicely formed error message if the file contents cannot be parsed
+	const clientId = process.env['CLIENT_ID'];
+	const clientSecret = process.env['CLIENT_SECRET'];
+	const refreshToken = process.env['REFRESH_TOKEN'];
+	if (clientId && clientSecret && refreshToken) {
+		return {
+			client_id: clientId,
+			client_secret: clientSecret,
+			refresh_token: refreshToken
+		};
+	} else {
 		throw new CatalystAuthError(
 			'INVALID_CREDENTIAL',
-			'Failed to parse refresh token string from env: ' + err,
-			err
+			`Failed to get the credential string from env variables`
 		);
 	}
 }
@@ -420,6 +420,42 @@ export class ApplicationDefaultCredential extends Credential {
 				'INVALID_CREDENTIAL',
 				'The given token object does not contain proper credentials',
 				token
+			);
+		}
+	}
+
+	async getToken(): Promise<{
+		access_token?: string;
+		ticket?: string;
+	}> {
+		return this.credential.getToken();
+	}
+}
+
+export class ApplicationCustomCredential extends Credential {
+	credential: RefreshTokenCredential | AccessTokenCredential | TicketCredential;
+	constructor(credObj?: Record<string, string>) {
+		super();
+
+		if (credObj === undefined || credObj === null) {
+			throw new CatalystAuthError(
+				'INVALID_CREDENTIAL',
+				'Unable to get token object from path or env',
+				credObj
+			);
+		}
+
+		if ('refresh_token' in credObj) {
+			this.credential = new RefreshTokenCredential(credObj);
+		} else if ('access_token' in credObj) {
+			this.credential = new AccessTokenCredential(credObj);
+		} else if ('ticket' in credObj) {
+			this.credential = new TicketCredential(credObj);
+		} else {
+			throw new CatalystAuthError(
+				'INVALID_CREDENTIAL',
+				'The given token object does not contain proper credentials',
+				credObj
 			);
 		}
 	}

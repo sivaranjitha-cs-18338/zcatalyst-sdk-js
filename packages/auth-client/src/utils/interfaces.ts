@@ -59,22 +59,12 @@ export interface StrKeyStrValueType {
 	[property: string]: string;
 }
 export interface RetryDetail {
-	count: number;
-	delay: number;
+	COUNT: number;
+	DELAY: number;
 }
 
 export interface NetFailRetries {
 	[statusCode: number]: RetryDetail;
-}
-
-export interface SdkInfo {
-	initialized: boolean;
-	retries: {
-		netFail: NetFailRetries;
-	};
-	pollInterval: number;
-	pollThreshold: number;
-	tokenExpiryTime: number;
 }
 
 export enum AuthProtocol {
@@ -83,56 +73,18 @@ export enum AuthProtocol {
 	JWT = 'JWT'
 }
 
-export interface ServiceInfo {
-	catalystDomain: string;
-	stratusDomain?: string;
-	iamDomain: string;
-	authProtocol: AuthProtocol;
-	apiDomain: string;
-	tokenPrefix: string;
-	isAppSail?: string;
-	environment?: string;
-}
-
-export interface Credentials {
-	refreshToken?: string;
-	clientId?: string;
-	clientSecret?: string;
-	redirectUri?: string;
-	grantType?: string;
-	authToken?: string;
-	projectDomain?: string;
-	projectId?: string;
-	zaid?: string;
-	csrfToken?: string;
-	orgId?: string;
-}
-
-export interface JwtAuth {
-	cookieTokenKey: string;
-	cookieExpiryKey: string;
-	fetchDetailsCallbackFn?: string | Function;
-	clientId?: string;
-	jwtToken?: string;
-	tokenPrefix?: string;
-	authToken?: string;
-	responseType: string;
-	tokenExpiry: number;
-}
-
-export interface UserInfo {
-	credentials: Credentials;
-	jwtAuth: JwtAuth;
-	currentClientPageHost: string;
-	currentClientPageProtocol: string;
-	currentClientPagePort: string;
-	currentClientPageOrigin: string;
-	currentClientPageHref: string;
-	currentClientPathName: string;
-}
-
 export interface CatalystConfig {
-	sdkInfo: SdkInfo;
-	serviceInfo: ServiceInfo;
-	userInfo: UserInfo;
+	PROJECT_DOMAIN?: string;
+	PROJECT_ID?: string;
+	ZAID?: string;
+	ORG_ID?: string;
+	CATALYST_DOMAIN: string;
+	STRATUS_DOMAIN?: string;
+	NIMBUS_DOMAIN?: string;
+	IAM_DOMAIN: string;
+	AUTH_PROTOCOL: AuthProtocol;
+	API_DOMAIN: string;
+	IS_APPSAIL?: string;
+	ENVIRONMENT?: string;
+	INITIALIZED: boolean;
 }

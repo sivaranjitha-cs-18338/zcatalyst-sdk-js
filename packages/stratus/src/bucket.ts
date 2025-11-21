@@ -18,7 +18,6 @@ import { Readable } from 'stream';
 
 import { Cors } from './cors';
 import { StratusObject } from './object';
-import { convertToReadableStream } from './utils/convertion';
 import { CatalystStratusError } from './utils/error';
 import {
 	IStratusBucket,
@@ -261,9 +260,9 @@ export class Bucket {
 		const request: IRequestConfig = {
 			method: REQ_METHOD.put,
 			url: url + `/${encodeURI(key)}`,
-			data: convertToReadableStream(body),
+			data: body,
 			qs: params,
-			type: typeof body === 'string' ? RequestType.JSON : RequestType.RAW,
+			type: RequestType.RAW,
 			expecting: param.extractAndUpload ? ResponseType.JSON : ResponseType.RAW,
 			headers,
 			service: CatalystService.EXTERNAL,
@@ -370,7 +369,7 @@ export class Bucket {
 		const request: IRequestConfig = {
 			method: REQ_METHOD.put,
 			url: url + `/${encodeURI(key as string)}`,
-			data: convertToReadableStream(body),
+			data: body,
 			qs: params,
 			type: RequestType.RAW,
 			headers: {

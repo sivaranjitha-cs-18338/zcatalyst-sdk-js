@@ -3,7 +3,10 @@ import {
 	Auth_Protocol,
 	collectZCRFToken,
 	ConfigStore,
-	getToken
+	CURRENT_CLIENT_PAGE_ORIGIN,
+	getToken,
+	JWT_COOKIE_PREFIX,
+	PROJECT_ID
 } from '@zcatalyst/auth-client';
 import { CatalystService, CONSTANTS, getServicePath } from '@zcatalyst/utils';
 
@@ -76,7 +79,7 @@ export class DefaultHttpResponse {
 
 // ResponseHandler class
 export class ResponseHandler {
-	static apiDomain = ConfigStore.get('projectConfig.serviceInfo.apiDomain');
+	static apiDomain = CURRENT_CLIENT_PAGE_ORIGIN;
 
 	constructor() {}
 
@@ -233,26 +236,17 @@ export class ResponseHandler {
 		// Add default app headers
 		normalizedHeaders = addDefaultAppHeaders(normalizedHeaders);
 
-		const orgId = ConfigStore.get('projectConfig.userInfo.credentials.orgId');
-
-		// Add app-specific headers
-		if (orgId) {
-			normalizedHeaders['CATALYST-ORG'] = orgId;
-		}
-
 		return normalizedHeaders;
 	}
 
 	// Method to attach authentication headers
-	public static attachZCAuthHeaders(headers: HeadersInit): Promise<HeadersInit> {
-		const authProtocol: Auth_Protocol = ConfigStore.get(
-			'projectConfig.serviceInfo.authProtocol'
-		) as Auth_Protocol;
+	public static async attachZCAuthHeaders(headers: HeadersInit): Promise<HeadersInit> {
+		const authProtocol: Auth_Protocol = ConfigStore.get('AUTH_PROTOCOL') as Auth_Protocol;
 		switch (authProtocol) {
 			case Auth_Protocol.ZcrfTokenProtocol:
-				return ResponseHandler.#followZcrfTokenProtocol(headers);
+				return await ResponseHandler.#followZcrfTokenProtocol(headers);
 			case Auth_Protocol.JwtTokenProtocol:
-				return ResponseHandler.#followJwtZCAuthProtocol(headers);
+				return await ResponseHandler.#followJwtZCAuthProtocol(headers);
 			default:
 				return Promise.resolve(headers);
 		}
@@ -260,15 +254,10 @@ export class ResponseHandler {
 
 	// Method to follow Zcrf Token protocol
 	static async #followZcrfTokenProtocol(headers: HeadersInit): Promise<HeadersInit> {
-		const csrfToken = ConfigStore.get('projectConfig.userInfo.credentials.csrfToken');
-		return collectZCRFToken()
-			.then(() => {
-				(headers as Record<string, string>)[X_ZCSRF_TOKEN] = `${ZD_CSRPARAM}=${csrfToken}`;
-				return headers;
-			})
-			.catch((err: Record<string, string>) => {
-				throw new CatalystAPIError('API_ERROR', err.message, err.status);
-			});
+		await collectZCRFToken();
+		const csrfToken = ConfigStore.get('CSRF_TOKEN');
+		(headers as Record<string, string>)[X_ZCSRF_TOKEN] = `${ZD_CSRPARAM}=${csrfToken}`;
+		return headers;
 	}
 
 	// Method to follow Jwt Token protocol
@@ -286,7 +275,7 @@ export class ResponseHandler {
 
 	// Method to get JWT authentication token
 	public static getJWTZCAuthToken(): Promise<jwtAccessTokenResponse> {
-		const jwtPrefix = ConfigStore.get('projectConfig.userInfo.jwtAuth.tokenPrefix');
+		const jwtPrefix = ConfigStore.get(JWT_COOKIE_PREFIX);
 		return new Promise((resolve, reject) => {
 			const jwtZCAuthToken = getToken() as unknown as string;
 			if (jwtZCAuthToken === '') {
@@ -347,23 +336,21 @@ export class ResponseHandler {
 					data = formData as unknown as Record<string, unknown>;
 					break;
 				case RequestType.RAW:
-					data = JSON.stringify(data);
 					if (headers['Content-Type'] === undefined) {
 						headers['Content-Type'] = 'application/octet-stream';
 					}
+					data = new Blob([data as Blob], { type: headers['Content-Type'] });
 					break;
 				default:
 					data = JSON.stringify(data as Record<string, string>);
 					headers['Content-Type'] = 'application/x-www-form-urlencoded';
-					headers['Content-Length'] = Buffer.byteLength(data) + '';
 			}
 		}
 		if (this.apiDomain === null && !options.origin) {
 			throw new CatalystAPIError('API_REQUEST_ERROR', 'Unable to get the base url');
 		}
-
 		if (options.service !== CatalystService.EXTERNAL && options.path) {
-			options.path = `${getServicePath(options.service)}/project/${ConfigStore.get('projectConfig.userInfo.credentials.projectId')}${options.path}`;
+			options.path = `${getServicePath(options.service)}/project/${ConfigStore.get(PROJECT_ID)}${options.path}`;
 		}
 
 		const request = {

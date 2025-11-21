@@ -80,6 +80,9 @@ importers:
 
   packages/auth:
     dependencies:
+      '@zcatalyst/auth-admin':
+        specifier: workspace:^
+        version: link:../auth-admin
       '@zcatalyst/auth-client':
         specifier: workspace:^
         version: link:../auth-client
@@ -267,9 +270,6 @@ importers:
 
   packages/stratus:
     dependencies:
-      '@zcatalyst/auth-admin':
-        specifier: workspace:^
-        version: link:../auth-admin
       '@zcatalyst/auth-client':
         specifier: workspace:^
         version: link:../auth-client
@@ -2142,7 +2142,7 @@ packages:
     dependencies:
       semver: 7.7.2
       shelljs: 0.8.5
-      typescript: 6.0.0-dev.20251031
+      typescript: 6.0.0-dev.20251118
     dev: true
 
   /eastasianwidth@0.2.0:
@@ -4722,8 +4722,8 @@ packages:
     hasBin: true
     dev: true
 
-  /typescript@6.0.0-dev.20251031:
-    resolution: {integrity: sha512-gJEMFg3G1A8sTe9zdcp2FxWDA09tpK5dLixOlltCgqvhXtv7a8tXHGJBjGS/k5IE0VaehoB7i+CdWfqo49I3WA==}
+  /typescript@6.0.0-dev.20251118:
+    resolution: {integrity: sha512-7tnnUDOyPtgZ1WaJS/e0K07/qysHdhSuAIwxlSwvTgqhzETlZIbGw+0Kw8E9GaJ+OZ4vXq2jSN9azZoKwMPE3A==}
     engines: {node: '>=14.17'}
     hasBin: true
     dev: true

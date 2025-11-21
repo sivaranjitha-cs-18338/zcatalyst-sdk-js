@@ -21,7 +21,8 @@
   "dependencies": {
     "@zcatalyst/transport": "workspace:^",
     "@zcatalyst/utils": "workspace:^",
-    "@zcatalyst/auth-client": "workspace:^"
+    "@zcatalyst/auth-client": "workspace:^",
+     "@zcatalyst/auth-admin": "workspace:^"
   },
   "browser": {
     "./dist-cjs/index.js": "./dist-cjs/index.browser.js",

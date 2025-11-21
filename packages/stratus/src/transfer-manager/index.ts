@@ -80,10 +80,10 @@ export class TransferManager {
 			isValidNumber(partSize, true);
 		}, CatalystStratusError);
 
-		if (partSize < 5) {
+		if (partSize < 1) {
 			throw new CatalystStratusError(
 				'INVALID_PART_SIZE',
-				'Part size should be greater than 5 MB',
+				'Part size should be greater than 1 MB',
 				partSize
 			);
 		}

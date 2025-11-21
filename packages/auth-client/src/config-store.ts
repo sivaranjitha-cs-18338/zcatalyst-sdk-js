@@ -1,11 +1,11 @@
 export class ConfigStore {
 	static set(key: string, value: string | number | object) {
-		sessionStorage.setItem(key, JSON.stringify(value));
+		sessionStorage.setItem(key, value.toString());
 	}
 
-	static get<T = string>(key: string): T | null {
+	static get(key: string): string | null {
 		const item = sessionStorage.getItem(key);
-		return item ? JSON.parse(item) : null;
+		return item ? item : null;
 	}
 
 	static remove(key: string) {

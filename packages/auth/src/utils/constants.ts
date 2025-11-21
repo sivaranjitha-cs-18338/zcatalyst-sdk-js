@@ -14,18 +14,6 @@ export const URL_DIVIDER = {
 	LOGIN: 'login'
 };
 
-export const UM_PROPERTY = {
-	ZAID: 'zaid',
-	USER_DETAILS: 'user_details',
-	EMAIL_ID: 'email_id',
-	NAME: 'name',
-	ZAAID: 'zaaid',
-	FIRST_NAME: 'first_name',
-	LAST_NAME: 'last_name',
-	PLATFORM: 'platform_type',
-	REDIRECT_URL: 'redirect_url'
-};
-
 export const UM_QUERY_STRING = {
 	EMAIL_ID: 'emailId'
 };
@@ -73,3 +61,16 @@ export const IS_APPSAIL = 'IS_APPSAIL';
 export const ACCOUNTS_PORTAL_DOMAIN = 'AUTH_DOMAIN';
 export const API_DOMAIN = 'API_DOMAIN';
 export const PROJECT = 'project';
+
+// =============================================================================
+// BROWSER ENVIRONMENT CONSTANTS
+// =============================================================================
+
+export const CURRENT_CLIENT_PAGE_HOST = document.location.hostname;
+export const CURRENT_CLIENT_PAGE_PROTOCOL = document.location.protocol;
+export const CURRENT_CLIENT_PAGE_PORT = document.location.port;
+export const CURRENT_CLIENT_PAGE_ORIGIN = document.location.origin;
+export const CURRENT_CLIENT_PAGE_HREF = document.location.href;
+
+//
+export const FETCH_DETAILS_CALLBACK_FN = 'FETCH_DETAILS_CALLBACK_FN';

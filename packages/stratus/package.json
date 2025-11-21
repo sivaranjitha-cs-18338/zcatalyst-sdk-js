@@ -1,6 +1,6 @@
 {
   "name": "@zcatalyst/stratus",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "./dist-cjs/index.js",
   "module": "./dist-es/index.js",
   "types": "./dist-types/index.d.ts",
@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "@zcatalyst/transport": "workspace:^",
-    "@zcatalyst/auth-admin": "workspace:^",
     "@zcatalyst/utils": "workspace:^",
     "@zcatalyst/auth-client": "workspace:^"
   },
