@@ -1,28 +1,9 @@
-import { ZCAuth } from '../../auth/src';
 import { QuickML } from '../src';
-
-jest.mock('../../auth/src');
-
-const mockedApp = ZCAuth as jest.Mock;
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { responses } = require('../../../tests/api-responses.js');
 
 describe('testing quick ml', () => {
-	const app = new mockedApp().init();
-	const quickml: QuickML = new QuickML(app);
-
-	const quickMLRequest = {
-		['/endpoints/predict']: {
-			POST: {
-				statusCode: 200,
-				data: {
-					data: {
-						status: 'success',
-						result: '[" prediction results "]'
-					}
-				}
-			}
-		}
-	};
-	app.setRequestResponseMap(quickMLRequest);
+	const quickml: QuickML = new QuickML();
 
 	it('quick ml endpoint predict', async () => {
 		await expect(
@@ -32,9 +13,7 @@ describe('testing quick ml', () => {
 				petal_length: '4.5',
 				petal_width: '1.5'
 			})
-		).resolves.toStrictEqual({
-			data: quickMLRequest['/endpoints/predict'].POST.data.data
-		});
+		).resolves.toStrictEqual({ data: responses['/endpoints/predict'].POST.data.data });
 		await expect(
 			quickml.predict('', {
 				sepal_length: '6.4',

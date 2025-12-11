@@ -1,5 +1,3 @@
-import { readFileSync } from 'fs';
-
 import {
 	CatalystAppError,
 	CONSTANTS,
@@ -17,7 +15,8 @@ const {
 	INIT_TYPE,
 	PROJECT_HEADER,
 	DEFAULT_ENV,
-	CATALYST_CONFIG_ENV_KEY,
+	PROJECT_KEY_NAME,
+	ENVIRONMENT,
 	DEFAULT_APP_NAME,
 	CREDENTIAL_USER,
 	CATALYST_ORIGIN
@@ -114,12 +113,22 @@ export class ZCAuth {
 	}
 
 	getDefaultCredentials(appName?: string) {
+		this.setEnv();
+		appOptions = {
+			projectId: process.env.PROJECT_ID as string,
+			projectKey: process.env[PROJECT_KEY_NAME] as string,
+			environment: process.env[ENVIRONMENT] || DEFAULT_ENV,
+			projectDomain: process.env.PROJECT_DOMAIN || CATALYST_ORIGIN,
+			projectSecretKey: process.env.PROJECT_SECRET_KEY as string,
+			crdedential: new ApplicationDefaultCredential()
+		};
 		if (typeof appName === 'undefined') {
 			appName = DEFAULT_APP_NAME;
 		}
 
 		if (!isNonEmptyObject(appOptions)) {
 			appOptions = this.#loadOptionsFromEnvVar();
+			console.log('loaded from env var', appOptions);
 			if (!isNonEmptyObject(appOptions)) {
 				throw new CatalystAppError(
 					'AUTH_ERROR',
@@ -184,20 +193,39 @@ export class ZCAuth {
 		};
 	}
 
+	setEnv() {
+		process.env.PROJECT_ID = '123444';
+		process.env[PROJECT_KEY_NAME] = '63526534';
+		process.env[ENVIRONMENT] = 'development';
+		process.env.PROJECT_DOMAIN = 'project-domain';
+		process.env['PROJECT_SECRET_KEY'] = 'secret-key';
+		process.env.PROJECT_DOMAIN = 'project-domain.12345';
+		process.env.CLIENT_ID = '73468br738743';
+		process.env.CLIENT_SECRET = '5432746528468ye3';
+		process.env.REFRESH_TOKEN = 'g7r636433ery3742';
+	}
+
 	#loadOptionsFromEnvVar(): { [x: string]: string | number } {
-		const config = process.env[CATALYST_CONFIG_ENV_KEY];
-		if (!isNonEmptyString(config)) {
+		const projectId = process.env.PROJECT_ID as string;
+		const projectKey = process.env[PROJECT_KEY_NAME] as string;
+		const environment = process.env[ENVIRONMENT] || DEFAULT_ENV;
+		const projectDomain = process.env.PROJECT_DOMAIN || CATALYST_ORIGIN;
+		const projectSecretKey = process.env.PROJECT_SECRET_KEY as string;
+		if (!isNonEmptyString(!projectId)) {
 			return {};
 		}
 		try {
-			const contents = (config as string).startsWith('{')
-				? config
-				: readFileSync(config as string, 'utf8');
-			return JSON.parse(contents as string);
+			return {
+				projectId,
+				projectKey,
+				environment,
+				projectDomain,
+				projectSecretKey
+			};
 		} catch (err) {
 			// Throw a nicely formed error message if the file contents cannot be parsed
 			throw new CatalystAppError(
-				'invalid_app_options',
+				'INVALID_APP_OPTIONS',
 				'Failed to parse app options : ' + err,
 				err
 			);
@@ -211,4 +239,5 @@ export {
 	RefreshTokenCredential,
 	TicketCredential
 } from '../../src/credential';
+export { CatalystApp } from './credential';
 export { CatalystAppError };

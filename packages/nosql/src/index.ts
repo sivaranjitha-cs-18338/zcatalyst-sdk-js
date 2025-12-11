@@ -11,6 +11,7 @@ import {
 import NoSQLTable from './table';
 import { NoSQLByte } from './utils/byte';
 import * as NoSQLEnum from './utils/enum';
+import { NoSQLReturnValue, NoSQLUpdateOperationType } from './utils/enum';
 import { CatalystNoSQLError } from './utils/error';
 import { NoSQLItem } from './utils/item';
 import { NoSQLMarshall } from './utils/marshall';
@@ -111,8 +112,10 @@ export {
 	// Marshalling constructs
 	NoSQLMarshall,
 	NoSQLNumberSet,
+	NoSQLReturnValue,
 	// Set
 	NoSQLStringSet,
 	NoSQLTable,
-	NoSQLUnMarshall
+	NoSQLUnMarshall,
+	NoSQLUpdateOperationType
 };

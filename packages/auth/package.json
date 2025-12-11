@@ -24,6 +24,12 @@
     "@zcatalyst/auth-client": "workspace:^",
      "@zcatalyst/auth-admin": "workspace:^"
   },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "ts-jest": "^29.2.5"
+  },
   "browser": {
     "./dist-cjs/index.js": "./dist-cjs/index.browser.js",
     "./dist-es/index.js": "./dist-es/index.browser.js",

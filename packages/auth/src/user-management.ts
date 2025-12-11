@@ -200,7 +200,7 @@ export class UserManagementAdmin extends UserManagement {
 	 * ```ts
 	 * const newUser = await userManagement.registerUser(
 	 *   { platform_type: 'web' },
-	 *   { email_id: 'test@example.com', role_id: 'admin' }
+	 *   { email_id: 'test@example.com', role_id: '1234556' }
 	 * );
 	 * console.log(newUser);
 	 * ```

@@ -27,7 +27,6 @@ import { Auth_Protocol } from './utils/enums';
 import { CatalystAuthenticationError } from './utils/error';
 import { wrapCheck } from './utils/functions';
 import {
-	BodyData,
 	ICatalystAuthResponse,
 	ICatalystSignInConfig,
 	ICatalystSignUpConfig,
@@ -401,7 +400,7 @@ class Authentication {
 
 	public async signUp(body: ICatalystSignUpConfig): Promise<unknown> {
 		await wrapCheck((): void => {
-			hasSuffInfo(body, [UM_PROPERTY.LAST_NAME, UM_PROPERTY.EMAIL_ID]);
+			hasSuffInfo(body, ['last_name', 'email_id']);
 		});
 		const data: Record<string, unknown> = {};
 		data.zaid = this.zaid as string;

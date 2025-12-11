@@ -1,3 +1,46 @@
+/**
+ * Version Update Script
+ * 
+ * Purpose:
+ * This script automatically updates package versions in a monorepo based on
+ * conventional commit messages following semantic versioning rules.
+ * 
+ * Semantic Versioning Rules:
+ * - MAJOR (x.0.0): Breaking changes (BREAKING CHANGE or feat/fix!)
+ * - MINOR (0.x.0): New features (feat)
+ * - PATCH (0.0.x): Bug fixes and chores (fix, chore)
+ * 
+ * Features:
+ * - Parses conventional commits since the last git tag
+ * - Determines appropriate version bump (major/minor/patch) for each package
+ * - Supports scope-based version bumping (e.g., feat(auth): ...)
+ * - Handles multi-line commit messages for cross-package changes
+ * - Updates root package.json with the highest bump level
+ * - Updates individual package versions based on their scope
+ * - Provides summary table of all version changes
+ * - Supports dry-run mode for preview without making changes
+ * 
+ * Breaking Change Detection:
+ * - BREAKING CHANGE: prefix in commit message
+ * - breaking(scope): prefix
+ * - feat(scope)!: or fix(scope)!: syntax
+ * - BREAKING CHANGE notes in commit body
+ * 
+ * Workflow:
+ * 1. Retrieves commits since the last git tag
+ * 2. Normalizes commit messages to handle various breaking change formats
+ * 3. Parses commits to determine bump type for each package
+ * 4. Calculates highest bump level for root package
+ * 5. Updates all package.json files with new versions
+ * 6. Displays summary of changes
+ * 
+ * Usage:
+ * node scripts/version-update.js           # Update versions
+ * node scripts/version-update.js --dry-run # Preview without changing files
+ * 
+ * Note: This script should be run before generating changelogs and publishing
+ */
+
 const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");

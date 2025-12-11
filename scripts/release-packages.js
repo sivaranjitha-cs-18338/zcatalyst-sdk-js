@@ -1,3 +1,28 @@
+/**
+ * Release Packages Script
+ * 
+ * Purpose:
+ * This script automates the publishing of changed packages to npm registry.
+ * It identifies packages that have been modified since the last git tag and
+ * publishes only those packages, avoiding unnecessary releases.
+ * 
+ * Workflow:
+ * 1. Retrieves the latest git tag to establish a baseline
+ * 2. Compares current HEAD with the latest tag to find changed files
+ * 3. Maps changed files to their respective packages in the monorepo
+ * 4. Publishes only the packages that have changes
+ * 
+ * Requirements:
+ * - NPM_TOKEN environment variable must be set for authentication
+ * - NPM_REGISTRY environment variable (optional, defaults to registry.npmjs.org)
+ * - Git repository with at least one tag (or publishes all packages if no tags exist)
+ * 
+ * Usage:
+ * node scripts/release-packages.js
+ * 
+ * Note: This script is typically run in CI/CD pipelines after version updates
+ */
+
 const { execSync } = require('child_process');
 const { readFileSync, writeFileSync } = require('fs');
 const { join } = require('path');

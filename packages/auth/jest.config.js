@@ -1,8 +1,12 @@
-const base = require("../../jest.config.base.js");
+/**
+ * Jest Configuration for @zcatalyst/auth package
+ */
 
-module.exports =  {
+const base = require('../../jest.config.base.browser');
+
+module.exports = {
   ...base,
-    moduleNameMapper: {
-    "^@zcatalyst/transport$": "../../transport/src/__mocks__",
-  }
+  displayName: '@zcatalyst/auth',
+  rootDir: '.',
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts']
 };

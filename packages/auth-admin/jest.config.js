@@ -1,5 +1,8 @@
-const base = require("../../jest.config.base.js");
+const base = require('../../jest.config.base.node');
 
-module.exports =  {
-  ...base
+module.exports = {
+  ...base,
+  displayName: '@zcatalyst/auth-admin',
+  rootDir: '.',
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts']
 };

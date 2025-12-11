@@ -13,6 +13,7 @@ import {
 	isValidType,
 	ObjectHasProperties
 } from '../../../utils/src';
+import { CatalystAuthError } from '../errors';
 const {
 	CREDENTIAL_SUFFIX,
 	CATALYST_AUTH_ENV_KEY,
@@ -63,16 +64,19 @@ function fromPath(filePath: string): { [x: string]: string } | null {
 }
 
 function fromEnv(): { [x: string]: string } | null {
-	const jsonString: string | undefined = process.env[CATALYST_AUTH_ENV_KEY];
-	if (jsonString === undefined) {
-		return null;
-	}
-	try {
-		return JSON.parse(jsonString);
-	} catch (err) {
-		// Throw a nicely formed error message if the file contents cannot be parsed
-		throw new Error(
-			'INVALID_CREDENTIAL' + 'Failed to parse refresh token string from env: ' + err
+	const clientId = process.env['CLIENT_ID'];
+	const clientSecret = process.env['CLIENT_SECRET'];
+	const refreshToken = process.env['REFRESH_TOKEN'];
+	if (clientId && clientSecret && refreshToken) {
+		return {
+			client_id: clientId,
+			client_secret: clientSecret,
+			refresh_token: refreshToken
+		};
+	} else {
+		throw new CatalystAuthError(
+			'INVALID_CREDENTIAL',
+			`Failed to get the credential string from env variables`
 		);
 	}
 }

@@ -1,13 +1,7 @@
-import { ZCAuth } from '../../auth/src';
 import { USER_STATUS, UserManagementAdmin as UserManagement } from '../src/user-management';
 
-jest.mock('../../auth/src');
-
-const mockedApp = ZCAuth as jest.Mock;
-
 describe('user management', () => {
-	const app = new mockedApp().init();
-	const userManagement: UserManagement = new UserManagement(app);
+	const userManagement: UserManagement = new UserManagement();
 	const signUpConfig = {
 		platform_type: 'web'
 	};
@@ -195,7 +189,6 @@ describe('user management', () => {
 			}
 		}
 	};
-	app.setRequestResponseMap(userReqRes);
 	it('get current user', async () => {
 		await expect(userManagement.getCurrentUser()).resolves.toStrictEqual(
 			userReqRes['/project-user/current'].GET.data.data

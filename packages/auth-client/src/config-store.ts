@@ -1,15 +1,15 @@
 export class ConfigStore {
+	static has(key: string): boolean {
+		return sessionStorage.getItem(key) !== null;
+	}
+
 	static set(key: string, value: string | number | object) {
 		sessionStorage.setItem(key, value.toString());
 	}
 
-	static get(key: string): string | null {
-		const item = sessionStorage.getItem(key);
-		return item ? item : null;
-	}
-
-	static remove(key: string) {
-		sessionStorage.removeItem(key);
+	static get(key: string): string | undefined {
+		const value = sessionStorage.getItem(key);
+		return value !== null ? value : undefined;
 	}
 
 	static clear() {
