@@ -5,6 +5,8 @@
  * with improved error handling, type safety, and cross-platform support.
  */
 
+import { isNonEmptyString, ObjectHasProperties } from '@zcatalyst/utils';
+
 import { MessageType } from './utils/enum';
 import { EventEmitter } from './utils/event-emitter';
 import {
@@ -69,27 +71,27 @@ export class DataStreamsWebSocket extends EventEmitter {
 		value: 'ping'
 	};
 
-	constructor(config: DataStreamsConfig | string, zuid?: string, key?: string) {
+	constructor(config: DataStreamsConfig) {
 		super();
 
-		// Support both new object-style and legacy parameter-style constructors
-		if (typeof config === 'string') {
-			this.config = {
-				url: config,
-				zuid: zuid!,
-				key: key!,
-				enableLogging: false
-			};
-		} else {
-			this.config = {
-				enableLogging: false,
-				...config
-			};
-		}
+		ObjectHasProperties(
+			config as unknown as Record<string, unknown>,
+			['url', 'key', 'zuid'],
+			'DataStreamsConfig'
+		);
+		isNonEmptyString(config.url, 'url', true);
+		isNonEmptyString(config.key, 'key', true);
+		isNonEmptyString(config.zuid, 'zuid', true);
+
+		this.config = {
+			enableLogging: config.enableLogging || false,
+			...config
+		};
 
 		this.url = this.config.url;
 		this.keyValue = this.config.key;
 		this.zuidValue = this.config.zuid;
+
 		this.finalUrl = `wss://${this.url}${this.path}?prd=${this.prdValue}&zuid=${this.zuidValue}&key=${this.keyValue}`;
 
 		this.createWebSocketConnection();

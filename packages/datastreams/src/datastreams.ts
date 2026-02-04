@@ -256,7 +256,7 @@ export class DataStreamsAdmin extends DataStreams {
 	async publishData(channelId: string, data: string): Promise<boolean> {
 		await wrapValidatorsWithPromise(() => {
 			isValidInputString(channelId, 'channelId', true);
-			isValidInputString(data, 'data', true);
+			isNonEmptyString(data, 'data', true);
 		}, CatalystDataStreamError);
 
 		const payload: string = data;
