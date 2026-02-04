@@ -1,72 +1,33 @@
-import { ZCAuth } from '../../auth/src';
 import { Functions } from '../src';
 
-jest.mock('../../auth/src');
-
-const mockedApp = ZCAuth as jest.Mock;
+const { responses } = require('../../../tests/api-responses.js');
 
 describe('Functions Module', () => {
-	const app = new mockedApp().init();
-	const func: Functions = new Functions(app);
-
-	// Mock response map
-	const funcRes = {
-		['/function/123/execute']: {
-			GET: {
-				statusCode: 200,
-				data: {
-					data: 'Function executed successfully'
-				}
-			}
-		},
-		['/function/testFunction/execute']: {
-			POST: {
-				statusCode: 200,
-				data: {
-					data: 'Function executed successfully'
-				}
-			},
-			GET: {
-				statusCode: 200,
-				data: {
-					data: 'Function executed successfully'
-				}
-			}
-		}
-	};
-
-	app.setRequestResponseMap(funcRes);
+	const func: Functions = new Functions();
 
 	describe('execute function', () => {
 		it('should execute a function with default GET method', async () => {
 			await expect(func.execute('testFunction')).resolves.toBe(
-				'Function executed successfully'
+				responses['/function/testFunction/execute'].GET.data.data
 			);
 		});
 
 		it('should execute a function with POST method and arguments', async () => {
 			await expect(
-				func.execute('testFunction', {
-					args: {
-						test: 'test'
-					},
-					method: 'POST'
-				})
-			).resolves.toBe('Function executed successfully');
+				func.execute('testFunction', { args: { test: 'test' }, method: 'POST' })
+			).resolves.toBe(responses['/function/testFunction/execute'].POST.data.data);
 		});
 
 		it('should execute a function with data payload', async () => {
-			await expect(
-				func.execute('testFunction', {
-					data: {
-						test: 'test'
-					}
-				})
-			).resolves.toBe('Function executed successfully');
+			await expect(func.execute('testFunction', { data: { test: 'test' } })).resolves.toBe(
+				responses['/function/testFunction/execute'].GET.data.data
+			);
 		});
 
 		it('should execute a function using numeric ID as string', async () => {
-			await expect(func.execute('123')).resolves.toBe('Function executed successfully');
+			await expect(func.execute('123')).resolves.toBe(
+				responses['/function/123/execute'].GET.data.data
+			);
 		});
 
 		it('should return undefined for non-existent function ID as string', async () => {

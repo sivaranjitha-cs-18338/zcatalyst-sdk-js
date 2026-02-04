@@ -1,5 +1,5 @@
 import { Handler, IRequestConfig } from '@zcatalyst/transport';
-import { CatalystService, CONSTANTS, getToken, setToken } from '@zcatalyst/utils';
+import { CatalystService, CONSTANTS } from '@zcatalyst/utils';
 
 import { Bucket } from '../bucket';
 import { IJWTResponse } from './interface';
@@ -21,11 +21,9 @@ export class JWTAuthHandler {
 
 	async initializeConfig() {
 		if (typeof window !== 'undefined') {
-			const { ConfigManager } = await import('@zcatalyst/auth-client');
-			const app = ConfigManager.getInstance();
-			this.projectDomain = app.ProjectDomain;
-			this.zaid = app.ZAID;
-			this.authPortal = app.IAMDomainUrl;
+			this.projectDomain = sessionStorage.getItem('PROJECT_DOMAIN') as string;
+			this.zaid = sessionStorage.getItem('ZAID') as string;
+			this.authPortal = sessionStorage.getItem('IAM_DOMAIN') as string;
 		} else {
 			this.zaid = this._requester.app?.config.projectKey as string;
 			this.projectDomain = this._requester.app?.config.projectDomain as string;
@@ -40,6 +38,12 @@ export class JWTAuthHandler {
 		>;
 	}
 
+	async processJwtToken() {
+		const res = await this.generateJwtToken();
+		this.accessTokenObj = await this.convertJwtToToken(res);
+		this.accessTokenObj.expires_in = (this.accessTokenObj.expires_in as number) + Date.now();
+	}
+
 	async getJWTAccessToken() {
 		if (
 			this.accessTokenObj?.access_token &&
@@ -47,15 +51,17 @@ export class JWTAuthHandler {
 		) {
 			return this.accessTokenObj.access_token;
 		}
-		const res = await this.generateJwtToken();
-		this.accessTokenObj = await this.convertJwtToToken(res);
-		this.accessTokenObj.expires_in = (this.accessTokenObj.expires_in as number) + Date.now();
+		await this.initializeConfig();
 		if (typeof window !== 'undefined') {
-			const jwt = getToken('stratus_jwt');
+			const { setToken, getToken } = await import('@zcatalyst/auth-client');
+			const jwt = getToken('stratus_jwt') as unknown as Record<string, unknown>;
 			if (!jwt) {
+				await this.processJwtToken();
 				setToken(this.accessTokenObj, 'stratus_jwt');
 			}
-			return this.accessTokenObj.access_token;
+			return jwt as unknown as string;
+		} else {
+			await this.processJwtToken();
 		}
 		return this.accessTokenObj.access_token;
 	}
@@ -73,7 +79,6 @@ export class JWTAuthHandler {
 	async convertJwtToToken(
 		jwtRes: IJWTResponse
 	): Promise<{ access_token: string; expires_in: number }> {
-		await this.initializeConfig();
 		const option: IRequestConfig = {
 			method: REQ_METHOD.post,
 			headers: {

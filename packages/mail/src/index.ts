@@ -20,7 +20,7 @@ const { REQ_METHOD, COMPONENT, CREDENTIAL_USER } = CONSTANTS;
 type ICatalystMailRes = ICatalystMail &
 	Omit<ICatalystGResponse, 'created_time' | 'created_by' | 'modified_time' | 'modified_by'>;
 
-export class Email implements Component {
+export class Mail implements Component {
 	requester: Handler;
 	constructor(app?: unknown) {
 		this.requester = new Handler(app, this);

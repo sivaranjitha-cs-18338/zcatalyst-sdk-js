@@ -34,6 +34,7 @@ export interface RequestHandlerOptions {
 	requestTimeout?: number;
 	expecting?: ResponseType;
 	auth?: boolean;
+	duplex?: string;
 }
 
 export interface HTTP_CODE_MAP_BODY_TYPE {
@@ -55,13 +56,13 @@ export interface FORMDATA {
 }
 
 export interface IRequestConfig {
+	duplex?: string;
 	data?:
 		| string
 		| Array<{ [x: string]: unknown }>
 		| Array<string | number>
 		| Record<string, unknown>
-		| ReadableStream
-		| NodeJS.ReadableStream;
+		| unknown;
 	type?: RequestType;
 	qs?: Record<string, string | number | boolean | undefined>;
 	path?: string;
