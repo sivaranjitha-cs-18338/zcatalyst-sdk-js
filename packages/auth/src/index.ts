@@ -6,8 +6,14 @@ export class Authentication {
 	authInstance = new ZCAuth();
 	constructor() {}
 
-	init(options: ICatalystAppConfig & ICatalystCredentials): unknown {
-		return this.authInstance.init(options as unknown as Record<string, string | number>);
+	init(
+		config: ICatalystAppConfig & ICatalystCredentials,
+		options: { type?: string; appName?: string; scope?: 'admin' | 'user' }
+	): unknown {
+		return this.authInstance.init(
+			config as unknown as Record<string, string | number>,
+			options
+		);
 	}
 
 	getApp(name: string): unknown {
