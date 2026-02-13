@@ -1,7 +1,7 @@
 'use strict';
 
-import { Handler } from '@zcatalyst/transport';
-import { Component, CONSTANTS, isValidInputString, wrapValidators } from '@zcatalyst/utils';
+import { Handler, Component, CONSTANTS } from '@zcatalyst/transport';
+import { isValidInputString, wrapValidators } from '@zcatalyst/utils';
 
 import { MobileNotification } from './mobile-notification';
 import { CatalystPushNotificationError } from './utils/error';

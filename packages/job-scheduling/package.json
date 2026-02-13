@@ -29,6 +29,9 @@
   "files": [
     "dist-*/**"
   ],
+  "browser": {
+    "server-only-package": true
+  },
   "keywords": [
     "job",
     "scheduling",

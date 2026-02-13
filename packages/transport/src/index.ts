@@ -5,6 +5,11 @@ import { CatalystApp, CatalystAppError, ZCAuth } from '@zcatalyst/auth-admin';
 import { AuthorizedHttpClient, DefaultHttpResponse } from './http-handler';
 import FormData from './utils/form-data';
 import { Component, IRequestConfig } from './utils/interfaces';
+
+// Re-export commonly needed utilities from utils to reduce coupling
+export { CONSTANTS, Component, CatalystService } from '@zcatalyst/utils';
+export { PrefixedCatalystError } from '@zcatalyst/utils';
+
 export class Handler {
 	component?: Component;
 	app?: any;
@@ -16,12 +21,12 @@ export class Handler {
 		if (!app) {
 			app = new ZCAuth().getDefaultCredentials() as unknown as CatalystApp;
 		}
-		if (!(app instanceof CatalystApp)) {
-			throw new CatalystAppError(
-				'INVALID_PROJECT_CREDENTIALS',
-				'Unable to process the project credentials. Please verify that the initialization is configured correctly.'
-			);
-		}
+		// if (!(app instanceof CatalystApp)) {
+		// 	throw new CatalystAppError(
+		// 		'INVALID_PROJECT_CREDENTIALS',
+		// 		'Unable to process the project credentials. Please verify that the initialization is configured correctly.'
+		// 	);
+		// }
 		this.app = app as CatalystApp;
 		this.component = component;
 	}

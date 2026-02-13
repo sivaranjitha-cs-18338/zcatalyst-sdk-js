@@ -28,6 +28,9 @@
   "files": [
     "dist-*/**"
   ],
+  "browser": {
+    "server-only-package": true
+  },
   "keywords": [
     "cache",
     "zcatalyst",

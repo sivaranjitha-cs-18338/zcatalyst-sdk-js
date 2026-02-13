@@ -4,7 +4,16 @@
   "main": "./dist-cjs/index.js",
   "module": "./dist-es/index.js",
   "types": "./dist-types/index.d.ts",
-  "browser": "./dist-umd/scripts/authClient.js",
+  "browser": {
+    "./dist-cjs/index.js": "./dist-cjs/index.browser.js",
+    "./dist-es/index.js": "./dist-es/index.browser.js",
+    "./dist-types/index.d.ts": "./dist-types/index.browser.d.ts",
+    "stream": false,
+    "crypto": false,
+    "fs": false,
+    "path": false,
+    "process": false
+  },
   "license": "Apache-2.0",
   "scripts": {
     "build": "concurrently 'pnpm:build:cjs' 'pnpm:build:es' 'pnpm:build:types && pnpm build:types:downlevel'",

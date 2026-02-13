@@ -1,8 +1,8 @@
 'use strict';
 
 import { ConfigStore } from '@zcatalyst/auth-client';
-import { Handler, IRequestConfig, RequestType } from '@zcatalyst/transport';
-import { CatalystService, Component, CONSTANTS, LOGGER } from '@zcatalyst/utils';
+import { Handler, IRequestConfig, RequestType, Component, CONSTANTS, CatalystService } from '@zcatalyst/transport';
+import { LOGGER } from '@zcatalyst/utils';
 
 const { COMPONENT, CREDENTIAL_USER, REQ_METHOD } = CONSTANTS;
 

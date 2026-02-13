@@ -3,6 +3,10 @@
 import { ICatalystClientRes, ResponseHandler } from './fetch-handler';
 import { Component, IRequestConfig } from './utils/interfaces';
 
+// Re-export commonly needed utilities from utils to reduce coupling
+export { CatalystService, Component, CONSTANTS } from '@zcatalyst/utils';
+export { PrefixedCatalystError } from '@zcatalyst/utils';
+
 export class Handler {
 	component?: Component;
 	/**
