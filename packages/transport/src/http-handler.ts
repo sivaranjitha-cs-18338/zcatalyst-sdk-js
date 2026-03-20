@@ -323,11 +323,19 @@ function webStreamToNodeStream(webStream: ReadableStream) {
 	});
 }
 
-async function sendRequest(config: IRequestConfig) {
+async function sendRequest(
+	config: IRequestConfig,
+	componentName?: string,
+	componentVersion?: string
+) {
 	let data: string | Stream | FORM | undefined;
+	let userAgent = USER_AGENT.PREFIX + version;
+	if (componentName) {
+		userAgent += ` ${componentName}/${componentVersion || 'unknown'}`;
+	}
 	let headers = Object.assign(
 		{
-			[USER_AGENT.KEY]: USER_AGENT.PREFIX + version
+			[USER_AGENT.KEY]: userAgent
 		},
 		config.headers
 	);
@@ -384,22 +392,20 @@ async function sendRequest(config: IRequestConfig) {
 
 export class HttpClient {
 	app?: CatalystApp;
-	private user: string;
 	/**
 	 * @param {CatalystApp} app The app used to fetch access tokens to sign API requests.
 	 * @constructor
 	 */
 	constructor(app?: CatalystApp) {
 		this.app = app;
-		this.user = CREDENTIAL_USER.admin;
 	}
 
-	async send(req: IRequestConfig, apmTrackerName?: string) {
+	async send(req: IRequestConfig, apmTrackerName?: string, componentVersion?: string) {
 		req.headers = Object.assign({}, req.headers);
 		req.qs = Object.assign({}, req.qs);
 		req.retry = req.retry || true;
 		if (this.app !== undefined && req.service !== CatalystService.EXTERNAL) {
-			this.user = this.app.credential.getCurrentUser();
+			const user = this.app.credential.getCurrentUser();
 
 			// added header only for catalyst calls and client portal calls (exclude external domain calls(ex: stratus))
 			req.headers = addDefaultAppHeaders(req.headers, this.app.config);
@@ -409,7 +415,7 @@ export class HttpClient {
 
 			// spcl handling for CLI
 			if (IS_LOCAL === 'true') {
-				switch (this.user) {
+				switch (user) {
 					case CREDENTIAL_USER.admin:
 						req.origin =
 							'https://' +
@@ -437,7 +443,7 @@ export class HttpClient {
 					resp = await apminsight.startTracker(
 						APM_INSIGHT.tracker_name,
 						apmTrackerName,
-						() => sendRequest(req)
+						() => sendRequest(req, apmTrackerName, componentVersion)
 					);
 				} catch (err) {
 					throw new CatalystAPIError(
@@ -448,7 +454,7 @@ export class HttpClient {
 					);
 				}
 			} else {
-				resp = await sendRequest(req);
+				resp = await sendRequest(req, apmTrackerName, componentVersion);
 			}
 			return new DefaultHttpResponse(resp);
 		} catch (err) {
@@ -467,6 +473,7 @@ export class HttpClient {
 
 export class AuthorizedHttpClient extends HttpClient {
 	readonly componentName?: string;
+	readonly componentVersion?: string;
 	/**
 	 * @param {unknown} app The app used to fetch access tokens to sign API requests.
 	 * @constructor
@@ -475,15 +482,16 @@ export class AuthorizedHttpClient extends HttpClient {
 		super(app);
 		if (component) {
 			this.componentName = component.getComponentName();
+			this.componentVersion = component.getComponentVersion?.();
 		}
 	}
 
 	async send(request: IRequestConfig): Promise<DefaultHttpResponse> {
-		const requestCopy = Object.assign({ user: CREDENTIAL_USER.user }, request);
+		const requestCopy = Object.assign(request);
 		requestCopy.headers = Object.assign({}, request.headers);
 		if (request.auth !== false) {
 			await this.app?.authenticateRequest(requestCopy as unknown as Record<string, unknown>);
 		}
-		return await super.send(requestCopy, this.componentName);
+		return await super.send(requestCopy, this.componentName, this.componentVersion);
 	}
 }

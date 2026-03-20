@@ -13,6 +13,8 @@ import {
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
+import { version } from '../package.json';
+
 import { CatalystUserManagementError } from './utils/error';
 import {
 	ICatalystCustomTokenDetails,
@@ -45,6 +47,10 @@ export class UserManagement implements Component {
 	 */
 	getComponentName(): string {
 		return COMPONENT.user_management;
+	}
+
+	getComponentVersion(): string {
+		return version;
 	}
 
 	/**

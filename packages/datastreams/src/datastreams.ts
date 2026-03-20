@@ -15,6 +15,7 @@ import {
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
+import { version } from '../package.json';
 import { CatalystDataStreamError } from './utils/errors';
 import {
 	ApiResponse,
@@ -51,6 +52,10 @@ export class DataStreams implements Component {
 	 */
 	getComponentName(): string {
 		return COMPONENT.data_streams;
+	}
+
+	getComponentVersion(): string {
+		return version;
 	}
 
 	/**

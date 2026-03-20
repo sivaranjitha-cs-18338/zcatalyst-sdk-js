@@ -62,7 +62,8 @@ export class ZCAuth {
 					options['headers'] as unknown as Record<string, string>
 				);
 				appOptions.credential = new CatalystCredential(
-					options['headers'] as unknown as Record<string, string | undefined>
+					options['headers'] as unknown as Record<string, string | undefined>,
+					scope
 				);
 				break;
 			case INIT_TYPE.basicio:
@@ -77,7 +78,8 @@ export class ZCAuth {
 					options['catalystHeaders'] as unknown as Record<string, string>
 				);
 				appOptions.credential = new CatalystCredential(
-					options['catalystHeaders'] as unknown as Record<string, string>
+					options['catalystHeaders'] as unknown as Record<string, string>,
+					scope
 				);
 				break;
 			case INIT_TYPE.custom:

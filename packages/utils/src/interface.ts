@@ -2,6 +2,7 @@
 
 export interface Component {
 	getComponentName(): string;
+	getComponentVersion?(): string;
 }
 
 export interface ParsableComponent<T> extends Component {

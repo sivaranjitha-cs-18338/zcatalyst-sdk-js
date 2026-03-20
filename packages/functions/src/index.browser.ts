@@ -9,6 +9,7 @@ import {
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
+import { version } from '../package.json';
 import { CatalystFunctionError } from './utils/error';
 
 const { REQ_METHOD, CREDENTIAL_USER, COMPONENT } = CONSTANTS;
@@ -21,6 +22,10 @@ export class Functions implements Component {
 
 	getComponentName(): string {
 		return COMPONENT.functions;
+	}
+
+	getComponentVersion(): string {
+		return version;
 	}
 
 	async execute(

@@ -1,15 +1,27 @@
 {
   "name": "@zcatalyst/datastreams",
-  "version": "0.0.4",
+  "version": "0.0.3",
   "description": "Catalyst DataStreams service client for managing real-time data channels",
   "main": "dist-cjs/index.js",
   "module": "dist-es/index.js",
   "types": "dist-types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist-types/index.d.ts",
-      "import": "./dist-es/index.js",
-      "require": "./dist-cjs/index.js"
+      "node": {
+        "types": "./dist-types/index.d.ts",
+        "import": "./dist-es/index.js",
+        "require": "./dist-cjs/index.js"
+      },
+      "browser": {
+        "types": "./dist-types/index.browser.d.ts",
+        "import": "./dist-es/index.browser.js",
+        "require": "./dist-cjs/index.browser.js"
+      },
+      "default": {
+        "types": "./dist-types/index.d.ts",
+        "import": "./dist-es/index.js",
+        "require": "./dist-cjs/index.js"
+      }
     }
   },
   "files": [
@@ -53,6 +65,11 @@
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "typecheck": "tsc --noEmit"
+  },
+  "browser": {
+    "./dist-cjs/index.js": "./dist-cjs/index.browser.js",
+    "./dist-es/index.js": "./dist-es/index.browser.js",
+    "./dist-types/index.d.ts": "./dist-types/index.browser.d.ts"
   },
   "dependencies": {
     "@zcatalyst/utils": "workspace:*",

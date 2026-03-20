@@ -412,6 +412,8 @@ export class DataStreamsWebSocket extends EventEmitter {
 				data?: unknown;
 				url?: string;
 				method?: string;
+				value?: string;
+				code?: string;
 			};
 
 			if (this.prevStreamingId === data.streamingId && this.ackSent) {
@@ -456,6 +458,14 @@ export class DataStreamsWebSocket extends EventEmitter {
 						this.log('Ack payload for pong');
 						this.conn!.send(JSON.stringify(ackPayload));
 					}
+				} else if (operation === 'error') {
+					const errorEvent: CustomEvent = {
+						error: data.value as string
+					};
+					if (data.code === 'e3') {
+						errorEvent.error = 'Subscription failed. Invalid subscription type.';
+					}
+					this.emit('error', errorEvent);
 				}
 			}
 		}
@@ -621,7 +631,7 @@ export class DataStreamsWebSocket extends EventEmitter {
 	 */
 	close(): void {
 		if (this.conn && this.conn.readyState === this.conn.OPEN) {
-			this.conn.close(1001, 'Closing connection intentionally');
+			this.conn.close(1000, 'Closing connection intentionally');
 			this.log('WebSocket connection closed manually');
 		}
 

@@ -1,10 +1,41 @@
-# @zcatalyst/pipelines
+# @zcatalyst/pipeline
 
-ZOHO CATALYST SDK for JavaScript Pipelines for Node.js and Browser.
+JavaScript SDK for Catalyst Pipeline - Data Pipeline Orchestration
 
-<p></p>
+## Overview
 
-## Installing
+The `@zcatalyst/pipeline` package provides JavaScript/TypeScript methods to interact with [Catalyst Pipeline](https://docs.catalyst.zoho.com/en/serverless/help/pipeline/introduction/), a service for orchestrating complex data workflows and ETL (Extract, Transform, Load) operations.
+
+**Catalyst Pipeline** enables you to create, manage, and execute data pipelines that automate data processing workflows across multiple Catalyst components.
+
+### Key Features
+
+- **Workflow Orchestration**: Chain multiple operations in sequence
+- **ETL Operations**: Extract, Transform, Load data workflows
+- **Component Integration**: Connect Data Store, Functions, and more
+- **Automated Execution**: Trigger pipelines automatically
+- **Pipeline Management**: Create, update, monitor pipelines
+- **Data Transformation**: Process and transform data between stages
+- **Error Handling**: Built-in retry and error management
+- **Execution History**: Track pipeline runs and status
+
+### Use Cases
+
+- Automate data migration between tables
+- Build ETL workflows for analytics
+- Process and transform incoming data
+- Synchronize data across systems
+- Implement data quality checks
+- Aggregate and consolidate data
+- Schedule batch data processing
+
+### Prerequisites
+
+- A [Catalyst project](https://docs.catalyst.zoho.com/en/getting-started/catalyst-projects) set up
+- Pipelines created in [Catalyst Console](https://docs.catalyst.zoho.com/en/serverless/help/pipeline/pipeline-creation/)
+- Understanding of [pipeline components](https://docs.catalyst.zoho.com/en/serverless/help/pipeline/pipeline-components/)
+
+## Installation
 
 To install this package, simply type add or install @zcatalyst/pipelines
 using your favorite package manager:
@@ -17,39 +48,38 @@ using your favorite package manager:
 
 ### Import
 
-The Catalyst SDK is modulized by Components.
-To send a request, you only need to import the `Pipelines`:
+The Catalyst SDK is modularized by Components.
+To send a request, you only need to import the `Pipeline`:
 
 ```js
 // ES5 example
-const { Pipelines } = require('@zcatalyst/pipelines');
+const { Pipeline } = require('@zcatalyst/pipelines');
 ```
 
 ```ts
 // ES6+ example
-import { Pipelines } from '@zcatalyst/pipelines';
+import { Pipeline } from '@zcatalyst/pipelines';
 ```
 
 ### Usage
 
 To send a request, you:
 
-- Create a Pipelines Instance.
-- Call the Pipelines operation with input parameters.
+- Create a Pipeline Instance.
+- Call the Pipeline operation with input parameters.
 
 ```js
-const pipeline = new Pipelines();
+const pipeline = new Pipeline();
 
 const data = await pipeline.getPipelineDetails("16965000000019146");
 ```
 
-#### Async/await
+### Async/await
 
 We recommend using [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)
 operator to wait for the promise returned by send operation as follows:
 
 ```js
-// async/await.
 try {
 	const data = await pipeline.getPipelineDetails("16965000000019146");
 	// process data.
@@ -60,56 +90,7 @@ try {
 }
 ```
 
-Async-await is clean, concise, intuitive, easy to debug and has better error handling
-as compared to using Promise chains or callbacks.
-
-#### Promises
-
-You can also use [Promise chaining](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises#chaining)
-to execute send operation.
-
-```js
-pipeline
-  .getPipelineDetails("16965000000019146")
-  .then(
-	(data) => {
-		// process data.
-	},
-	(error) => {
-		// error handling.
-	}
-);
-```
-
-Promises can also be called using `.catch()` and `.finally()` as follows:
-
-```js
-pipeline
-  .getPipelineDetails("16965000000019146")
-	.then((data) => {
-		// process data.
-	})
-	.catch((error) => {
-		// error handling.
-	})
-	.finally(() => {
-		// finally.
-	});
-```
-
-#### Callbacks
-
-We do not recommend using callbacks because of [callback hell](http://callbackhell.com/),
-but they are supported by the send operation.
-
-```js
-// callbacks.
-pipeline.getPipelineDetails("16965000000019146", (err, data) => {
-	// process err and data.
-});
-```
-
-### Troubleshooting
+### Error Handling
 
 When the service returns an exception, the error will include the exception information,
 as well as response metadata (e.g. request id).
@@ -125,6 +106,14 @@ try {
 }
 ```
 
+## Resources
+
+- [Catalyst Pipeline Documentation](https://docs.catalyst.zoho.com/en/serverless/help/pipeline/introduction/)
+- [Pipeline Components](https://docs.catalyst.zoho.com/en/serverless/help/pipeline/pipeline-components/)
+- [Pipeline Creation](https://docs.catalyst.zoho.com/en/serverless/help/pipeline/pipeline-creation/)
+- [Pipeline Execution](https://docs.catalyst.zoho.com/en/serverless/help/pipeline/pipeline-execution/)
+- [SDK Documentation](https://docs.catalyst.zoho.com/en/sdk/)
+
 ## Contributing
 
 Contributions to this library are always welcome and highly encouraged.
@@ -134,22 +123,3 @@ See [CONTRIBUTING](../../CONTRIBUTING.md) for more information on how to get sta
 ## License
 
 This SDK is distributed under the Apache License 2.0. See [LICENSE](../../LICENCE) file for more information.
-
-## Pipelines operations
-
-<details>
-<summary>
-getPiplineDetails
-</summary>
-
-<!-- [SDK Samples](https://docs.catalyst.zoho.com/en/sdk/nodejs/v2/cloud-scale/file-store/retrieve-folder-details/)[API References]() -->
-
-</details>
-<details>
-<summary>
-runPipeline
-</summary>
-
-<!-- [SDK Samples](https://docs.catalyst.zoho.com/en/sdk/nodejs/v2/cloud-scale/file-store/retrieve-folder-details/)[API References]() -->
-
-</details>

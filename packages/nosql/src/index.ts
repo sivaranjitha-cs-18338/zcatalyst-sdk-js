@@ -8,6 +8,7 @@ import {
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
+import { version } from '../package.json';
 import NoSQLTable from './table';
 import { NoSQLByte } from './utils/byte';
 import * as NoSQLEnum from './utils/enum';
@@ -29,6 +30,10 @@ export class NoSQL implements Component {
 
 	getComponentName(): string {
 		return COMPONENT.no_sql;
+	}
+
+	getComponentVersion(): string {
+		return version;
 	}
 
 	/**

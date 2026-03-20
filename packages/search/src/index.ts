@@ -9,6 +9,7 @@ import {
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
+import { version } from '../package.json';
 import { CatalystSearchError } from './utils/error';
 import { Component, ICatalystSearch } from './utils/interface';
 
@@ -29,6 +30,10 @@ export class Search implements Component {
 	 */
 	getComponentName(): string {
 		return COMPONENT.search;
+	}
+
+	getComponentVersion(): string {
+		return version;
 	}
 
 	/**

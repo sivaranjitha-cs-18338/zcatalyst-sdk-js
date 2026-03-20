@@ -67,12 +67,12 @@ Example of using multiple services in a Lambda function:
 
 ```typescript
 import { ZCQL } from '@zcatalyst/zcql';
-import { ZCAuth } from '@zcatalyst/auth';
+import { zcAuth } from '@zcatalyst/auth';
 import { Filestore } from '@zcatalyst/filestore';
 
 export async function handler(req, res) {
     // Initialize services
-    const auth = new ZCAuth().init(req);
+    const auth = zcAuth.init(req);
     const zcql = new ZCQL();
     const filestore = new Filestore();
 

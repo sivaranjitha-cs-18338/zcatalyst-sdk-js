@@ -10,6 +10,7 @@ import {
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
+import { version } from '../package.json';
 import { Table, TableAdmin } from './table';
 import { CatalystDataStoreError } from './utils/error';
 import { ICatalystTable } from './utils/interface';
@@ -24,6 +25,40 @@ export class Datastore implements Component {
 
 	getComponentName(): string {
 		return COMPONENT.datastore;
+	}
+
+	getComponentVersion(): string {
+		return version;
+	}
+
+	/**
+	 * Retrieves a table instance without making an API call.
+	 *
+	 * @param {string} id - The table ID or name.
+	 * @returns {Table} The table instance.
+	 * @throws {CatalystDataStoreError} If the provided ID is invalid.
+	 *
+	 * @example
+	 * const tableById = catalystApp.table(12345);
+	 * console.log(tableById);
+	 *
+	 * const tableByName = catalystApp.table("Users");
+	 * console.log(tableByName);
+	 */
+	table(id: string): Table {
+		wrapValidators(() => {
+			isValidInputString(id, 'table_id/table_name', true);
+		}, CatalystDataStoreError);
+		if (!parseInt(id + '')) {
+			return new Table(this, { table_name: id + '' });
+		}
+		return new Table(this, { table_id: id + '' });
+	}
+}
+
+export class DatastoreAdmin extends Datastore {
+	constructor(app?: unknown) {
+		super(app);
 	}
 
 	/**
@@ -77,36 +112,6 @@ export class Datastore implements Component {
 		const resp = await this.requester.send(request);
 		const json = resp.data.data as ICatalystTable;
 		return new Table(this, json);
-	}
-
-	/**
-	 * Retrieves a table instance without making an API call.
-	 *
-	 * @param {string} id - The table ID or name.
-	 * @returns {Table} The table instance.
-	 * @throws {CatalystDataStoreError} If the provided ID is invalid.
-	 *
-	 * @example
-	 * const tableById = catalystApp.table(12345);
-	 * console.log(tableById);
-	 *
-	 * const tableByName = catalystApp.table("Users");
-	 * console.log(tableByName);
-	 */
-	table(id: string): Table {
-		wrapValidators(() => {
-			isValidInputString(id, 'table_id/table_name', true);
-		}, CatalystDataStoreError);
-		if (!parseInt(id + '')) {
-			return new Table(this, { table_name: id + '' });
-		}
-		return new Table(this, { table_id: id + '' });
-	}
-}
-
-export class DatastoreAdmin extends Datastore {
-	constructor(app?: unknown) {
-		super(app);
 	}
 
 	/**
