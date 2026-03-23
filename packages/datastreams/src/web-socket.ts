@@ -462,7 +462,7 @@ export class DataStreamsWebSocket extends EventEmitter {
 					const errorEvent: CustomEvent = {
 						error: data.value as string
 					};
-					if (data.code === 'e3') {
+					if (data.code === 'e3' || data.code === 'e5') {
 						errorEvent.error = 'Subscription failed. Invalid subscription type.';
 					}
 					this.emit('error', errorEvent);
