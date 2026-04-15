@@ -1,5 +1,12 @@
 import { ConfigStore } from '@zcatalyst/auth-client';
-import { Handler, IRequestConfig, RequestType, Component, CONSTANTS, CatalystService } from '@zcatalyst/transport';
+import {
+	CatalystService,
+	Component,
+	CONSTANTS,
+	Handler,
+	IRequestConfig,
+	RequestType
+} from '@zcatalyst/transport';
 import { LOGGER } from '@zcatalyst/utils';
 
 const { COMPONENT, CREDENTIAL_USER, REQ_METHOD } = CONSTANTS;
