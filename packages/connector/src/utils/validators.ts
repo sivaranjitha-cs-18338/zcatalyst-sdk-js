@@ -1,5 +1,3 @@
-'use strict';
-
 import { isNonNullObject } from '@zcatalyst/utils';
 import { readFileSync } from 'fs';
 

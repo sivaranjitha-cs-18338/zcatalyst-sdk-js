@@ -1,6 +1,16 @@
-import { Auth_Protocol, ConfigManager, zcAuth } from '@zcatalyst/auth-client';
-import { CatalystService, CONSTANTS, getServicePath, getToken } from '@zcatalyst/utils';
+import {
+	addDefaultAppHeaders,
+	Auth_Protocol,
+	collectZCRFToken,
+	ConfigStore,
+	CURRENT_CLIENT_PAGE_ORIGIN,
+	getToken,
+	JWT_COOKIE_PREFIX,
+	PROJECT_ID
+} from '@zcatalyst/auth-client';
+import { CatalystService, CONSTANTS, getServicePath } from '@zcatalyst/utils';
 
+import { version } from '../package.json';
 import {
 	HTTP_HEADER_MAP as HEADER_MAP,
 	HTTP_HEADER_MAP,
@@ -70,7 +80,7 @@ export class DefaultHttpResponse {
 
 // ResponseHandler class
 export class ResponseHandler {
-	public static configManager = ConfigManager.getInstance();
+	static apiDomain = CURRENT_CLIENT_PAGE_ORIGIN;
 
 	constructor() {}
 
@@ -216,39 +226,28 @@ export class ResponseHandler {
 		};
 		if (requestCore.method !== REQ_METHOD.get && requestCore.body !== null)
 			options.body = requestCore.body;
-		const url = this.configManager.APIDomain
-			? `${this.configManager.APIDomain}${requestCore.url}`
-			: requestCore.url;
+		const url = this.apiDomain ? `${this.apiDomain}${requestCore.url}` : requestCore.url;
 		return await this.wrapResponse(await fetch(url, options));
 	}
 
 	// Helper method to attach app-specific headers
 	static #attachAppSpecificHeaders(headers: HeadersInit): HeadersInit {
-		const normalizedHeaders = headers as Record<string, string>;
-		// Modify the "Accept" header
-		const currentAccept = normalizedHeaders['Accept'];
-		if (!currentAccept) {
-			normalizedHeaders['Accept'] = 'application/vnd.catalyst.v2+json';
-		} else {
-			normalizedHeaders['Accept'] = `application/vnd.catalyst.v2+json, ${currentAccept}`;
-		}
+		let normalizedHeaders = headers as Record<string, string>;
 
-		// Add app-specific headers
-		if (typeof this.configManager?.OrgId === 'string') {
-			normalizedHeaders['CATALYST-ORG'] = this.configManager.OrgId;
-		}
-		normalizedHeaders['CATALYST-COMPONENT'] = 'true';
+		// Add default app headers
+		normalizedHeaders = addDefaultAppHeaders(normalizedHeaders);
 
 		return normalizedHeaders;
 	}
 
 	// Method to attach authentication headers
-	public static attachZCAuthHeaders(headers: HeadersInit): Promise<HeadersInit> {
-		switch (this.configManager.AuthProtocol) {
+	public static async attachZCAuthHeaders(headers: HeadersInit): Promise<HeadersInit> {
+		const authProtocol: Auth_Protocol = ConfigStore.get('AUTH_PROTOCOL') as Auth_Protocol;
+		switch (authProtocol) {
 			case Auth_Protocol.ZcrfTokenProtocol:
-				return ResponseHandler.#followZcrfTokenProtocol(headers);
+				return await ResponseHandler.#followZcrfTokenProtocol(headers);
 			case Auth_Protocol.JwtTokenProtocol:
-				return ResponseHandler.#followJwtZCAuthProtocol(headers);
+				return await ResponseHandler.#followJwtZCAuthProtocol(headers);
 			default:
 				return Promise.resolve(headers);
 		}
@@ -256,16 +255,10 @@ export class ResponseHandler {
 
 	// Method to follow Zcrf Token protocol
 	static async #followZcrfTokenProtocol(headers: HeadersInit): Promise<HeadersInit> {
-		return zcAuth
-			.collectZCRFToken()
-			.then(() => {
-				(headers as Record<string, string>)[X_ZCSRF_TOKEN] =
-					`${ZD_CSRPARAM}=${this.configManager.CsrfToken}`;
-				return headers;
-			})
-			.catch((err) => {
-				throw new CatalystAPIError('API_ERROR', err.message, err.status);
-			});
+		await collectZCRFToken();
+		const csrfToken = ConfigStore.get('CSRF_TOKEN');
+		(headers as Record<string, string>)[X_ZCSRF_TOKEN] = `${ZD_CSRPARAM}=${csrfToken}`;
+		return headers;
 	}
 
 	// Method to follow Jwt Token protocol
@@ -283,14 +276,14 @@ export class ResponseHandler {
 
 	// Method to get JWT authentication token
 	public static getJWTZCAuthToken(): Promise<jwtAccessTokenResponse> {
-		const conf = ConfigManager.getInstance();
+		const jwtPrefix = ConfigStore.get(JWT_COOKIE_PREFIX);
 		return new Promise((resolve, reject) => {
-			const jwtZCAuthToken = getToken();
+			const jwtZCAuthToken = getToken() as unknown as string;
 			if (jwtZCAuthToken === '') {
 				reject('Unable to get the JWT Access Token.');
 			} else {
 				resolve({
-					access_token: `${conf.jwtAuthTokenPrefix} ${jwtZCAuthToken}`
+					access_token: `${jwtPrefix} ${jwtZCAuthToken}`
 				});
 			}
 		});
@@ -323,8 +316,19 @@ export class ResponseHandler {
 		return ResponseHandler.fireGeneralRequest({ url, requestCore }, options);
 	}
 
-	static async send(options: IRequestConfig): Promise<DefaultHttpResponse | void> {
+	static async send(
+		options: IRequestConfig,
+		componentName?: string,
+		componentVersion?: string
+	): Promise<DefaultHttpResponse | void> {
 		const headers = options.headers || {};
+
+		let userAgent = CONSTANTS.USER_AGENT.PREFIX + version;
+		if (componentName) {
+			userAgent += ` ${componentName}/${componentVersion || 'unknown'}`;
+		}
+		headers['X-Catalyst-User-Agent'] = userAgent;
+
 		let data = options.data;
 		if (data !== undefined) {
 			switch (options.type) {
@@ -344,27 +348,25 @@ export class ResponseHandler {
 					data = formData as unknown as Record<string, unknown>;
 					break;
 				case RequestType.RAW:
-					data = JSON.stringify(data);
 					if (headers['Content-Type'] === undefined) {
 						headers['Content-Type'] = 'application/octet-stream';
 					}
+					data = new Blob([data as Blob], { type: headers['Content-Type'] });
 					break;
 				default:
 					data = JSON.stringify(data as Record<string, string>);
 					headers['Content-Type'] = 'application/x-www-form-urlencoded';
-					headers['Content-Length'] = Buffer.byteLength(data) + '';
 			}
 		}
-		if (this.configManager.APIDomain === null && !options.origin) {
+		if (this.apiDomain === null && !options.origin) {
 			throw new CatalystAPIError('API_REQUEST_ERROR', 'Unable to get the base url');
 		}
-
 		if (options.service !== CatalystService.EXTERNAL && options.path) {
-			options.path = `${getServicePath(options.service)}/project/${this.configManager.ProjectID}${options.path}`;
+			options.path = `${getServicePath(options.service)}/project/${ConfigStore.get(PROJECT_ID)}${options.path}`;
 		}
 
 		const request = {
-			url: options.url ?? `${options.origin ?? this.configManager.APIDomain}${options.path}`,
+			url: options.url ?? `${options.origin ?? this.apiDomain}${options.path}`,
 			method: options.method,
 			...(data ? { body: data as BodyInit } : {}),
 			headers

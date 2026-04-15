@@ -7,18 +7,20 @@ import {
 } from '@zcatalyst/transport';
 import {
 	CatalystService,
+	Component,
 	CONSTANTS,
 	isNonEmptyString,
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
+import { version } from '../package.json';
 import { Bucket, BucketAdmin } from './bucket';
 import { CatalystStratusError } from './utils/error';
 import { IStratusBucket } from './utils/interface';
 
 const { COMPONENT, REQ_METHOD, CREDENTIAL_USER } = CONSTANTS;
 
-export class Stratus {
+export class Stratus implements Component {
 	requester: Handler;
 	constructor(app?: unknown) {
 		this.requester = new Handler(app, this);
@@ -26,6 +28,34 @@ export class Stratus {
 
 	getComponentName(): string {
 		return COMPONENT.stratus;
+	}
+
+	getComponentVersion(): string {
+		return version;
+	}
+
+	/**
+	 * Get an instance of a bucket by its name.
+	 * @param bucketName - The name of the bucket to create an instance for.
+	 * @access admin
+	 * @returns { Bucket } Instance representing the specified bucket.
+	 * @throws { CatalystStratusError } if the `bucketName` is not a valid non-empty string.
+	 */
+	bucket(bucketName: string): Bucket {
+		if (!isNonEmptyString(bucketName)) {
+			throw new CatalystStratusError(
+				'invalid-argument',
+				'Value provided for bucket_name must be a non empty String.',
+				bucketName
+			);
+		}
+		return new Bucket(this.requester, bucketName);
+	}
+}
+
+export class StratusAdmin extends Stratus {
+	constructor(app?: unknown) {
+		super(app);
 	}
 
 	/**
@@ -84,30 +114,6 @@ export class Stratus {
 			}
 			throw err;
 		}
-	}
-
-	/**
-	 * Get an instance of a bucket by its name.
-	 * @param bucketName - The name of the bucket to create an instance for.
-	 * @access admin
-	 * @returns { Bucket } Instance representing the specified bucket.
-	 * @throws { CatalystStratusError } if the `bucketName` is not a valid non-empty string.
-	 */
-	bucket(bucketName: string): Bucket {
-		if (!isNonEmptyString(bucketName)) {
-			throw new CatalystStratusError(
-				'invalid-argument',
-				'Value provided for bucket_name must be a non empty String.',
-				bucketName
-			);
-		}
-		return new Bucket(this.requester, bucketName);
-	}
-}
-
-export class StratusAdmin extends Stratus {
-	constructor(app?: unknown) {
-		super(app);
 	}
 	/**
 	 * Get an instance of a bucket by its name.

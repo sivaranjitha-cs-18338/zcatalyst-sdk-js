@@ -18,7 +18,6 @@ import { Readable } from 'stream';
 
 import { Cors } from './cors';
 import { StratusObject } from './object';
-import { convertToReadableStream } from './utils/convertion';
 import { CatalystStratusError } from './utils/error';
 import {
 	IStratusBucket,
@@ -45,7 +44,6 @@ const { REQ_METHOD, CREDENTIAL_USER, STRATUS_SUFFIX } = CONSTANTS;
 export class Bucket {
 	_requester: Handler;
 	bucketDetails: IStratusBucket;
-	auth = true;
 	#util: Util;
 	#jwtAuth: JWTAuthHandler;
 	constructor(requester: Handler, bucket: IStratusBucket | string) {
@@ -262,9 +260,9 @@ export class Bucket {
 		const request: IRequestConfig = {
 			method: REQ_METHOD.put,
 			url: url + `/${encodeURI(key)}`,
-			data: convertToReadableStream(body),
+			data: body,
 			qs: params,
-			type: typeof body === 'string' ? RequestType.JSON : RequestType.RAW,
+			type: RequestType.RAW,
 			expecting: param.extractAndUpload ? ResponseType.JSON : ResponseType.RAW,
 			headers,
 			service: CatalystService.EXTERNAL,
@@ -300,9 +298,7 @@ export class Bucket {
 		await wrapValidatorsWithPromise(() => {
 			isNonEmptyString(key, 'key', true);
 		}, CatalystStratusError);
-		const param = {
-			versionId
-		};
+		const param = versionId ? { versionId } : { deleteAllVersions: 'true' };
 		const { headers, params, url } = await this.#addAuthProperties(param);
 		const request: IRequestConfig = {
 			method: REQ_METHOD.head,
@@ -371,7 +367,7 @@ export class Bucket {
 		const request: IRequestConfig = {
 			method: REQ_METHOD.put,
 			url: url + `/${encodeURI(key as string)}`,
-			data: convertToReadableStream(body),
+			data: body,
 			qs: params,
 			type: RequestType.RAW,
 			headers: {
@@ -458,9 +454,15 @@ export class Bucket {
 			return { headers, params, url: `${url}/_signed` };
 		}
 
-		headers.Authorization = `Zoho-oauthtoken ${await this.#jwtAuth.getJWTAccessToken()}`;
+		const accessToken = await this.#jwtAuth.getJWTAccessToken();
+
+		if (!accessToken) {
+			throw new Error('Failed to retrieve access token for authentication.');
+		}
+
+		headers.Authorization = `Zoho-oauthtoken ${accessToken}`;
 		params.zaid = this.#jwtAuth.zaid;
-		params.orgType = 70;
+		// params.orgType = 70;
 
 		return { params, headers, url };
 	}
@@ -476,7 +478,6 @@ export class Bucket {
 
 export class BucketAdmin extends Bucket {
 	_requester: Handler;
-	auth = true;
 	#util: Util;
 	#cors: Cors;
 	constructor(requester: Handler, bucket: IStratusBucket | string) {
@@ -845,7 +846,7 @@ export class BucketAdmin extends Bucket {
 		const objects = [
 			{
 				key,
-				versionId
+				...(versionId ? { version_id: versionId } : {})
 			}
 		];
 		return await this.deleteObjects(objects, ttl);

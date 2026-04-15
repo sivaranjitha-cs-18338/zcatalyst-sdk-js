@@ -23,8 +23,11 @@
       ]
     },
     "test": {
-      "dependsOn": [
-        "build"
+      "cache": false,
+      "inputs": [
+        "src/**/*",
+        "tests/**/*",
+        "jest.config.*"
       ],
       "outputs": []
     },

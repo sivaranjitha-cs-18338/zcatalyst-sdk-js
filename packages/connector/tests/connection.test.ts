@@ -1,12 +1,7 @@
 import moment from 'moment';
 
-import { ZCAuth } from '../../auth/src';
 import { Connection } from '../src';
 import { getConnectorJson } from '../src/utils/validators';
-
-jest.mock('../../auth/src');
-
-const mockedApp = ZCAuth as jest.Mock;
 
 // set current date
 Date.now = jest.fn(() => 1487076708000);
@@ -32,7 +27,6 @@ const propJson = {
 };
 
 describe('testing connector', () => {
-	const app = new mockedApp().init();
 	const connector: Connection = new Connection(propJson);
 	const resd = {
 		test_refresh_url: {
@@ -72,7 +66,6 @@ describe('testing connector', () => {
 			}
 		}
 	};
-	app.setRequestResponseMap(resd);
 	it('get access token', async () => {
 		await expect(connector.getConnector('testConnector').getAccessToken()).resolves.toBe(
 			'access_token'

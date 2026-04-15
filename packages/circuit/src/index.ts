@@ -1,5 +1,3 @@
-'use strict';
-
 import { Handler, IRequestConfig, RequestType } from '@zcatalyst/transport';
 import {
 	CatalystService,
@@ -10,6 +8,7 @@ import {
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
+import { version } from '../package.json';
 import { CatalystCircuitError } from './utils/error';
 
 const { REQ_METHOD, COMPONENT, CREDENTIAL_USER } = CONSTANTS;
@@ -26,6 +25,10 @@ export class Circuit implements Component {
 	 */
 	getComponentName(): string {
 		return COMPONENT.circuit;
+	}
+
+	getComponentVersion(): string {
+		return version;
 	}
 
 	/**

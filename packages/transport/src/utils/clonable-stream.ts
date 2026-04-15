@@ -1,5 +1,3 @@
-'use strict';
-
 import { nextTick } from 'process';
 import { PassThrough, Readable } from 'stream';
 

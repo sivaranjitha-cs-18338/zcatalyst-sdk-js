@@ -1,3 +1,41 @@
+/**
+ * Changelog Generator Script
+ * 
+ * Purpose:
+ * This script automatically generates and updates CHANGELOG.md files for both
+ * the global monorepo and individual packages based on conventional commits
+ * since the last git tag.
+ * 
+ * Features:
+ * - Parses conventional commit messages following the Angular convention
+ * - Groups commits by type (feat, fix, docs, test, refactor, breaking changes)
+ * - Handles breaking changes from both explicit BREAKING CHANGE commits and ! syntax
+ * - Updates global CHANGELOG.md with all package changes
+ * - Updates individual package CHANGELOG.md files with scoped commits
+ * - Generates GitHub PR links for each commit
+ * 
+ * Commit Types Supported:
+ * - feat: New features
+ * - fix: Bug fixes
+ * - docs: Documentation changes
+ * - test: Test additions/modifications
+ * - refactor: Code refactoring
+ * - breaking: Breaking changes (BREAKING CHANGE or feat/fix!)
+ * 
+ * Workflow:
+ * 1. Retrieves all commits since the last git tag
+ * 2. Normalizes commit messages to handle various breaking change formats
+ * 3. Parses commits using conventional-commits-parser
+ * 4. Groups commits by type and package scope
+ * 5. Generates formatted changelog entries with PR links
+ * 6. Updates global and package-specific CHANGELOG.md files
+ * 
+ * Usage:
+ * node scripts/change-log.js
+ * 
+ * Note: This script is typically run after version updates and before publishing
+ */
+
 const parser = require('conventional-commits-parser').sync;
 const { writeFileSync, existsSync, readFileSync, readdirSync } = require('fs');
 const { join } = require('path');

@@ -1,22 +1,29 @@
-'use strict';
-
 import { Handler } from '@zcatalyst/transport';
-import { CONSTANTS, isNonNullObject, ObjectHasProperties } from '@zcatalyst/utils';
+import { Component, CONSTANTS, isNonNullObject, ObjectHasProperties } from '@zcatalyst/utils';
 
+import { version } from '../package.json';
 import { Connector } from './connection';
 import { CatalystConnectorError } from './utils/error';
 import { getConnectorJson } from './utils/validators';
 
-const { CLIENT_ID, CLIENT_SECRET, AUTH_URL, REFRESH_URL, CONNECTOR_NAME } = CONSTANTS;
+const { CLIENT_ID, CLIENT_SECRET, AUTH_URL, REFRESH_URL, CONNECTOR_NAME, COMPONENT } = CONSTANTS;
 
-export class Connection {
+export class Connection implements Component {
 	app?: unknown;
 	requester: Handler;
 	connectionJson: { [x: string]: unknown } | null;
 	constructor(propJson: string | { [x: string]: { [x: string]: string } }, app?: unknown) {
 		this.app = app;
-		this.requester = new Handler(app);
+		this.requester = new Handler(app, this);
 		this.connectionJson = getConnectorJson(propJson);
+	}
+
+	getComponentName(): string {
+		return COMPONENT.connector;
+	}
+
+	getComponentVersion(): string {
+		return version;
 	}
 
 	/**

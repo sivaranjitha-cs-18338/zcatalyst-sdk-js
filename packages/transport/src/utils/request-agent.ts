@@ -1,5 +1,3 @@
-'use strict';
-
 import { CONSTANTS } from '@zcatalyst/utils';
 import { Agent as httpAgent } from 'http';
 import { Agent as httpsAgent } from 'https';

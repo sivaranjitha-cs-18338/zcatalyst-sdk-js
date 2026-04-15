@@ -1,10 +1,41 @@
 # @zcatalyst/search
 
-ZOHO CATALYST SDK for JavaScript User Management for Node.js and Browser.
+JavaScript SDK for Catalyst Search - Full-Text Search Across Data Store
 
-<p></p>
+## Overview
 
-## Installing
+The `@zcatalyst/search` package provides JavaScript/TypeScript methods to perform [Catalyst Search](https://docs.catalyst.zoho.com/en/cloud-scale/help/search/introduction/) operations, enabling full-text search across indexed columns in Data Store tables.
+
+**Catalyst Search** provides fast, efficient search capabilities across large datasets with support for wildcard queries and multi-table searches.
+
+### Key Features
+
+- **Full-Text Search**: Search across indexed table columns
+- **Fast Results**: Optimized for quick search response
+- **Wildcard Support**: Use wildcard patterns in queries
+- **Multi-Table Search**: Search across multiple tables simultaneously
+- **Column Targeting**: Specify exact columns to search
+- **Case-Insensitive**: Search regardless of case
+- **Scalable**: Handle large datasets efficiently
+- **Simple API**: Easy-to-use search methods
+
+### Use Cases
+
+- Implement site-wide search functionality
+- Search user data across multiple tables
+- Find records matching specific patterns
+- Build autocomplete features
+- Filter and discover data quickly
+- Search logs and records
+- Implement product search
+
+### Prerequisites
+
+- A [Catalyst project](https://docs.catalyst.zoho.com/en/getting-started/catalyst-projects) set up
+- Data Store tables with indexed columns
+- Understanding of [search indexing](https://docs.catalyst.zoho.com/en/cloud-scale/help/search/search-indexing/)
+
+## Installation
 
 To install this package, simply type add or install @zcatalyst/search
 using your favorite package manager:
@@ -17,7 +48,7 @@ using your favorite package manager:
 
 ### Import
 
-The Catalyst SDK is modulized by Components.
+The Catalyst SDK is modularized by Components.
 To send a request, you only need to import the `Search`:
 
 ```js
@@ -49,7 +80,7 @@ const data = await search.executeSearchQuery({
 });
 ```
 
-#### Async/await
+### Async/await
 
 We recommend using [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)
 operator to wait for the promise returned by send operation as follows:
@@ -57,7 +88,8 @@ operator to wait for the promise returned by send operation as follows:
 ```js
 // async/await.
 try {
-	const data = await executeSearchQuery({
+	const search = new Search();
+	const data = await search.executeSearchQuery({
 		search: 'santh\*',
 		search_table_columns: {
 			SampleTable: ['SearchIndexedColumn'],
@@ -72,77 +104,7 @@ try {
 }
 ```
 
-Async-await is clean, concise, intuitive, easy to debug and has better error handling
-as compared to using Promise chains or callbacks.
-
-#### Promises
-
-You can also use [Promise chaining](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises#chaining)
-to execute send operation.
-
-```js
-search
-	.executeSearchQuery({
-		search: 'santh\*',
-		search_table_columns: {
-			SampleTable: ['SearchIndexedColumn'],
-			Users: ['SearchTest']
-		}
-	})
-	.then(
-		(data) => {
-			// process data.
-		},
-		(error) => {
-			// error handling.
-		}
-	);
-```
-
-Promises can also be called using `.catch()` and `.finally()` as follows:
-
-```js
-search
-	.executeSearchQuery({
-		search: 'santh\*',
-		search_table_columns: {
-			SampleTable: ['SearchIndexedColumn'],
-			Users: ['SearchTest']
-		}
-	})
-	.then((data) => {
-		// process data.
-	})
-	.catch((error) => {
-		// error handling.
-	})
-	.finally(() => {
-		// finally.
-	});
-```
-
-#### Callbacks
-
-We do not recommend using callbacks because of [callback hell](http://callbackhell.com/),
-but they are supported by the send operation.
-
-```js
-// callbacks.
-search.executeSearchQuery(
-	{
-		search: 'santh\*',
-		search_table_columns: {
-			SampleTable: ['SearchIndexedColumn'],
-			Users: ['SearchTest']
-		}
-	},
-	(err, data) => {
-		// process err and data.
-	}
-);
-```
-
-### Troubleshooting
+### Error Handling
 
 When the service returns an exception, the error will include the exception information,
 as well as response metadata (e.g. request id).
@@ -164,6 +126,14 @@ try {
 }
 ```
 
+## Resources
+
+- [Catalyst Search Documentation](https://docs.catalyst.zoho.com/en/cloud-scale/help/search/introduction/)
+- [Search Indexing](https://docs.catalyst.zoho.com/en/cloud-scale/help/search/search-indexing/)
+- [Search Operations](https://docs.catalyst.zoho.com/en/cloud-scale/help/search/search-operations/)
+- [Search SDK Reference](https://docs.catalyst.zoho.com/en/sdk/server-side-sdks/node-js-sdk/search/)
+- [SDK Documentation](https://docs.catalyst.zoho.com/en/sdk/)
+
 ## Contributing
 
 Contributions to this library are always welcome and highly encouraged.
@@ -173,14 +143,3 @@ See [CONTRIBUTING](../../CONTRIBUTING.md) for more information on how to get sta
 ## License
 
 This SDK is distributed under the Apache License 2.0. See [LICENSE](../../LICENCE) file for more information.
-
-## Search operations
-
-<details>
-<summary>
-executeSearchQuery
-</summary>
-
-<!-- [SDK Samples](https://docs.catalyst.zoho.com/en/sdk/nodejs/v2/cloud-scale/file-store/retrieve-folder-details/)[API References]() -->
-
-</details>

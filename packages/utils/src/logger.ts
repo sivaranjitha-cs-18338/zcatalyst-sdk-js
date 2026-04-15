@@ -1,5 +1,3 @@
-import { log } from 'console';
-
 interface ICatalystLoggerOptions {
 	enable_info: boolean;
 	enable_warn: boolean;
@@ -38,7 +36,7 @@ export enum LEVEL {
 	ERROR = 'error'
 }
 
-class Logger {
+export class Logger {
 	logOptions: ICatalystLoggerOptions;
 
 	constructor(options?: ICatalystLoggerOptions) {
@@ -86,7 +84,8 @@ class Logger {
 	}
 
 	#logToConsole(message: string): void {
-		log(message);
+		// eslint-disable-next-line no-console
+		console.log(message);
 	}
 
 	#resetLogLevels(): void {
@@ -155,6 +154,30 @@ class Logger {
 	}
 }
 
-const _logLvl = process.env.ZC_LOG_LVL || 'NONE';
-const processLogLvl = LEVEL[_logLvl as keyof typeof LEVEL];
+/**
+ * Creates a new Logger instance with the given log level.
+ * Prefer this over the global LOGGER singleton when per-component or testable logging is needed.
+ *
+ * @param level - The log level to set. Defaults to {@link LEVEL.NONE}
+ * @returns A new Logger instance
+ */
+export function createLogger(level: LEVEL = LEVEL.NONE): Logger {
+	return new Logger().setLogLevel(level);
+}
+
+function getLogLevelFromEnv(): LEVEL {
+	if (typeof process !== 'undefined' && process && process.env && process.env.ZC_LOG_LVL) {
+		const lvl = process.env.ZC_LOG_LVL.toUpperCase();
+		return LEVEL[lvl as keyof typeof LEVEL] || LEVEL.NONE;
+	}
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	if (typeof window !== 'undefined' && (window as any).ZC_LOG_LVL) {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const lvl = ((window as any).ZC_LOG_LVL as string).toUpperCase();
+		return LEVEL[lvl as keyof typeof LEVEL] || LEVEL.NONE;
+	}
+	return LEVEL.NONE;
+}
+
+const processLogLvl = getLogLevelFromEnv();
 export const LOGGER = new Logger().setLogLevel(processLogLvl);

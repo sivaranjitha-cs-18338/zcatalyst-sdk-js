@@ -1,6 +1,6 @@
 {
   "name": "@zcatalyst/utils",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "./dist-cjs/index.js",
   "module": "./dist-es/index.js",
   "types": "./dist-types/index.d.ts",
@@ -15,12 +15,6 @@
     "clean": "rimraf ./dist-* && rimraf *.tsbuildinfo || exit 0",
     "lint": "eslint -c ../../eslint.config.mjs \"src/**/*.ts\"",
     "format": "prettier  --ignore-path ../.prettierignore --write \"{src, test}/*.ts\""
-  },
-  "browser": {
-    "./dist-cjs/index.js": "./dist-cjs/index.browser.js",
-    "./dist-es/index.js": "./dist-es/index.browser.js",
-    "./dist-types/index.d.ts": "./dist-types/index.browser.d.ts",
-    "url": false
   },
   "engines": {
     "node": ">=20"

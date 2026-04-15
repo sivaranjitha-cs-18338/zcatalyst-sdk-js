@@ -67,12 +67,12 @@ Example of using multiple services in a Lambda function:
 
 ```typescript
 import { ZCQL } from '@zcatalyst/zcql';
-import { ZCAuth } from '@zcatalyst/auth';
+import { zcAuth } from '@zcatalyst/auth';
 import { Filestore } from '@zcatalyst/filestore';
 
 export async function handler(req, res) {
     // Initialize services
-    const auth = new ZCAuth().init(req);
+    const auth = zcAuth.init(req);
     const zcql = new ZCQL();
     const filestore = new Filestore();
 
@@ -106,3 +106,61 @@ Please report any security issues to [security@catalyst.zoho.com](mailto:securit
 ## License
 
 This SDK is distributed under the Apache License 2.0. See [LICENSE](./LICENCE) file for more information.
+
+## Testing
+
+### Running Tests
+
+```bash
+# Run all tests
+pnpm test
+
+# Run tests in watch mode
+pnpm test:watch
+
+# Run tests with coverage
+pnpm test:coverage
+
+# Run tests for CI (with coverage and limited workers)
+pnpm test:ci
+
+# Run tests for specific package
+pnpm --filter @zcatalyst/auth test
+```
+
+### Test Structure
+
+Each package has its own test suite:
+- `packages/*/tests/` - Test files
+- `packages/*/jest.config.js` - Package-specific Jest configuration
+
+### Writing Tests
+
+Tests use Jest and follow these conventions:
+- Test files: `*.test.ts` or `*.spec.ts`
+- Setup files: `tests/setup.ts`
+- Mock files: `tests/__mocks__/`
+
+Example test:
+```typescript
+import { MyClass } from '../src';
+
+describe('MyClass', () => {
+  it('should do something', () => {
+    const instance = new MyClass();
+    expect(instance.method()).toBe(expected);
+  });
+});
+```
+
+### Coverage Reports
+
+Coverage reports are generated in `coverage/` directory:
+- `coverage/lcov.info` - LCOV format for CI tools
+- `coverage/html/` - HTML report for local viewing
+
+Minimum coverage thresholds:
+- Branches: 50%
+- Functions: 50%
+- Lines: 50%
+- Statements: 50%

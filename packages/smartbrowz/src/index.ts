@@ -1,6 +1,7 @@
 import { Handler, IRequestConfig, RequestType, ResponseType } from '@zcatalyst/transport';
 import {
 	CatalystService,
+	Component,
 	CONSTANTS,
 	isNonEmptyString,
 	isURL,
@@ -9,6 +10,7 @@ import {
 import { IncomingMessage } from 'http';
 import { Readable } from 'stream';
 
+import { version } from '../package.json';
 import { Dataverse } from './dataverse';
 import { CatalystSmartbrowzError } from './utils/error';
 import {
@@ -23,12 +25,20 @@ const { REQ_METHOD, CREDENTIAL_USER } = CONSTANTS;
 type ICatalystSmartbrowzTemplateOptions = ICatalystSmartbrowzTemplate &
 	(ICatalystSmartbrowzScrShot | ICatalystSmartbrowzPdf);
 
-export class Smartbrowz {
+export class Smartbrowz implements Component {
 	readonly requester: Handler;
 	readonly #dataverse: Dataverse;
 	constructor(app?: unknown) {
-		this.requester = new Handler(app);
+		this.requester = new Handler(app, this);
 		this.#dataverse = new Dataverse({ requester: this.requester });
+	}
+
+	getComponentName(): string {
+		return 'smartbrowz';
+	}
+
+	getComponentVersion(): string {
+		return version;
 	}
 
 	async #execute(

@@ -1,5 +1,3 @@
-'use strict';
-
 import { Handler, IRequestConfig } from '@zcatalyst/transport';
 import {
 	CatalystService,
@@ -10,6 +8,7 @@ import {
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
+import { version } from '../package.json';
 import { Segment } from './segment';
 import { CatalystCacheError } from './utils/error';
 
@@ -27,6 +26,10 @@ export class Cache implements Component {
 	 */
 	getComponentName(): string {
 		return COMPONENT.cache;
+	}
+
+	getComponentVersion(): string {
+		return version;
 	}
 
 	/**

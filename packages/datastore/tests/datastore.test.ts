@@ -1,16 +1,12 @@
 import moment from 'moment';
 
-import { ZCAuth } from '../../auth/src';
 import { Datastore } from '../src';
 import { Table } from '../src/table';
-
-jest.mock('../../auth/src');
-
-const mockedApp = ZCAuth as jest.Mock;
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { responses } = require('../../../tests/api-responses.js');
 
 describe('test datastore', () => {
-	const app = new mockedApp().init();
-	const datastore: Datastore = new Datastore(app);
+	const datastore: Datastore = new Datastore();
 
 	const tableReqRes = {
 		[`/table/123`]: {
@@ -67,7 +63,7 @@ describe('test datastore', () => {
 			}
 		}
 	};
-	app.setRequestResponseMap(tableReqRes);
+	// app.setRequestResponseMap(tableReqRes);
 	it('get all tables', async () => {
 		await expect(datastore.getAllTables()).resolves.toBeInstanceOf(Array);
 	});

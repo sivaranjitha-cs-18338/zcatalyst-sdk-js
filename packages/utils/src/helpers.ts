@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Override a value with supplied environment variable if present.
  *

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-'use strict';
 
 import { Cache, ICatalystCache } from '@zcatalyst/cache';
 import { Handler, IRequestConfig } from '@zcatalyst/transport';
@@ -98,7 +97,7 @@ export class Connector {
 				return await this.refreshAndPersistToken();
 			}
 			this.expiresAt = expiryTime;
-			this.accessToken = value.access_token;
+			this.accessToken = this.#decrypt(value.access_token, this.secretKey as string);
 			return this.accessToken as string;
 		} catch (err) {
 			if (err instanceof SyntaxError) return await this.refreshAndPersistToken();
