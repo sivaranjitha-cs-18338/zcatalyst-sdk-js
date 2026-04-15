@@ -1,5 +1,3 @@
-'use strict';
-
 import { ICatalystMail } from './interface';
 
 //TODO: complete validating the email object

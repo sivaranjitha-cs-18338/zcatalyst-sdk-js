@@ -1,5 +1,3 @@
-'use strict';
-
 import { envOverride } from './helpers';
 
 // move constants local to the package

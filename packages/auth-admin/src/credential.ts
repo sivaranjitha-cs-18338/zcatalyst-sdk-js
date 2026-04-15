@@ -1,5 +1,3 @@
-'use strict';
-
 import { CONSTANTS } from '@zcatalyst/utils';
 import { readFileSync } from 'fs';
 import http from 'http';

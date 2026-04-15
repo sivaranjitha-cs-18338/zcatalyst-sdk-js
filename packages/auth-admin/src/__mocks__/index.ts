@@ -128,6 +128,7 @@ export class ZCAuth {
 
 		if (!isNonEmptyObject(appOptions)) {
 			appOptions = this.#loadOptionsFromEnvVar();
+			// eslint-disable-next-line no-console
 			console.log('loaded from env var', appOptions);
 			if (!isNonEmptyObject(appOptions)) {
 				throw new CatalystAppError(

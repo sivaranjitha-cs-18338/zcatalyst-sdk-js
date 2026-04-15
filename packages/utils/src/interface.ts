@@ -1,5 +1,3 @@
-'use strict';
-
 export interface Component {
 	getComponentName(): string;
 	getComponentVersion?(): string;

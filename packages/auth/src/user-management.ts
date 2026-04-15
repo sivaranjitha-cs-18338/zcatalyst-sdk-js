@@ -1,5 +1,3 @@
-'use strict';
-
 import { Handler, IRequestConfig, RequestType } from '@zcatalyst/transport';
 import {
 	CatalystService,
@@ -14,7 +12,6 @@ import {
 } from '@zcatalyst/utils';
 
 import { version } from '../package.json';
-
 import { CatalystUserManagementError } from './utils/error';
 import {
 	ICatalystCustomTokenDetails,

@@ -1,5 +1,3 @@
-'use strict';
-
 import { Handler, IRequestConfig, RequestType, ResponseType } from '@zcatalyst/transport';
 import {
 	CatalystService,
@@ -10,7 +8,6 @@ import {
 } from '@zcatalyst/utils';
 
 import { version } from '../package.json';
-
 import { CatalystZCQLError } from './utils/errors';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

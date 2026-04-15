@@ -1,5 +1,3 @@
-'use strict';
-
 import { ICatalystClientRes, ResponseHandler } from './fetch-handler';
 import { Component, IRequestConfig } from './utils/interfaces';
 

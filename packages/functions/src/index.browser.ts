@@ -1,4 +1,3 @@
-'use strict';
 import { Handler, IRequestConfig, RequestType } from '@zcatalyst/transport';
 import {
 	CatalystService,

@@ -1,5 +1,3 @@
-'use strict';
-
 import { Handler, IRequestConfig, RequestType } from '@zcatalyst/transport';
 import {
 	CatalystService,
@@ -13,7 +11,6 @@ import {
 import fs from 'fs';
 
 import { version } from '../package.json';
-
 import { CatalystZiaError } from './utils/errors';
 import {
 	ICatalsytZiaKeywordExtraction,

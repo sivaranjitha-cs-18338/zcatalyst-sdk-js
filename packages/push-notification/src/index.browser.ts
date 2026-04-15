@@ -1,5 +1,3 @@
-'use strict';
-
 import { ConfigStore } from '@zcatalyst/auth-client';
 import { Handler, IRequestConfig, RequestType } from '@zcatalyst/transport';
 import { CatalystService, Component, CONSTANTS, LOGGER } from '@zcatalyst/utils';

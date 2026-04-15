@@ -1,4 +1,3 @@
-'use strict';
 import { ICatalystGResponse } from '@zcatalyst/utils';
 
 export interface IPipelineDetails extends ICatalystGResponse {

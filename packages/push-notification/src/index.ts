@@ -1,5 +1,3 @@
-'use strict';
-
 import { Handler } from '@zcatalyst/transport';
 import { Component, CONSTANTS, isValidInputString, wrapValidators } from '@zcatalyst/utils';
 
