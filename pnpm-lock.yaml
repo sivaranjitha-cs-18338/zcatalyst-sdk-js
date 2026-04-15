@@ -185,43 +185,6 @@ importers:
         specifier: workspace:^
         version: link:../utils
 
-  packages/datastreams:
-    dependencies:
-      '@zcatalyst/transport':
-        specifier: workspace:*
-        version: link:../transport
-      '@zcatalyst/utils':
-        specifier: workspace:*
-        version: link:../utils
-      ws:
-        specifier: ^8.18.0
-        version: 8.18.3
-    devDependencies:
-      '@types/jest':
-        specifier: ^29.5.12
-        version: 29.5.14
-      '@types/node':
-        specifier: ^20.11.30
-        version: 20.19.31
-      '@types/ws':
-        specifier: ^8.18.1
-        version: 8.18.1
-      concurrently:
-        specifier: ^8.2.2
-        version: 8.2.2
-      downlevel-dts:
-        specifier: ^0.11.0
-        version: 0.11.0
-      jest:
-        specifier: ^29.7.0
-        version: 29.7.0(@types/node@20.19.31)
-      jest-environment-jsdom:
-        specifier: ^30.0.5
-        version: 30.2.0
-      typescript:
-        specifier: ^5.4.3
-        version: 5.8.3
-
   packages/filestore:
     dependencies:
       '@zcatalyst/auth-client':
@@ -1653,12 +1616,6 @@ packages:
 
   /@types/unist@3.0.3:
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
-    dev: true
-
-  /@types/ws@8.18.1:
-    resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
-    dependencies:
-      '@types/node': 20.19.31
     dev: true
 
   /@types/yargs-parser@21.0.3:
