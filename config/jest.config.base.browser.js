@@ -61,8 +61,5 @@ module.exports = {
   modulePathIgnorePatterns: [
     '/dist-.*/',
     '/.turbo/'
-  ],
-  
-  // Set test URL for jsdom
-  testURL: 'http://localhost:3000'
+  ]
 };

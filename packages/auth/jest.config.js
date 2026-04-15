@@ -2,7 +2,7 @@
  * Jest Configuration for @zcatalyst/auth package
  */
 
-const base = require('../../jest.config.base.browser');
+const base = require('../../config/jest.config.base.browser');
 
 module.exports = {
   ...base,
