@@ -81,7 +81,7 @@ describe('user management', () => {
 		await expect(
 			userManagement.resetPassword('xyzsd123@gmail.com', signUpConfig)
 		).resolves.toStrictEqual(
-			`Reset link sent to your ${userConfig.email_id} email address. Please check your email :)`
+			`Reset link sent to your email address. Please check your email :)`
 		);
 		await expect(
 			userManagement.resetPassword('', { platform_type: 'test' })

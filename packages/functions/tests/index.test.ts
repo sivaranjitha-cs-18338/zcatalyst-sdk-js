@@ -5,6 +5,14 @@ const { responses } = require('../../../tests/api-responses.js');
 describe('Functions Module', () => {
 	const func: Functions = new Functions();
 
+	it('getComponentName returns correct name', () => {
+		expect(func.getComponentName()).toBe('Function');
+	});
+
+	it('getComponentVersion returns package version', () => {
+		expect(func.getComponentVersion()).toBe('0.0.3');
+	});
+
 	describe('execute function', () => {
 		it('should execute a function with default GET method', async () => {
 			await expect(func.execute('testFunction')).resolves.toBe(

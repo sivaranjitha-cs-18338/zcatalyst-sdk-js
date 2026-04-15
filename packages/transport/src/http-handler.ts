@@ -485,7 +485,7 @@ export class AuthorizedHttpClient extends HttpClient {
 	}
 
 	async send(request: IRequestConfig): Promise<DefaultHttpResponse> {
-		const requestCopy = Object.assign(request);
+		const requestCopy = Object.assign({ user: CREDENTIAL_USER.user }, request);
 		requestCopy.headers = Object.assign({}, request.headers);
 		if (request.auth !== false) {
 			await this.app?.authenticateRequest(requestCopy as unknown as Record<string, unknown>);

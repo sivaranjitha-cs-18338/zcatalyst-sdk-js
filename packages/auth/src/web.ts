@@ -46,7 +46,9 @@ class Authentication implements Component {
 	authProtocol: Auth_Protocol = ConfigStore.get('AUTH_PROTOCOL') as unknown as Auth_Protocol;
 	constructor(app?: unknown) {
 		this.requester = new Handler(app, this);
-		getCredentials();
+		getCredentials().catch(() => {
+			// Credentials will be loaded on-demand or set via ConfigStore
+		});
 		this.signIn = this.signIn.bind(this);
 		this.signOut = this.signOut.bind(this);
 		this.isUserAuthenticated = this.isUserAuthenticated.bind(this);
@@ -86,7 +88,9 @@ class Authentication implements Component {
 	}
 
 	async hostedSignIn(redirectUrl?: string): Promise<void> {
-		await getCredentials();
+		if (!ConfigStore.get('INITIALIZED')) {
+			await getCredentials();
+		}
 		window.location.href = `/${URL_DIVIDER.RESERVED_URL}/${URL_DIVIDER.AUTH}/${URL_DIVIDER.LOGIN}?redirect_url=${encodeURIComponent(redirectUrl ?? '/')}`;
 	}
 
@@ -95,7 +99,7 @@ class Authentication implements Component {
 		ConfigStore.set('AUTH_PROTOCOL', Auth_Protocol.JwtTokenProtocol);
 	}
 
-	private async publicSignup(): Promise<ICatalystAuthResponse> {
+	async publicSignup(): Promise<ICatalystAuthResponse> {
 		const appDomain = `${location.protocol}//${location.host}`;
 		const request: IRequestConfig = {
 			method: REQ_METHOD.get,

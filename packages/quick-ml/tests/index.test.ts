@@ -5,6 +5,14 @@ const { responses } = require('../../../tests/api-responses.js');
 describe('testing quick ml', () => {
 	const quickml: QuickML = new QuickML();
 
+	it('getComponentName returns correct name', () => {
+		expect(quickml.getComponentName()).toBe('quickml');
+	});
+
+	it('getComponentVersion returns package version', () => {
+		expect(quickml.getComponentVersion()).toBe('0.0.3');
+	});
+
 	it('quick ml endpoint predict', async () => {
 		await expect(
 			quickml.predict('1234abcd', {

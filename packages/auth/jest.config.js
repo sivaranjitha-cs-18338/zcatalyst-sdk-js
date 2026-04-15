@@ -8,5 +8,8 @@ module.exports = {
   ...base,
   displayName: '@zcatalyst/auth',
   rootDir: '.',
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts']
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
+  moduleNameMapper: {
+    "^@zcatalyst/transport$": "<rootDir>/../../packages/transport/src/__mocks__"
+  }
 };

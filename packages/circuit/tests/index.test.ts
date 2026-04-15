@@ -4,17 +4,24 @@ const { responses } = require('../../../tests/api-responses.js');
 
 describe('testing circuit', () => {
 	const circuit: Circuit = new Circuit();
+
+	it('getComponentName returns correct name', () => {
+		expect(circuit.getComponentName()).toBe('Circuit');
+	});
+
+	it('getComponentVersion returns package version', () => {
+		expect(circuit.getComponentVersion()).toBe('0.0.3');
+	});
+
 	it('Circuit execute', async () => {
+		// with input
 		await expect(
 			circuit.execute('123', 'sampleName', {
 				name: 'Aaron Jones'
 			})
 		).resolves.toStrictEqual(responses[`/circuit/123/execute`].POST.data.data);
-		await expect(
-			circuit.execute('1234', 'sampleName', {
-				name: 'Aaron Jones'
-			})
-		).resolves.toStrictEqual(undefined);
+		// without optional input (covers undefined branch)
+		await expect(circuit.execute('1234', 'sampleName')).resolves.toStrictEqual(undefined);
 		await expect(
 			circuit.execute('', 'sampleName', {
 				name: 'Aaron Jones'

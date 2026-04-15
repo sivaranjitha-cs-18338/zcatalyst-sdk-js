@@ -1720,13 +1720,18 @@ exports.responses = {
 				data: { cron_status: false }
 			}
 		},
+		PUT: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: { cron_name: 'new_cron_name' }
+			}
+		},
 		DELETE: {
 			statusCode: 200,
 			data: {
 				status: 'success',
-				data: {
-					cron_name: 'cron_name'
-				}
+				data: { cron_name: 'cron_name' }
 			}
 		}
 	},
@@ -1804,6 +1809,188 @@ exports.responses = {
 			data: {
 				status: 'success',
 				data: { cron_name: 'cron_name' }
+			}
+		}
+	},
+
+	// Job Scheduling - Cron by numeric ID (cronId = '1234567890')
+	'/job_scheduling/cron/1234567890': {
+		GET: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: {
+					cron_name: 'cron_name',
+					cron_type: 'Calendar',
+					cron_execution_type: 'pre-defined',
+					job_meta: {
+						id: 'job_meta_id',
+						url: '',
+						job_name: 'test_job',
+						job_config: { number_of_retries: 0 },
+						target_type: 'Function',
+						target_details: { id: 't_1', target_name: 'target_fn' },
+						source_type: 'Cron',
+						source_details: {
+							id: 'cron_id',
+							source_name: 'cron_name',
+							details: { cron_execution_type: 'pre-defined' }
+						},
+						jobpool_id: 'pool_1',
+						jobpool_details: {
+							jobpool_id: 'pool_1',
+							jobpool_name: 'test_pool',
+							project_details: { id: '123', project_name: 'proj' },
+							created_time: '2024-07-11T17:30:00Z',
+							created_by: { email_id: 'user@zylker.com', user_id: 'u_1' },
+							modified_time: '2024-07-11T17:40:00Z',
+							modified_by: { email_id: 'user@zylker.com', user_id: 'u_1' }
+						},
+						headers: {},
+						params: {}
+					},
+					cron_status: true,
+					created_time: 'Jul 11, 2024 05:30 PM',
+					created_by: { email_id: 'user@zylker.com', user_id: 'u_1' },
+					modified_time: 'Jul 11, 2024 07:15 PM',
+					modified_by: { email_id: 'user@zylker.com', user_id: 'u_1' },
+					project_details: { id: '123', project_name: 'proj' },
+					end_time: 1723281306,
+					cron_detail: {
+						hour: 0,
+						minute: 0,
+						second: 0,
+						repetition_type: 'daily',
+						timezone: 'Australia/Sydney'
+					},
+					success_count: 0,
+					failure_count: 0,
+					id: 'cron_id'
+				}
+			}
+		},
+		PATCH: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: { cron_status: false }
+			}
+		},
+		DELETE: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: { cron_name: 'cron_id' }
+			}
+		}
+	},
+
+	// Job Scheduling - Cron by name 'cron_id' (deleteCron(cronId) reference key)
+	'/job_scheduling/cron/cron_id': {
+		GET: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: { cron_name: 'cron_id', cron_status: true, id: 'cron_id' }
+			}
+		},
+		DELETE: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: { cron_name: 'cron_id' }
+			}
+		}
+	},
+
+	// Job Scheduling - Cron 404 paths (error test cases)
+	'/job_scheduling/cron/no_cron': {
+		GET: {
+			statusCode: 404,
+			data: {
+				status: 'failure',
+				data: { message: 'No such Cron with the given name exists.', error_code: 'INVALID_NAME' }
+			}
+		},
+		PATCH: {
+			statusCode: 404,
+			data: {
+				status: 'failure',
+				data: { message: 'No such Cron with the given name exists.', error_code: 'INVALID_NAME' }
+			}
+		},
+		DELETE: {
+			statusCode: 404,
+			data: {
+				status: 'failure',
+				data: { message: 'No such Cron with the given name exists.', error_code: 'INVALID_NAME' }
+			}
+		}
+	},
+	'/job_scheduling/cron/1234': {
+		GET: {
+			statusCode: 404,
+			data: {
+				status: 'failure',
+				data: { message: 'No such Cron with the given id exists', error_code: 'INVALID_ID' }
+			}
+		},
+		PUT: {
+			statusCode: 404,
+			data: {
+				status: 'failure',
+				data: { message: 'No such Cron with the given id exists', error_code: 'INVALID_ID' }
+			}
+		},
+		PATCH: {
+			statusCode: 404,
+			data: {
+				status: 'failure',
+				data: { message: 'No such Cron with the given id exists', error_code: 'INVALID_ID' }
+			}
+		},
+		DELETE: {
+			statusCode: 404,
+			data: {
+				status: 'failure',
+				data: { message: 'No such Cron with the given id exists', error_code: 'INVALID_ID' }
+			}
+		}
+	},
+
+	// Job Scheduling - Submit Job from Cron (numeric ID)
+	'/job_scheduling/cron/1234567890/submit_job': {
+		POST: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: {
+					job_id: 'job_123',
+					job_name: 'test_job',
+					target_type: 'Function',
+					target_name: 'target_fn',
+					jobpool_name: 'pool_1',
+					status: 'success',
+					created_time: '2024-07-11T17:30:00Z'
+				}
+			}
+		}
+	},
+
+	'/job_scheduling/cron/test_cron/submit_job': {
+		POST: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: {
+					job_id: 'job_123',
+					job_name: 'test_job',
+					target_type: 'Function',
+					target_name: 'target_fn',
+					jobpool_name: 'pool_1',
+					status: 'success',
+					created_time: '2024-07-11T17:30:00Z'
+				}
 			}
 		}
 	},
@@ -2025,6 +2212,386 @@ exports.responses = {
 					}
 				]
 			}
+		}
+	},
+
+	// Auth - UserManagement routes
+	'/project-user': {
+		GET: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: [
+					{
+						user_id: '123',
+						email_id: 'email',
+						first_name: 'firstname',
+						last_name: 'lastname',
+						zuid: '12345',
+						zaaid: '1234',
+						org_id: '1234',
+						status: 'ACTIVE',
+						role_details: { role_id: '12', role_name: 'test_role' },
+						created_time: 'created_time',
+						modified_time: 'modeified_time',
+						invited_time: 'invited_time',
+						is_confirmed: true
+					}
+				]
+			}
+		},
+		POST: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: {
+					platform_type: 'web',
+					user_details: {
+						first_name: 'firstname',
+						last_name: 'lastname',
+						email_id: 'email',
+						org_id: '1234'
+					}
+				}
+			}
+		}
+	},
+	'/project-user?org_id=ord_Id': {
+		GET: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: [
+					{
+						user_id: '123',
+						email_id: 'email',
+						first_name: 'firstname',
+						last_name: 'lastname',
+						zuid: '12345',
+						zaaid: '1234',
+						org_id: '1234',
+						status: 'ACTIVE',
+						role_details: { role_id: '12', role_name: 'test_role' },
+						created_time: 'created_time',
+						modified_time: 'modeified_time',
+						invited_time: 'invited_time',
+						is_confirmed: true
+					}
+				]
+			}
+		}
+	},
+	'/project-user/orgs': {
+		GET: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: ['org_1234', 'org_5678']
+			}
+		}
+	},
+	'/project-user/123': {
+		GET: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: {
+					user_id: '123',
+					email_id: 'email',
+					first_name: 'firstname',
+					last_name: 'lastname',
+					status: 'ACTIVE'
+				}
+			}
+		},
+		PUT: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: {
+					user_id: '123',
+					email_id: 'samplemail@sample.com',
+					last_name: 'last_name',
+					first_name: 'first_name',
+					status: 'ACTIVE'
+				}
+			}
+		},
+		DELETE: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: true
+			}
+		}
+	},
+	'/project-user/1234': {
+		GET: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: undefined
+			}
+		},
+		DELETE: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: null
+			}
+		}
+	},
+	'/project-user/forgotpassword': {
+		POST: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: 'Reset link sent to your email address. Please check your email :)'
+			}
+		}
+	},
+	'/project-user/123/enable': {
+		POST: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: { user_id: '123', status: 'ACTIVE' }
+			}
+		}
+	},
+	'/project-user/123/disable': {
+		POST: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: { user_id: '123', status: 'INACTIVE' }
+			}
+		}
+	},
+
+	// Auth - Browser routes
+	'/__catalyst/auth/public-signup': {
+		GET: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: { public_signup: true }
+			}
+		}
+	},
+	'/project-user/change-password': {
+		PUT: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: 'Password changed successfully'
+			}
+		}
+	},
+	'/project-user/change-password?new_password=newPass456&old_password=oldPass123': {
+		PUT: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: 'Password changed successfully'
+			}
+		}
+	},
+
+	// NoSQL table mocks
+	'/nosqltable/12345': {
+		GET: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: {
+					type: 'TABLE',
+					project_details: { project_name: 'testProject', id: '12345', project_type: 'Live' },
+					partition_key: { column_name: 'main_part', data_type: 'S' },
+					sort_key: { column_name: 'main_sort', data_type: 'S' },
+					status: 'ONLINE',
+					modified_by: { is_confirmed: false, email_id: 'testuser@test.com', first_name: 'Test', last_name: 'User', user_type: 'Admin', user_id: '1234567890' },
+					modified_time: 'Mar 27, 2024 02:50 PM',
+					created_by: { is_confirmed: false, email_id: 'testuser@test.com', first_name: 'Test', last_name: 'User', user_type: 'Admin', user_id: '1234567890' },
+					created_time: 'Mar 27, 2024 02:50 PM',
+					metrics: { size: 57413, row_count: 8 },
+					id: '12345',
+					name: 'testTable',
+					ttl_enabled: false,
+					api_access: false,
+					additional_sort_keys: [],
+					global_index: [{
+						type: 'GLOBAL_INDEX',
+						project_details: { project_name: 'testProject', id: '12345', project_type: 'Live' },
+						partition_key: { column_name: 'idx1', data_type: 'S' },
+						sort_key: { column_name: 'str1', data_type: 'S' },
+						status: 'ONLINE',
+						modified_by: { is_confirmed: false, email_id: 'testuser@test.com', first_name: 'Test', last_name: 'User', user_type: 'Admin', user_id: '1234567890' },
+						modified_time: 'Apr 01, 2024 12:23 PM',
+						created_by: { is_confirmed: false, email_id: 'testuser@test.com', first_name: 'Test', last_name: 'User', user_type: 'Admin', user_id: '1234567890' },
+						created_time: 'Apr 01, 2024 12:23 PM',
+						metrics: { size: null, row_count: 0 },
+						id: '123456',
+						name: 'testIdx',
+						projected_attributes: { type: 'all' }
+					}]
+				}
+			}
+		}
+	},
+	'/nosqltable/testTable': {
+		GET: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: {
+					type: 'TABLE',
+					project_details: { project_name: 'testProject', id: '12345', project_type: 'Live' },
+					partition_key: { column_name: 'main_part', data_type: 'S' },
+					sort_key: { column_name: 'main_sort', data_type: 'S' },
+					status: 'ONLINE',
+					modified_by: { is_confirmed: false, email_id: 'testuser@test.com', first_name: 'Test', last_name: 'User', user_type: 'Admin', user_id: '1234567890' },
+					modified_time: 'Mar 27, 2024 02:50 PM',
+					created_by: { is_confirmed: false, email_id: 'testuser@test.com', first_name: 'Test', last_name: 'User', user_type: 'Admin', user_id: '1234567890' },
+					created_time: 'Mar 27, 2024 02:50 PM',
+					metrics: { size: 57413, row_count: 8 },
+					id: '12345',
+					name: 'testTable',
+					ttl_enabled: false,
+					api_access: false,
+					additional_sort_keys: [],
+					global_index: [{
+						type: 'GLOBAL_INDEX',
+						project_details: { project_name: 'testProject', id: '12345', project_type: 'Live' },
+						partition_key: { column_name: 'idx1', data_type: 'S' },
+						sort_key: { column_name: 'str1', data_type: 'S' },
+						status: 'ONLINE',
+						modified_by: { is_confirmed: false, email_id: 'testuser@test.com', first_name: 'Test', last_name: 'User', user_type: 'Admin', user_id: '1234567890' },
+						modified_time: 'Apr 01, 2024 12:23 PM',
+						created_by: { is_confirmed: false, email_id: 'testuser@test.com', first_name: 'Test', last_name: 'User', user_type: 'Admin', user_id: '1234567890' },
+						created_time: 'Apr 01, 2024 12:23 PM',
+						metrics: { size: null, row_count: 0 },
+						id: '123456',
+						name: 'testIdx',
+						projected_attributes: { type: 'all' }
+					}]
+				}
+			}
+		}
+	},
+	'/nosqltable/notable': {
+		GET: {
+			statusCode: 404,
+			data: {
+				status: 'failure',
+				data: { message: 'No such table with the given id exists', error_code: 'INVALID_ID' }
+			}
+		}
+	},
+	'/nosqltable': {
+		GET: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: [{
+					type: 'TABLE',
+					project_details: { project_name: 'testProject', id: '12345', project_type: 'Live' },
+					partition_key: { column_name: 'main_part', data_type: 'S' },
+					sort_key: { column_name: 'main_sort', data_type: 'S' },
+					status: 'ONLINE',
+					modified_by: { Zuid: '1234567890', is_confirmed: false, email_id: 'testuser@test.com', first_name: 'Test', last_name: 'User', user_type: 'Admin', user_id: '1234567890' },
+					modified_time: 'Mar 27, 2024 02:50 PM',
+					created_by: { Zuid: '1234567890', is_confirmed: false, email_id: 'testuser@test.com', first_name: 'Test', last_name: 'User', user_type: 'Admin', user_id: '1234567890' },
+					created_time: 'Mar 27, 2024 02:50 PM',
+					metrics: { size: 57413, row_count: 8 },
+					id: '12345',
+					name: 'testTable',
+					ttl_enabled: false,
+					api_access: false,
+					additional_sort_keys: [],
+					global_index: []
+				}]
+			}
+		}
+	},
+
+	// NoSQL item operation mocks
+	'/nosqltable/12345/item': {
+		POST: {
+			statusCode: 200,
+			data: { status: 'success', data: { size: 20, create: [{ status: 'Success' }] } }
+		},
+		PUT: {
+			statusCode: 200,
+			data: { status: 'success', data: { size: 20, update: [{ status: 'Success' }] } }
+		},
+		DELETE: {
+			statusCode: 200,
+			data: { status: 'success', data: { size: 20, delete: [{ status: 'Success' }] } }
+		}
+	},
+	'/nosqltable/testTable/item': {
+		POST: {
+			statusCode: 200,
+			data: { status: 'success', data: { size: 20, create: [{ status: 'Success' }] } }
+		},
+		PUT: {
+			statusCode: 200,
+			data: { status: 'success', data: { size: 20, update: [{ status: 'Success' }] } }
+		},
+		DELETE: {
+			statusCode: 200,
+			data: { status: 'success', data: { size: 20, delete: [{ status: 'Success' }] } }
+		}
+	},
+	'/nosqltable/failure/item': {
+		POST: {
+			statusCode: 400,
+			data: { status: 'failure', data: { message: 'Invalid input value for item', error_code: 'INVALID_INPUT' } }
+		},
+		PUT: {
+			statusCode: 400,
+			data: { status: 'failure', data: { message: 'Mandatory Key main_part is missing in the item', error_code: 'INVALID_KEY' } }
+		},
+		DELETE: {
+			statusCode: 200,
+			data: { status: 'success', data: { size: 0, delete: [{ status: 'ConditionMismatch' }] } }
+		}
+	},
+	'/nosqltable/12345/item/fetch': {
+		POST: {
+			statusCode: 200,
+			data: { status: 'success', data: { size: 20, get: [{ item: { main_sort: { S: 'a' }, main_part: { S: 'a' } } }] } }
+		}
+	},
+	'/nosqltable/testTable/item/fetch': {
+		POST: {
+			statusCode: 200,
+			data: { status: 'success', data: { size: 20, get: [{ item: { main_sort: { S: 'a' }, main_part: { S: 'a' } } }] } }
+		}
+	},
+	'/nosqltable/failure/item/fetch': {
+		POST: {
+			statusCode: 200,
+			data: { status: 'success', data: { size: 0 } }
+		}
+	},
+	'/nosqltable/12345/item/query': {
+		POST: {
+			statusCode: 200,
+			data: { status: 'success', data: { size: 20, get: [{ item: { main_sort: { S: 'a' }, main_part: { S: 'a' } } }] } }
+		}
+	},
+	'/nosqltable/testTable/item/query': {
+		POST: {
+			statusCode: 200,
+			data: { status: 'success', data: { size: 20, get: [{ item: { main_sort: { S: 'a' }, main_part: { S: 'a' } } }] } }
+		}
+	},
+	'/nosqltable/failure/item/query': {
+		POST: {
+			statusCode: 200,
+			data: { status: 'success', data: { size: 0 } }
 		}
 	}
 

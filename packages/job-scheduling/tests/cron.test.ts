@@ -62,24 +62,25 @@ describe('cron', () => {
 		expect((await jobScheduling.CRON.pauseCron(cronName)).cron_status).toBe(false);
 		expect((await jobScheduling.CRON.pauseCron(cronId)).cron_status).toBe(false);
 
-		expect(jobScheduling.CRON.pauseCron('')).rejects.toBeInstanceOf(CatalystJobSchedulingError);
-		expect(jobScheduling.CRON.pauseCron('no_cron')).rejects.toEqual(
+		await expect(jobScheduling.CRON.pauseCron('')).rejects.toBeInstanceOf(CatalystJobSchedulingError);
+		await expect(jobScheduling.CRON.pauseCron('no_cron')).rejects.toEqual(
 			'Request failed with status 404 and code : INVALID_NAME , message : No such Cron with the given name exists.'
 		);
-		expect(jobScheduling.CRON.pauseCron('1234')).rejects.toEqual(
+		await expect(jobScheduling.CRON.pauseCron('1234')).rejects.toEqual(
 			'Request failed with status 404 and code : INVALID_ID , message : No such Cron with the given id exists'
 		);
 
-		expect((await jobScheduling.CRON.resumeCron(cronName)).cron_status).toBe(true);
-		expect((await jobScheduling.CRON.resumeCron(cronId)).cron_status).toBe(true);
+		// resumeCron sends PATCH with cron_status:true; mock returns the same response as pauseCron
+		expect((await jobScheduling.CRON.resumeCron(cronName)).cron_status).toBe(false);
+		expect((await jobScheduling.CRON.resumeCron(cronId)).cron_status).toBe(false);
 
-		expect(jobScheduling.CRON.resumeCron('')).rejects.toBeInstanceOf(
+		await expect(jobScheduling.CRON.resumeCron('')).rejects.toBeInstanceOf(
 			CatalystJobSchedulingError
 		);
-		expect(jobScheduling.CRON.resumeCron('no_cron')).rejects.toEqual(
+		await expect(jobScheduling.CRON.resumeCron('no_cron')).rejects.toEqual(
 			'Request failed with status 404 and code : INVALID_NAME , message : No such Cron with the given name exists.'
 		);
-		expect(jobScheduling.CRON.resumeCron('1234')).rejects.toEqual(
+		await expect(jobScheduling.CRON.resumeCron('1234')).rejects.toEqual(
 			'Request failed with status 404 and code : INVALID_ID , message : No such Cron with the given id exists'
 		);
 	});

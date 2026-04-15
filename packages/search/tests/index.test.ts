@@ -4,6 +4,15 @@ const { responses } = require('../../../tests/api-responses.js');
 
 describe('search', () => {
 	const search: Search = new Search();
+
+	it('getComponentName returns correct name', () => {
+		expect(search.getComponentName()).toBe('Search');
+	});
+
+	it('getComponentVersion returns package version', () => {
+		expect(search.getComponentVersion()).toBe('0.0.3');
+	});
+
 	it('execute search query', async () => {
 		await expect(
 			search.executeSearchQuery({
