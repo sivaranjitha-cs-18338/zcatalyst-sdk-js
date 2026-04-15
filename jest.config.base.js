@@ -7,6 +7,10 @@ module.exports = {
   collectCoverage: true,
   testEnvironment: "node",
   moduleDirectories: ["node_modules", "packages/**/src"],
+  moduleNameMapper: {
+    "^@zcatalyst/utils$": "<rootDir>/../utils/src",
+    "^@zcatalyst/auth-admin$": "<rootDir>/../auth-admin/src"
+  },
   coverageThreshold: {
     global: {
       branches: 80,
