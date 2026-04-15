@@ -1,5 +1,3 @@
-'use strict';
-
 import { IncomingMessage } from 'http';
 import { basename } from 'path';
 import { PassThrough, Readable, Stream } from 'stream';

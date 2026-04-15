@@ -1,13 +1,13 @@
-'use strict';
-
 import { Handler, IRequestConfig, RequestType, ResponseType } from '@zcatalyst/transport';
 import {
 	CatalystService,
+	Component,
 	CONSTANTS,
 	isNonEmptyString,
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
+import { version } from '../package.json';
 import { CatalystZCQLError } from './utils/errors';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -18,10 +18,10 @@ const { REQ_METHOD, CREDENTIAL_USER, COMPONENT, ACCEPT_HEADER } = CONSTANTS;
 /**
  *
  */
-export class ZCQL {
+export class ZCQL implements Component {
 	requester: Handler;
 	constructor(app?: unknown) {
-		this.requester = new Handler(app);
+		this.requester = new Handler(app, this);
 	}
 
 	/**
@@ -32,6 +32,10 @@ export class ZCQL {
 	 */
 	getComponentName(): string {
 		return COMPONENT.zcql;
+	}
+
+	getComponentVersion(): string {
+		return version;
 	}
 
 	/**

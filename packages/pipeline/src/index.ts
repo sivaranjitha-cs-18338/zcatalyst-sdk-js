@@ -7,6 +7,7 @@ import {
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
+import { version } from '../package.json';
 import { CatalystPipelineError } from './utils/error';
 import { IPipelineDetails, IPipelineRunResponse } from './utils/interface';
 
@@ -23,6 +24,10 @@ export class Pipeline implements Component {
 	 */
 	getComponentName(): string {
 		return COMPONENT.pipeline;
+	}
+
+	getComponentVersion(): string {
+		return version;
 	}
 
 	/**

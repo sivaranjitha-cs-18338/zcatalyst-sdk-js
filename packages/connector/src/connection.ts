@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-'use strict';
 
 import { Cache, ICatalystCache } from '@zcatalyst/cache';
 import { Handler, IRequestConfig } from '@zcatalyst/transport';

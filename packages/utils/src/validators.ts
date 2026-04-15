@@ -1,5 +1,3 @@
-'use strict';
-
 import { CatalystAppError, CatalystError } from './errors';
 
 /**
@@ -60,11 +58,7 @@ export function isValidNumber(value: unknown, throwErr = false): boolean {
 		}
 		return false;
 	}
-	if (
-		[Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]
-			.map((val) => val.toString())
-			.includes((value as number).toString())
-	) {
+	if (!isFinite(value as number) || isNaN(value as number)) {
 		if (throwErr) {
 			throw new CatalystError({
 				code: 'INVALID_NUMBER',
@@ -454,8 +448,10 @@ export function wrapValidatorsWithPromise(
 			// error is assumed to be a CatalystError Instance
 			if (e instanceof CatalystError) {
 				reject(new errorInstance(e.code, e.message));
+				return;
 			}
 			reject(e);
+			return;
 		}
 		resolve();
 	});

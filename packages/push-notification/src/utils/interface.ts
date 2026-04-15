@@ -1,5 +1,3 @@
-'use strict';
-
 export interface ICatalystPushDetails {
 	message: string;
 	additional_info?: { [x: string]: unknown };

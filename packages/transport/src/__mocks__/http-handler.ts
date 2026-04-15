@@ -177,6 +177,7 @@ export class AuthorizedHttpClient {
 		const path = getPathFromReq(request);
 		const method = getMethod(request);
 		const queryParams = getParams(request);
+		// eslint-disable-next-line no-console
 		console.log('MockedHttpClient send called for ', method, path, queryParams);
 		const resd =
 			responses && responses[path] && responses[path][method]

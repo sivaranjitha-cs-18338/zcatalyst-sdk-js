@@ -7,6 +7,7 @@ import {
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
+import { version } from '../package.json';
 import Cron from './cron';
 import Job from './job';
 import LOCAL_CONSTANTS from './utils/constants';
@@ -29,6 +30,10 @@ export class JobScheduling implements Component {
 
 	getComponentName(): string {
 		return COMPONENT.job_scheduling;
+	}
+
+	getComponentVersion(): string {
+		return version;
 	}
 
 	// Jobpool

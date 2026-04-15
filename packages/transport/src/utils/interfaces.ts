@@ -4,6 +4,7 @@ import { RequestType, ResponseType } from './enums';
 
 export interface Component {
 	getComponentName(): string;
+	getComponentVersion?(): string;
 }
 
 export interface jwtAccessTokenResponse {

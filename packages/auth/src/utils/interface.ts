@@ -1,4 +1,3 @@
-'use strict';
 import { ICatalystJSON } from '@zcatalyst/utils';
 
 export interface ICatalystSysUser {

@@ -1,5 +1,3 @@
-'use strict';
-
 import { ICatalystProject, ICatalystSysUser } from '@zcatalyst/utils';
 
 export interface ICatalystColumn {

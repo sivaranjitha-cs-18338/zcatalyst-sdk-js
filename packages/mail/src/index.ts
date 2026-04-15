@@ -1,5 +1,3 @@
-'use strict';
-
 import { Handler, IRequestConfig, RequestType } from '@zcatalyst/transport';
 import {
 	CatalystService,
@@ -11,6 +9,7 @@ import {
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
+import { version } from '../package.json';
 import { CatalystEmailError } from './utils/error';
 import { ICatalystMail } from './utils/interface';
 import { getFormData } from './utils/validators';
@@ -28,6 +27,10 @@ export class Mail implements Component {
 
 	getComponentName(): string {
 		return COMPONENT.email;
+	}
+
+	getComponentVersion(): string {
+		return version;
 	}
 
 	/**

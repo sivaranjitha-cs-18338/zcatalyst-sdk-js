@@ -10,12 +10,12 @@ import {
 	CatalystService,
 	Component,
 	CONSTANTS,
-	isNonEmptyObject,
 	isNonEmptyString,
 	isValidInputString,
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
+import { version } from '../package.json';
 import { CatalystDataStreamError } from './utils/errors';
 import {
 	ApiResponse,
@@ -54,6 +54,10 @@ export class DataStreams implements Component {
 		return COMPONENT.data_streams;
 	}
 
+	getComponentVersion(): string {
+		return version;
+	}
+
 	/**
 	 * Get a token pair for a specific datastream channel
 	 *
@@ -80,46 +84,39 @@ export class DataStreams implements Component {
 	): Promise<ApiResponse<TokenResponse>> {
 		await wrapValidatorsWithPromise(() => {
 			isValidInputString(channelId, 'channelId', true);
-			if (
-				!isValidInputString(userId, 'userId', false) &&
-				!isValidInputString(connectionName, 'connectionName', false)
-			) {
-				throw new CatalystDataStreamError(
-					'INVALID_USER_IDENTIFIER',
-					'User identifier or connection name must be a non-empty string'
-				);
-			}
 		}, CatalystDataStreamError);
 
-		try {
-			let payload: Record<string, unknown> = {};
-
-			// Try to convert string user to number if possible
-			if (userId) {
-				payload = { app_user_id: userId };
-			} else if (connectionName) {
-				payload = { connection_name: connectionName };
-			}
-
-			const request: IRequestConfig = {
-				method: REQ_METHOD.post,
-				path: `/datastreams/channel/${channelId}/tokenpair`,
-				data: payload,
-				headers: this._addHeader({}),
-				type: RequestType.JSON,
-				expecting: ResponseType.JSON,
-				user: CREDENTIAL_USER.user,
-				service: CatalystService.BAAS
-			};
-			const resp = await this.requester.send(request);
-			return resp.data.data;
-		} catch (error) {
+		if (
+			!isValidInputString(userId, 'userId', false) &&
+			!isValidInputString(connectionName, 'connectionName', false)
+		) {
 			throw new CatalystDataStreamError(
-				'FAILED_TO_GET_TOKEN_PAIR',
-				`Failed to get token pair: ${error instanceof Error ? error.message : 'Unknown error'}`,
-				error
+				'INVALID_PARAM',
+				'Either userId or connectionName must be provided and valid.'
 			);
 		}
+
+		let payload: Record<string, unknown> = {};
+
+		// Try to convert string user to number if possible
+		if (userId) {
+			payload = { app_user_id: userId };
+		} else if (connectionName) {
+			payload = { connection_name: connectionName };
+		}
+
+		const request: IRequestConfig = {
+			method: REQ_METHOD.post,
+			path: `/datastreams/channel/${channelId}/tokenpair`,
+			data: payload,
+			headers: typeof window === 'undefined' ? this._addHeader({}) : {},
+			type: RequestType.JSON,
+			expecting: ResponseType.JSON,
+			user: CREDENTIAL_USER.user,
+			service: CatalystService.BAAS
+		};
+		const resp = await this.requester.send(request);
+		return resp.data.data;
 	}
 
 	_addHeader(headers: Record<string, string>): Record<string, string> {
@@ -158,23 +155,16 @@ export class DataStreamsAdmin extends DataStreams {
 	 * ```
 	 */
 	async getAllChannels(): Promise<ApiResponse<GetAllChannelsResponse>> {
-		try {
-			const request: IRequestConfig = {
-				method: REQ_METHOD.get,
-				path: '/datastreams/channel',
-				type: RequestType.JSON,
-				expecting: ResponseType.JSON,
-				user: CREDENTIAL_USER.admin,
-				service: CatalystService.BAAS
-			};
-			const resp = await this.requester.send(request);
-			return resp.data.data;
-		} catch (error) {
-			throw new CatalystDataStreamError(
-				'FAILED_TO_GET_CHANNELS',
-				`Failed to get all channels: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
-		}
+		const request: IRequestConfig = {
+			method: REQ_METHOD.get,
+			path: '/datastreams/channel',
+			type: RequestType.JSON,
+			expecting: ResponseType.JSON,
+			user: CREDENTIAL_USER.admin,
+			service: CatalystService.BAAS
+		};
+		const resp = await this.requester.send(request);
+		return resp.data.data;
 	}
 
 	/**
@@ -200,24 +190,16 @@ export class DataStreamsAdmin extends DataStreams {
 		await wrapValidatorsWithPromise(() => {
 			isValidInputString(channelId, 'channelId', true);
 		}, CatalystDataStreamError);
-
-		try {
-			const request: IRequestConfig = {
-				method: REQ_METHOD.get,
-				path: `/datastreams/channel/${channelId}`,
-				type: RequestType.JSON,
-				expecting: ResponseType.JSON,
-				user: CREDENTIAL_USER.admin,
-				service: CatalystService.BAAS
-			};
-			const resp = await this.requester.send(request);
-			return resp.data.data;
-		} catch (error) {
-			throw new CatalystDataStreamError(
-				'FAILED_TO_GET_CHANNEL_DETAILS',
-				`Failed to get channel details: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
-		}
+		const request: IRequestConfig = {
+			method: REQ_METHOD.get,
+			path: `/datastreams/channel/${channelId}`,
+			type: RequestType.JSON,
+			expecting: ResponseType.JSON,
+			user: CREDENTIAL_USER.admin,
+			service: CatalystService.BAAS
+		};
+		const resp = await this.requester.send(request);
+		return resp.data.data;
 	}
 
 	/**
@@ -244,24 +226,16 @@ export class DataStreamsAdmin extends DataStreams {
 			isValidInputString(channelId, 'channelId', true);
 		}, CatalystDataStreamError);
 
-		try {
-			const request: IRequestConfig = {
-				method: REQ_METHOD.get,
-				path: `/datastreams/channel/${channelId}/liveclient`,
-				type: RequestType.JSON,
-				expecting: ResponseType.JSON,
-				user: CREDENTIAL_USER.admin,
-				service: CatalystService.BAAS
-			};
-			const resp = await this.requester.send(request);
-			return resp.data;
-		} catch (error) {
-			throw new CatalystDataStreamError(
-				'FAILED_TO_GET_LIVE_COUNT',
-				`Failed to get live count: ${error instanceof Error ? error.message : 'Unknown error'}`,
-				error
-			);
-		}
+		const request: IRequestConfig = {
+			method: REQ_METHOD.get,
+			path: `/datastreams/channel/${channelId}/liveclient`,
+			type: RequestType.JSON,
+			expecting: ResponseType.JSON,
+			user: CREDENTIAL_USER.admin,
+			service: CatalystService.BAAS
+		};
+		const resp = await this.requester.send(request);
+		return resp.data;
 	}
 
 	/**
@@ -284,32 +258,24 @@ export class DataStreamsAdmin extends DataStreams {
 	 * console.log('publish result::', result);
 	 * ```
 	 */
-	async publishData(channelId: string, data: Record<string, unknown>): Promise<boolean> {
+	async publishData(channelId: string, data: string): Promise<boolean> {
 		await wrapValidatorsWithPromise(() => {
 			isValidInputString(channelId, 'channelId', true);
-			isNonEmptyObject(data, 'data', true);
+			isNonEmptyString(data, 'data', true);
 		}, CatalystDataStreamError);
 
-		try {
-			const payload: Record<string, unknown> = data;
+		const payload: string = data;
 
-			const request: IRequestConfig = {
-				method: REQ_METHOD.post,
-				path: `/datastreams/channel/${channelId}/stream`,
-				data: { data: payload },
-				type: RequestType.JSON,
-				expecting: ResponseType.JSON,
-				user: CREDENTIAL_USER.admin,
-				service: CatalystService.BAAS
-			};
-			const resp = await this.requester.send(request);
-			return resp as unknown as boolean;
-		} catch (error) {
-			throw new CatalystDataStreamError(
-				'FAILED_TO_PUBLISH_DATA',
-				`Failed to publish data: ${error instanceof Error ? error.message : 'Unknown error'}`,
-				error
-			);
-		}
+		const request: IRequestConfig = {
+			method: REQ_METHOD.post,
+			path: `/datastreams/channel/${channelId}/stream`,
+			data: { data: payload },
+			type: RequestType.JSON,
+			expecting: ResponseType.JSON,
+			user: CREDENTIAL_USER.admin,
+			service: CatalystService.BAAS
+		};
+		const resp = await this.requester.send(request);
+		return resp.data.data as unknown as boolean;
 	}
 }

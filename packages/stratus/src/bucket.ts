@@ -298,9 +298,7 @@ export class Bucket {
 		await wrapValidatorsWithPromise(() => {
 			isNonEmptyString(key, 'key', true);
 		}, CatalystStratusError);
-		const param = {
-			versionId
-		};
+		const param = versionId ? { versionId } : { deleteAllVersions: 'true' };
 		const { headers, params, url } = await this.#addAuthProperties(param);
 		const request: IRequestConfig = {
 			method: REQ_METHOD.head,
@@ -456,9 +454,15 @@ export class Bucket {
 			return { headers, params, url: `${url}/_signed` };
 		}
 
-		headers.Authorization = `Zoho-oauthtoken ${await this.#jwtAuth.getJWTAccessToken()}`;
+		const accessToken = await this.#jwtAuth.getJWTAccessToken();
+
+		if (!accessToken) {
+			throw new Error('Failed to retrieve access token for authentication.');
+		}
+
+		headers.Authorization = `Zoho-oauthtoken ${accessToken}`;
 		params.zaid = this.#jwtAuth.zaid;
-		params.orgType = 70;
+		// params.orgType = 70;
 
 		return { params, headers, url };
 	}
@@ -842,7 +846,7 @@ export class BucketAdmin extends Bucket {
 		const objects = [
 			{
 				key,
-				versionId
+				...(versionId ? { version_id: versionId } : {})
 			}
 		];
 		return await this.deleteObjects(objects, ttl);

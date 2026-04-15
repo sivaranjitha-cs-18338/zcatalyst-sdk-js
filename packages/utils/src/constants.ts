@@ -1,5 +1,3 @@
-'use strict';
-
 import { envOverride } from './helpers';
 
 // move constants local to the package
@@ -21,6 +19,7 @@ export const CONSTANTS = {
 	COMPONENT: {
 		cache: 'Cache',
 		circuit: 'Circuit',
+		connector: 'Connector',
 		cron: 'Cron',
 		datastore: 'DataStore',
 		email: 'Mail',
@@ -34,7 +33,8 @@ export const CONSTANTS = {
 		zia: 'Zia',
 		job_scheduling: 'JobScheduling',
 		pipeline: 'Pipeline',
-		no_sql: 'NoSQL'
+		no_sql: 'NoSQL',
+		data_streams: 'DataStreams'
 	},
 	PRODUCT_NAME: {
 		baas: 'baas',

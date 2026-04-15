@@ -23,6 +23,12 @@
       ]
     },
     "test": {
+      "cache": false,
+      "inputs": [
+        "src/**/*",
+        "tests/**/*",
+        "jest.config.*"
+      ],
       "outputs": []
     },
     "lint": {

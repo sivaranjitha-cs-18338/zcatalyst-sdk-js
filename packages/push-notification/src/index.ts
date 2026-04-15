@@ -1,8 +1,7 @@
-'use strict';
+import { Handler } from '@zcatalyst/transport';
+import { Component, CONSTANTS, isValidInputString, wrapValidators } from '@zcatalyst/utils';
 
-import { Handler, Component, CONSTANTS } from '@zcatalyst/transport';
-import { isValidInputString, wrapValidators } from '@zcatalyst/utils';
-
+import { version } from '../package.json';
 import { MobileNotification } from './mobile-notification';
 import { CatalystPushNotificationError } from './utils/error';
 import { WebNotification } from './web-notification';
@@ -21,6 +20,10 @@ export class PushNotification implements Component {
 	 */
 	getComponentName(): string {
 		return COMPONENT.notification;
+	}
+
+	getComponentVersion(): string {
+		return version;
 	}
 
 	/**

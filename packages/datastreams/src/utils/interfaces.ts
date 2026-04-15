@@ -221,8 +221,9 @@ export interface DataStreamMessageEvent {
 }
 
 export interface CustomEvent {
-	code: number;
-	message: string;
+	code?: number;
+	message?: string;
+	error?: string;
 }
 
 export interface SubscribePayload {

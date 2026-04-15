@@ -1,5 +1,3 @@
-'use strict';
-
 import { Handler, IRequestConfig, RequestType } from '@zcatalyst/transport';
 import {
 	CatalystService,
@@ -12,6 +10,7 @@ import {
 } from '@zcatalyst/utils';
 import fs from 'fs';
 
+import { version } from '../package.json';
 import { CatalystZiaError } from './utils/errors';
 import {
 	ICatalsytZiaKeywordExtraction,
@@ -47,6 +46,10 @@ export class Zia implements Component {
 	 */
 	getComponentName(): string {
 		return COMPONENT.zia;
+	}
+
+	getComponentVersion(): string {
+		return version;
 	}
 
 	/**

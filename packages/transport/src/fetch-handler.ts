@@ -10,6 +10,7 @@ import {
 } from '@zcatalyst/auth-client';
 import { CatalystService, CONSTANTS, getServicePath } from '@zcatalyst/utils';
 
+import { version } from '../package.json';
 import {
 	HTTP_HEADER_MAP as HEADER_MAP,
 	HTTP_HEADER_MAP,
@@ -315,8 +316,19 @@ export class ResponseHandler {
 		return ResponseHandler.fireGeneralRequest({ url, requestCore }, options);
 	}
 
-	static async send(options: IRequestConfig): Promise<DefaultHttpResponse | void> {
+	static async send(
+		options: IRequestConfig,
+		componentName?: string,
+		componentVersion?: string
+	): Promise<DefaultHttpResponse | void> {
 		const headers = options.headers || {};
+
+		let userAgent = CONSTANTS.USER_AGENT.PREFIX + version;
+		if (componentName) {
+			userAgent += ` ${componentName}/${componentVersion || 'unknown'}`;
+		}
+		headers['X-Catalyst-User-Agent'] = userAgent;
+
 		let data = options.data;
 		if (data !== undefined) {
 			switch (options.type) {

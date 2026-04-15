@@ -1,14 +1,14 @@
-'use strict';
-
 import { Handler, IRequestConfig, RequestType } from '@zcatalyst/transport';
 import {
 	CatalystService,
+	Component,
 	CONSTANTS,
 	isNonEmptyObject,
 	isNonEmptyString,
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
+import { version } from '../package.json';
 import { CatalystQuickMLError } from './utils/error';
 
 const { REQ_METHOD, CREDENTIAL_USER } = CONSTANTS;
@@ -18,10 +18,18 @@ export interface ICatalystQuickMLResponse {
 	result: Array<string>;
 }
 
-export class QuickML {
+export class QuickML implements Component {
 	requester: Handler;
 	constructor(app?: unknown) {
-		this.requester = new Handler(app);
+		this.requester = new Handler(app, this);
+	}
+
+	getComponentName(): string {
+		return 'quickml';
+	}
+
+	getComponentVersion(): string {
+		return version;
 	}
 
 	/**

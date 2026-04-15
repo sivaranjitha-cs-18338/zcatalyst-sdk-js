@@ -36,7 +36,7 @@ export enum LEVEL {
 	ERROR = 'error'
 }
 
-class Logger {
+export class Logger {
 	logOptions: ICatalystLoggerOptions;
 
 	constructor(options?: ICatalystLoggerOptions) {
@@ -152,6 +152,17 @@ class Logger {
 		}
 		return this;
 	}
+}
+
+/**
+ * Creates a new Logger instance with the given log level.
+ * Prefer this over the global LOGGER singleton when per-component or testable logging is needed.
+ *
+ * @param level - The log level to set. Defaults to {@link LEVEL.NONE}
+ * @returns A new Logger instance
+ */
+export function createLogger(level: LEVEL = LEVEL.NONE): Logger {
+	return new Logger().setLogLevel(level);
 }
 
 function getLogLevelFromEnv(): LEVEL {

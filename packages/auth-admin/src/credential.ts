@@ -1,5 +1,3 @@
-'use strict';
-
 import { CONSTANTS } from '@zcatalyst/utils';
 import { readFileSync } from 'fs';
 import http from 'http';
@@ -282,7 +280,7 @@ export class CatalystCredential extends Credential {
 	adminCred: TicketCredential | AccessTokenCredential;
 	userCred: TicketCredential | AccessTokenCredential | CookieCredential | undefined;
 	cookieStr: string | undefined;
-	currentUser: string;
+	scope: string;
 	userType: string;
 	constructor(credObj: Record<string, string | undefined>, scope?: string) {
 		super();
@@ -296,9 +294,24 @@ export class CatalystCredential extends Credential {
 			credObj[CREDENTIAL_HEADER.user] === CREDENTIAL_USER.admin
 				? CREDENTIAL_USER.admin
 				: CREDENTIAL_USER.user;
-		this.currentUser = scope || this.userType;
-		if (this.userToken === undefined && this.cookieStr === undefined) {
-			throw new CatalystAuthError('INVALID_CREDENTIAL', 'missing user credentials', credObj);
+		this.scope = scope || this.userType;
+		if (this.scope === CREDENTIAL_USER.user) {
+			if (this.userType === CREDENTIAL_USER.admin) {
+				throw new CatalystAuthError(
+					'AUTH_ERROR',
+					'User not authenticated. Please login to proceed with user scope',
+					credObj
+				);
+			}
+
+			// if user scope is set, user token or cookie should be present
+			if (this.userToken === undefined && this.cookieStr === undefined) {
+				throw new CatalystAuthError(
+					'INVALID_CREDENTIAL',
+					'missing user credentials',
+					credObj
+				);
+			}
 		}
 
 		switch (this.adminCredType) {
@@ -340,7 +353,7 @@ export class CatalystCredential extends Credential {
 		cookie?: string;
 		zcrf_header?: string;
 	}> {
-		switch (this.currentUser) {
+		switch (this.scope) {
 			case CREDENTIAL_USER.admin:
 				return this.adminCred.getToken();
 			case CREDENTIAL_USER.user:
@@ -348,7 +361,7 @@ export class CatalystCredential extends Credential {
 					throw new CatalystAuthError(
 						'INVALID_CREDENTIAL',
 						'User Credential is not initialised',
-						this.currentUser
+						this.scope
 					);
 				}
 				return this.userCred.getToken();
@@ -356,28 +369,33 @@ export class CatalystCredential extends Credential {
 				throw new CatalystAuthError(
 					'INVALID_CREDENTIAL',
 					'user provided is not recognized',
-					this.currentUser
+					this.scope
 				);
 		}
 	}
 
 	/** @override */
+	getScope(): string {
+		return this.scope;
+	}
+
+	/** @override */
 	getCurrentUser(): string {
-		return this.currentUser;
+		return this.scope;
 	}
 
 	/** @override */
 	getCurrentUserType(): string {
-		if (this.currentUser === CREDENTIAL_USER.user) {
+		if (this.scope === CREDENTIAL_USER.user) {
 			return this.userType;
 		}
-		return this.currentUser;
+		return this.scope;
 	}
 
 	/** @override */
 	switchUser(givenUser?: string): string {
 		if (givenUser === undefined) {
-			switch (this.currentUser) {
+			switch (this.scope) {
 				case CREDENTIAL_USER.admin:
 					givenUser = CREDENTIAL_USER.user;
 					break;
@@ -386,8 +404,8 @@ export class CatalystCredential extends Credential {
 					break;
 			}
 		}
-		this.currentUser = givenUser as string;
-		return this.currentUser;
+		this.scope = givenUser as string;
+		return this.scope;
 	}
 }
 

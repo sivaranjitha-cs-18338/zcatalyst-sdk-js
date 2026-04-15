@@ -1,5 +1,3 @@
-'use strict';
-
 export interface ICatalystError {
 	code: string;
 	message: string;
@@ -39,7 +37,8 @@ export class CatalystError extends Error {
 		return {
 			code: this.code,
 			message: this.message,
-			value: this.value
+			value: this.value,
+			statusCode: this.statusCode
 		};
 	}
 
