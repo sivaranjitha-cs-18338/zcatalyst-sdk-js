@@ -14,7 +14,8 @@ import {
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
-import { version } from '../package.json';
+import pkg from '../package.json';
+const { version } = pkg;
 import {
 	AUTH_ERROR_MSG,
 	AUTH_STATIC_FILES,
@@ -220,6 +221,7 @@ class Authentication implements Component {
 		if (this.authProtocol === Auth_Protocol.JwtTokenProtocol) {
 			document.cookie = `${JWT_COOKIE_PREFIX}=; path=/; expires=${new Date().toUTCString()};`;
 			document.cookie = `user_cred=; path=/; expires=${new Date().toUTCString()};`;
+			document.cookie = `stratus_jwt=; path=/; expires=${new Date().toUTCString()};`;
 			// Force immediate redirect for JWT
 			window.location.replace(redirectURL);
 			return;

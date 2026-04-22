@@ -8,7 +8,8 @@ import {
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
-import { version } from '../package.json';
+import pkg from '../package.json';
+const { version } = pkg;
 import NoSQLTable from './table';
 import { NoSQLByte } from './utils/byte';
 import * as NoSQLEnum from './utils/enum';

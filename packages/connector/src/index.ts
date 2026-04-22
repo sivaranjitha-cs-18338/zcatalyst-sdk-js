@@ -1,7 +1,8 @@
 import { Handler } from '@zcatalyst/transport';
 import { Component, CONSTANTS, isNonNullObject, ObjectHasProperties } from '@zcatalyst/utils';
 
-import { version } from '../package.json';
+import pkg from '../package.json';
+const { version } = pkg;
 import { Connector } from './connection';
 import { CatalystConnectorError } from './utils/error';
 import { getConnectorJson } from './utils/validators';

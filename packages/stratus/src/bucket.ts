@@ -462,7 +462,7 @@ export class Bucket {
 
 		headers.Authorization = `Zoho-oauthtoken ${accessToken}`;
 		params.zaid = this.#jwtAuth.zaid;
-		// params.orgType = 70;
+		params.orgType = 70;
 
 		return { params, headers, url };
 	}

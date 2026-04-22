@@ -10,7 +10,8 @@ import {
 } from '@zcatalyst/auth-client';
 import { CatalystService, CONSTANTS, getServicePath } from '@zcatalyst/utils';
 
-import { version } from '../package.json';
+import pkg from '../package.json';
+const { version } = pkg;
 import {
 	HTTP_HEADER_MAP as HEADER_MAP,
 	HTTP_HEADER_MAP,

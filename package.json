@@ -18,8 +18,8 @@
     "format": "turbo run format --parallel",
     "prepare": "husky",
     "publish-packages": "turbo run build && node scripts/publish-packages.js",
-    "publish-all": "node scripts/publish-packages.js",
-    "unpublish-all": "node scripts/publish-packages.js --unpublish",
+    "publish-all": "for pkg in packages/*; do (cd $pkg && pnpm publish --registry http://crm-spm-u16.csez.zohocorpin.com:4873/ --no-git-checks --tag latest); done",
+    "unpublish-all": "for pkg in packages/*; do (cd $pkg && pnpm unpublish --registry http://crm-spm-u16.csez.zohocorpin.com:4873/ --no-git-checks); done",
     "version:update": "node scripts/version-update.js",
     "changelog:update": "node ./scripts/change-log.js",
     "release": "node scripts/release-packages.js"

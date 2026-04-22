@@ -7,7 +7,8 @@ import {
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
-import { version } from '../package.json';
+import pkg from '../package.json';
+const { version } = pkg;
 import { CatalystSearchError } from './utils/error';
 import { Component, ICatalystSearch } from './utils/interface';
 

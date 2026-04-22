@@ -10,7 +10,8 @@ import {
 } from '@zcatalyst/utils';
 import fs from 'fs';
 
-import { version } from '../package.json';
+import pkg from '../package.json';
+const { version } = pkg;
 import { CatalystZiaError } from './utils/errors';
 import {
 	ICatalsytZiaKeywordExtraction,

@@ -9,7 +9,8 @@ import {
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
-import { version } from '../package.json';
+import pkg from '../package.json';
+const { version } = pkg;
 import { CatalystEmailError } from './utils/error';
 import { ICatalystMail } from './utils/interface';
 import { getFormData } from './utils/validators';

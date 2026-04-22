@@ -8,7 +8,8 @@ import {
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
-import { version } from '../package.json';
+import pkg from '../package.json';
+const { version } = pkg;
 import { Table, TableAdmin } from './table';
 import { CatalystDataStoreError } from './utils/error';
 import { ICatalystTable } from './utils/interface';

@@ -1,7 +1,8 @@
 import { Handler } from '@zcatalyst/transport';
 import { Component, CONSTANTS, isValidInputString, wrapValidators } from '@zcatalyst/utils';
 
-import { version } from '../package.json';
+import pkg from '../package.json';
+const { version } = pkg;
 import { MobileNotification } from './mobile-notification';
 import { CatalystPushNotificationError } from './utils/error';
 import { WebNotification } from './web-notification';

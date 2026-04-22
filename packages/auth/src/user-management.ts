@@ -11,7 +11,8 @@ import {
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
-import { version } from '../package.json';
+import pkg from '../package.json';
+const { version } = pkg;
 import { CatalystUserManagementError } from './utils/error';
 import {
 	ICatalystCustomTokenDetails,
