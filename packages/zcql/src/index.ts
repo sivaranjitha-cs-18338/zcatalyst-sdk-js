@@ -7,7 +7,8 @@ import {
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
-import { version } from '../package.json';
+import pkg from '../package.json';
+const { version } = pkg;
 import { CatalystZCQLError } from './utils/errors';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

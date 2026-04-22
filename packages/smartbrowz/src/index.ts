@@ -10,7 +10,8 @@ import {
 import { IncomingMessage } from 'http';
 import { Readable } from 'stream';
 
-import { version } from '../package.json';
+import pkg from '../package.json';
+const { version } = pkg;
 import { Dataverse } from './dataverse';
 import { CatalystSmartbrowzError } from './utils/error';
 import {

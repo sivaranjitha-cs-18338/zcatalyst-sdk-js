@@ -8,7 +8,8 @@ import { Readable, Stream } from 'stream';
 import { URL } from 'url';
 import { inspect } from 'util';
 
-import { version } from '../package.json';
+import pkg from '../package.json';
+const { version } = pkg;
 import { RequestType, ResponseType } from './utils/enums';
 import { CatalystAPIError } from './utils/errors';
 import FORM from './utils/form-data';

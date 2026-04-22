@@ -5,9 +5,6 @@
   "module": "./dist-es/index.js",
   "types": "./dist-types/index.d.ts",
   "browser": {
-    "./dist-cjs/index.js": "./dist-cjs/index.browser.js",
-    "./dist-es/index.js": "./dist-es/index.browser.js",
-    "./dist-types/index.d.ts": "./dist-types/index.browser.d.ts",
     "stream": false,
     "crypto": false,
     "fs": false,
