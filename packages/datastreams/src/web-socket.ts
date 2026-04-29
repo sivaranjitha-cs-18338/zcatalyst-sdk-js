@@ -43,6 +43,7 @@ export class DataStreamsWebSocket extends EventEmitter {
 	private ackSent = false;
 	private reconnect = false;
 	private prevStreamingId = '';
+	private fallbackConnectionAttempts = 0;
 
 	// Intervals and timeouts
 	private pingInterval: NodeJS.Timeout | null = null;
@@ -317,15 +318,32 @@ export class DataStreamsWebSocket extends EventEmitter {
 					 * Current connections expired in 30 mins
 					 * New connections should be made with new credentials
 					 * Solution: We have to end the current connection in 25 mins, open a wss connection with sid and uid
+					 *
+					 * Key-mismatch fallback: when a SESSION_EXPIRED frame arrives with a reason
+					 * containing "key_mismatch" (previous connection still alive), retry
+					 * connect() once before surfacing the error to on_error.
 					 */
-					const errorEvent: CustomEvent = {
-						code: 1000,
-						message: 'Current session will be closed. New connection to be established.'
-					};
-					this.emit('error', errorEvent);
-					this.log(
-						'WebSocket connection got expired. Please generate new credentials to connect again'
+					const isConnectionAlive = String(jsonData[0]?.reason ?? '').includes(
+						'key_mismatch'
 					);
+
+					if (isConnectionAlive && this.fallbackConnectionAttempts === 0) {
+						this.fallbackConnectionAttempts += 1;
+						this.log(
+							'SESSION_EXPIRED with key_mismatch reason; previous connection still alive, retrying connect() once'
+						);
+						this.createWebSocketConnection();
+					} else {
+						const errorEvent: CustomEvent = {
+							code: 1000,
+							message:
+								'Current session will be closed. New connection to be established.'
+						};
+						this.emit('error', errorEvent);
+						this.log(
+							'WebSocket connection got expired. Please generate new credentials to connect again'
+						);
+					}
 					break;
 				}
 
