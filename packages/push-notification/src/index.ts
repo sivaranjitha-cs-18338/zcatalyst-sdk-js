@@ -1,3 +1,9 @@
+/**
+ * Catalyst Push Notifications — send push messages to mobile and web clients.
+ *
+ * @packageDocumentation
+ */
+
 import { Handler } from '@zcatalyst/transport';
 import { Component, CONSTANTS, isValidInputString, wrapValidators } from '@zcatalyst/utils';
 
@@ -31,7 +37,7 @@ export class PushNotification implements Component {
 	 * Creates a Mobile Notification instance for a registered mobile application.
 	 * @param id - The App ID used to identify the registered mobile application.
 	 * @returns A `MobileNotification` instance for sending notifications.
-	 * @throws {CatalystPushNotificationError} If the provided `id` is not a non-empty string.
+	 * @throws If the provided `id` is not a non-empty string.
 	 */
 	mobile(id: string): MobileNotification {
 		wrapValidators(() => {

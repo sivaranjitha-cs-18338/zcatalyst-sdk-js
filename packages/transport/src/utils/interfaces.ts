@@ -36,6 +36,7 @@ export interface RequestHandlerOptions {
 	expecting?: ResponseType;
 	auth?: boolean;
 	duplex?: string;
+	service?: CatalystService;
 }
 
 export interface HTTP_CODE_MAP_BODY_TYPE {

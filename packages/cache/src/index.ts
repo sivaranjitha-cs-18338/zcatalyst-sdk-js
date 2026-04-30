@@ -1,3 +1,9 @@
+/**
+ * Catalyst Cache — in-memory key/value storage organised into segments for fast, low-latency reads.
+ *
+ * @packageDocumentation
+ */
+
 import { Handler, IRequestConfig } from '@zcatalyst/transport';
 import {
 	CatalystService,
@@ -23,7 +29,7 @@ export class Cache implements Component {
 
 	/**
 	 * Returns the name of the component.
-	 * @returns {string} Component name
+	 * @returns Component name
 	 */
 	getComponentName(): string {
 		return COMPONENT.cache;
@@ -35,7 +41,7 @@ export class Cache implements Component {
 
 	/**
 	 * Fetches all segments.
-	 * @returns {Array<Segment>}  An array of Segment objects.
+	 * @returns An array of Segment objects.
 	 */
 	async getAllSegment(): Promise<Array<Segment>> {
 		const request: IRequestConfig = {
@@ -56,9 +62,9 @@ export class Cache implements Component {
 
 	/**
 	 * Fetches details of a specific segment.
-	 * @param {string} id - The segment ID.
-	 * @returns {Segment} Details of the given segment.
-	 * @throws {CatalystCacheError} If the provided segment ID is invalid.
+	 * @param id - The segment ID.
+	 * @returns Details of the given segment.
+	 * @throws If the provided segment ID is invalid.
 	 */
 	async getSegmentDetails(id: string): Promise<Segment> {
 		await wrapValidatorsWithPromise(() => {
@@ -78,9 +84,9 @@ export class Cache implements Component {
 
 	/**
 	 * Creates or retrieves a Segment instance.
-	 * @param {string} [id] - The segment ID (optional).
-	 * @returns {Segment} A Segment instance.
-	 * @throws {CatalystCacheError} If the provided segment ID is invalid.
+	 * @param id - The segment ID (optional).
+	 * @returns A Segment instance.
+	 * @throws If the provided segment ID is invalid.
 	 */
 	segment(id?: string): Segment {
 		if (typeof id === 'undefined') {

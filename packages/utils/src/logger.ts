@@ -14,7 +14,7 @@ interface ICatalystLoggerOptions {
  * threshold set by log level which is WARN(4). Whereas the logs INFO(3), DEBUG(2) and FINE(1) won't be logged as their level is lesser than the
  * set threshold
  *
- * ```md
+ * ```text
  * | Level | Precedence |
  * |-------|------------|
  * | NONE  | INF        |
@@ -100,7 +100,7 @@ export class Logger {
 
 	/**
 	 * Set the log level for the logger.
-	 * @param level the log level to set. Defaults to {@link LEVEL.NONE}
+	 * @param level - the log level to set. Defaults to {@link LEVEL.NONE}
 	 * @returns Logger instance
 	 */
 	setLogLevel(level: LEVEL = LEVEL.NONE): Logger {

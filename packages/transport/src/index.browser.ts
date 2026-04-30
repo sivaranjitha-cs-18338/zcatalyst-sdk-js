@@ -7,9 +7,7 @@ export { PrefixedCatalystError } from '@zcatalyst/utils';
 
 export class Handler {
 	component?: Component;
-	/**
-	 * @constructor
-	 */
+	/**  */
 	constructor(app?: unknown, component?: Component) {
 		this.component = component;
 	}

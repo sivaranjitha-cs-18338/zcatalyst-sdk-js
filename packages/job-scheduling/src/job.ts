@@ -26,9 +26,9 @@ export default class Job {
 	// }
 
 	/**
-	 * Get a job's details from the jobpool
-	 * @param id Id of the job
-	 * @returns details of the job
+	 * Get a job's details from the jobpool.
+	 * @param jobId - ID of the job.
+	 * @returns Details of the job.
 	 */
 	async getJob<T extends TCatalystJobs>(jobId: string): Promise<ICatalystJobDetails<T>> {
 		await wrapValidatorsWithPromise(() => {
@@ -47,7 +47,7 @@ export default class Job {
 
 	/**
 	 * Submit a job to the jobpool
-	 * @param jobMeta details of the job to be submitted to the jobpool
+	 * @param jobMeta - details of the job to be submitted to the jobpool
 	 * @returns details of the submitted job
 	 */
 	async submitJob<T extends TCatalystJobs>(jobMeta: T): Promise<ICatalystJobDetails<T>> {
@@ -71,7 +71,7 @@ export default class Job {
 
 	/**
 	 * Delete a job from the job pool
-	 * @param jobId Id of the job to be deleted
+	 * @param jobId - Id of the job to be deleted
 	 * @returns details of the deleted job
 	 */
 	async deleteJob<T extends TCatalystJobs>(jobId: string): Promise<ICatalystJobDetails<T>> {

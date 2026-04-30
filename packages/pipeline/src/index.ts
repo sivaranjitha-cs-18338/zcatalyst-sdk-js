@@ -1,3 +1,9 @@
+/**
+ * Catalyst Pipelines — build and deployment automation primitives.
+ *
+ * @packageDocumentation
+ */
+
 import { Handler, IRequestConfig, RequestType } from '@zcatalyst/transport';
 import {
 	CatalystService,

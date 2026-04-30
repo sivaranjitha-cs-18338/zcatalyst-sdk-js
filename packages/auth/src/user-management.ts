@@ -122,7 +122,7 @@ export class UserManagementAdmin extends UserManagement {
 	async getAllUsers(): Promise<Array<ICatalystUser>>;
 	/**
 	 * Get all the users in an org associated with a project
-	 * @param orgId ID of the org to get the list of associated users.
+	 * @param orgId - ID of the org to get the list of associated users.
 	 * @returns List of all users in an org
 	 * @example
 	 * ```ts
@@ -146,7 +146,7 @@ export class UserManagementAdmin extends UserManagement {
 
 	/**
 	 * Get a specific user's details
-	 * @param id ID of the user to get the details
+	 * @param id - ID of the user to get the details
 	 * @returns Catalyst user details
 	 * @example
 	 * ```ts
@@ -171,7 +171,7 @@ export class UserManagementAdmin extends UserManagement {
 
 	/**
 	 * Delete a user
-	 * @param id ID of the user to be deleted
+	 * @param id - ID of the user to be deleted
 	 * @returns `True` if user is deleted successfully
 	 * @example
 	 * ```ts
@@ -197,8 +197,8 @@ export class UserManagementAdmin extends UserManagement {
 
 	/**
 	 * Register a new User
-	 * @param signupConfig Meta data to register the user
-	 * @param userDetails Details of the user
+	 * @param signupConfig - Meta data to register the user
+	 * @param userDetails - Details of the user
 	 * @returns Catalyst user details
 	 * @example
 	 * ```ts

@@ -1,3 +1,9 @@
+/**
+ * Catalyst Functions — invoke deployed serverless functions by ID or name.
+ *
+ * @packageDocumentation
+ */
+
 import { Handler, IRequestConfig, RequestType } from '@zcatalyst/transport';
 import {
 	CatalystService,
@@ -14,20 +20,55 @@ import { CatalystFunctionError } from './utils/error';
 
 const { REQ_METHOD, CREDENTIAL_USER, COMPONENT } = CONSTANTS;
 
+/**
+ * Client for invoking Catalyst serverless Functions.
+ *
+ * @example
+ * ```ts
+ * const functions = new Functions();
+ * const result = await functions.execute('myFunction', { args: { foo: 'bar' } });
+ * ```
+ */
 export class Functions implements Component {
 	requester: Handler;
 	constructor(app?: unknown) {
 		this.requester = new Handler(app, this);
 	}
 
+	/** * Returns the component name used by the SDK transport layer. */
 	getComponentName(): string {
 		return COMPONENT.functions;
 	}
 
+	/** * Returns the version of this component as published on npm. */
 	getComponentVersion(): string {
 		return version;
 	}
 
+	/**
+	 * Executes a deployed Catalyst Function by ID or name.
+	 *
+	 * @param id - The function ID or name.
+	 * @param options - Invocation options.
+	 * @param options.args - Arguments passed to the function. Sent as query string parameters
+	 *   for `GET` requests; otherwise sent as a JSON body.
+	 * @param options.method - HTTP method to use. Defaults to `GET`.
+	 * @param options.data - Alias for `args`, used only when `args` is empty.
+	 * @returns The function's response payload as a string.
+	 * @throws `CatalystFunctionError` when `id` is not a non-empty string.
+	 *
+	 * @example
+	 * ```ts
+	 * const functions = new Functions();
+	 *
+	 * const greeting = await functions.execute('hello', { args: { name: 'Ada' } });
+	 *
+	 * const created = await functions.execute('createUser', {
+	 *   method: 'POST',
+	 *   data: { email: 'ada@example.com' }
+	 * });
+	 * ```
+	 */
 	async execute(
 		id: string,
 		{

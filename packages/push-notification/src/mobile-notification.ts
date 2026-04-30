@@ -14,9 +14,7 @@ import { ICatalystMobileNotification, ICatalystPushDetails } from './utils/inter
 
 const { REQ_METHOD, CREDENTIAL_USER } = CONSTANTS;
 
-/**
- * Catalyst Supported mobile platforms
- */
+/** * Catalyst Supported mobile platforms */
 export enum MOBILE_PLATFORM {
 	IOS = 'ios',
 	ANDROID = 'android'
@@ -34,7 +32,7 @@ export class MobileNotification {
 	 * Sends a push notification to iOS mobile devices.
 	 * @param notifyObj - Details of the notification, including the message.
 	 * @param recipient - Catalyst User ID or Email ID of the recipient.
-	 * @returns {ICatalystMobileNotification} Details of the sent notification.
+	 * @returns Details of the sent notification.
 	 * @example
 	 * ```ts
 	 * const notification = await notificIns.sendIOSNotification({ message: "Hello, iOS User!" }, "user@example.com");
@@ -52,7 +50,7 @@ export class MobileNotification {
 	 * Sends a push notification to Android mobile devices.
 	 * @param notifyObj - Details of the notification to be sent.
 	 * @param recipient - Catalyst User ID or Email ID of the recipient.
-	 * @returns {ICatalystMobileNotification} Details of the sent notification.
+	 * @returns Details of the sent notification.
 	 * @example
 	 * ```ts
 	 * const notification = await notificIns.sendAndroidNotification({ message: "Hello!" }, "user@example.com");
@@ -74,7 +72,7 @@ export class MobileNotification {
 	 * Sends a push notification to iOS mobile devices.
 	 * @param notifyObj - Details of the notification.
 	 * @param recipient - Catalyst User ID or Email ID of the recipient.
-	 * @returns {ICatalystMobileNotification} Details of the sent notification.
+	 * @returns Details of the sent notification.
 	 * @warning This function is deprecated and might be removed in a future release.
 	 */
 	async sendNotification(
@@ -93,7 +91,7 @@ export class MobileNotification {
 	 * @param notifyObj - Details of the notification.
 	 * @param recipient - Catalyst User ID or Email ID of the recipient.
 	 * @param platform - Mobile platform to send the notification (default: {@link MOBILE_PLATFORM.IOS}).
-	 * @returns {ICatalystMobileNotification} Details of the sent notification.
+	 * @returns Details of the sent notification.
 	 * @example
 	 * ```ts
 	 * const notification = await notificIns.notify({ message: "Hello!" }, "user@example.com", MOBILE_PLATFORM.ANDROID);

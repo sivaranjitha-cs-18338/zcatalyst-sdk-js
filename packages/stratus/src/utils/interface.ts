@@ -35,7 +35,7 @@ export interface IStratusObjects {
 export interface IStratusObjectVersionDetails {
 	/** Version Id of the object. */
 	version_id: string;
-	/**Whether it is the most recent version or not. */
+	/** Whether it is the most recent version or not. */
 	is_latest?: boolean;
 	/** Last modified time of the object with the specified version. */
 	last_modified: string;
@@ -54,7 +54,7 @@ export interface IStratusObjectVersions {
 	next_token: string;
 	/** Maximum number of version returned. */
 	max_versions: string;
-	/** Indicates whether there are additional versions of the object available.  */
+	/** Indicates whether there are additional versions of the object available. */
 	is_truncated?: boolean;
 	/** Details of the returned versions of an object. */
 	version: Array<IStratusObjectVersionDetails>;
@@ -88,7 +88,7 @@ export interface IStratusSignedURLRes {
 export interface IStratusPutObjectOptions {
 	/** Overwrites the object in a bucket when versioning not enabled. */
 	overwrite?: string;
-	/** The duration for which the object will remain live.*/
+	/** The duration for which the object will remain live. */
 	ttl?: string;
 	/** Meta data of an object. */
 	metaData?: Record<string, string>;
@@ -180,7 +180,7 @@ export interface IStratusPreSignedUrlOptions {
 export interface IStratusPagedObjectOptions {
 	/** Prefix value of the objects to be returned. */
 	prefix?: string;
-	/** Continuation token to get next set of objects.*/
+	/** Continuation token to get next set of objects. */
 	continuationToken?: string | undefined;
 	/** Maximum number of objects returned. */
 	maxKeys?: string;
@@ -191,7 +191,7 @@ export interface IStratusPagedObjectOptions {
 export interface IStratusObjectRenameRes {
 	/** Name of the object to rename. */
 	current_key: string;
-	/** The new name that the object has been renamed to.*/
+	/** The new name that the object has been renamed to. */
 	rename_to: string;
 	/** Status of the rename operation. */
 	message: string;
@@ -200,7 +200,7 @@ export interface IStratusObjectRenameRes {
 export interface IStratusObjectCopyRes {
 	/** Name of the object to copy. */
 	key: string;
-	/** The new name that the object has been copied to.*/
+	/** The new name that the object has been copied to. */
 	copy_to: string;
 	/** Status of the copy operation. */
 	message: string;
@@ -209,7 +209,7 @@ export interface IStratusObjectCopyRes {
 export interface IStratusObjectCopyRes {
 	/** Name of the object to copy. */
 	range?: string;
-	/** The new name that the object has been copied to.*/
+	/** The new name that the object has been copied to. */
 	versionId?: string;
 	/** Status of the copy operation. */
 	abortSignal?: AbortSignal;
@@ -220,7 +220,7 @@ export interface IStratusObjectCopyRes {
 export interface IStratusPagedObjectOptions {
 	/** Prefix value of the objects to be returned. */
 	prefix?: string;
-	/** Continuation token to get next set of objects.*/
+	/** Continuation token to get next set of objects. */
 	continuationToken?: string | undefined;
 	/** Maximum number of objects returned. */
 	maxKeys?: string;

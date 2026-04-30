@@ -91,14 +91,22 @@ export class ResponseHandler {
 	): Promise<DefaultHttpResponse | void> {
 		try {
 			const headers = requestCore.headers || {};
+			const method = requestCore.method;
+			const methodAllowsBody = method !== REQ_METHOD.get && method !== REQ_METHOD.head;
 			const options: RequestInit = {
-				method: requestCore.method,
+				method,
 				headers,
 				credentials: requestOptions.auth ? 'include' : 'omit',
-				body: requestCore.method !== REQ_METHOD.get ? requestCore.body : undefined
+				body: methodAllowsBody ? requestCore.body : undefined
 			};
 
-			if (requestOptions.auth) {
+			// Catalyst-specific headers (CSRF/JWT + Accept/CATALYST-ORG/etc.)
+			// must only ride on first-party Catalyst calls. External services
+			// such as Stratus live on different origins (e.g. *.zohostratus.com)
+			// and reject the extra headers via CORS preflight, so we skip them
+			// whenever auth is disabled or the call targets EXTERNAL.
+			const isExternal = requestOptions.service === CatalystService.EXTERNAL;
+			if (requestOptions.auth && !isExternal) {
 				options.headers = await ResponseHandler.attachZCAuthHeaders(headers);
 				options.headers = this.#attachAppSpecificHeaders(headers);
 			}
@@ -173,25 +181,36 @@ export class ResponseHandler {
 		options?: RequestHandlerOptions
 	): Promise<DefaultHttpResponse> {
 		try {
+			// HEAD responses (and 204/304) carry no body. Attempting to parse
+			// them with `.json()` / `.blob()` throws a SyntaxError, which would
+			// otherwise mask the real (success) status code from the caller —
+			// e.g. `bucket.headObject()` checking `resp.statusCode === 200`.
+			const method = (options?.request as RequestInit | undefined)?.method?.toUpperCase();
+			const hasNoBody =
+				method === REQ_METHOD.head || response.status === 204 || response.status === 304;
 			let data: ICatalystDataRes;
-			switch (options?.expecting || ResponseType.JSON) {
-				case ResponseType.BUFFER:
-					data = await response.arrayBuffer();
-					break;
-				case ResponseType.RAW:
-					data = await response.blob();
-					break;
-				case ResponseType.JSON:
-					data = await response.json();
-					break;
-				case ResponseType.STRING:
-					data = await response.text();
-					break;
-				default:
-					throw new CatalystAPIError(
-						'UNSUPPORTED_RESPONSE_TYPE',
-						`Unsupported response type: ${options?.expecting}`
-					);
+			if (hasNoBody) {
+				data = '' as ICatalystDataRes;
+			} else {
+				switch (options?.expecting || ResponseType.JSON) {
+					case ResponseType.BUFFER:
+						data = await response.arrayBuffer();
+						break;
+					case ResponseType.RAW:
+						data = await response.blob();
+						break;
+					case ResponseType.JSON:
+						data = await response.json();
+						break;
+					case ResponseType.STRING:
+						data = await response.text();
+						break;
+					default:
+						throw new CatalystAPIError(
+							'UNSUPPORTED_RESPONSE_TYPE',
+							`Unsupported response type: ${options?.expecting}`
+						);
+				}
 			}
 
 			return new DefaultHttpResponse({
@@ -323,12 +342,19 @@ export class ResponseHandler {
 		componentVersion?: string
 	): Promise<DefaultHttpResponse | void> {
 		const headers = options.headers || {};
+		const isExternal = options.service === CatalystService.EXTERNAL;
 
-		let userAgent = CONSTANTS.USER_AGENT.PREFIX + version;
-		if (componentName) {
-			userAgent += ` ${componentName}/${componentVersion || 'unknown'}`;
+		// Catalyst-branded user agent must not leak into external (Stratus,
+		// IAM redirect, etc.) calls — those endpoints reject the custom
+		// header during CORS preflight. Mirrors the http-handler convention
+		// (`req.service !== CatalystService.EXTERNAL`).
+		if (!isExternal) {
+			let userAgent = CONSTANTS.USER_AGENT.PREFIX + version;
+			if (componentName) {
+				userAgent += ` ${componentName}/${componentVersion || 'unknown'}`;
+			}
+			headers['X-Catalyst-User-Agent'] = userAgent;
 		}
-		headers['X-Catalyst-User-Agent'] = userAgent;
 
 		let data = options.data;
 		if (data !== undefined) {
@@ -362,7 +388,7 @@ export class ResponseHandler {
 		if (this.apiDomain === null && !options.origin) {
 			throw new CatalystAPIError('API_REQUEST_ERROR', 'Unable to get the base url');
 		}
-		if (options.service !== CatalystService.EXTERNAL && options.path) {
+		if (!isExternal && options.path) {
 			options.path = `${getServicePath(options.service)}/project/${ConfigStore.get(PROJECT_ID)}${options.path}`;
 		}
 
@@ -376,7 +402,8 @@ export class ResponseHandler {
 		request.url = this.appendQueryString(request.url, options.qs);
 		return await this.#sendRequest(request, {
 			expecting: options.expecting,
-			auth: options.auth ?? true
+			auth: options.auth ?? true,
+			service: options.service
 		});
 	}
 }

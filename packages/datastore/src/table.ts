@@ -41,10 +41,10 @@ export class Table implements ParsableComponent<ICatalystTable> {
 	/**
 	 * Gets the component name for this module.
 	 *
-	 * @returns {string} The component name.
+	 * @returns The component name.
 	 *
 	 * @example
-	 * console.log(catalystApp.getComponentName()); // "datastore"
+	 * console.log(table.getComponentName()); // "datastore"
 	 */
 	getComponentName(): string {
 		return COMPONENT.datastore;
@@ -53,9 +53,9 @@ export class Table implements ParsableComponent<ICatalystTable> {
 	/**
 	 * Retrieves details of a specific column in the table.
 	 *
-	 * @param {string | number} id - The column ID.
-	 * @returns {Promise<ICatalystColumn>} Column details.
-	 * @throws {CatalystDataStoreError} If the provided ID is invalid.
+	 * @param id - The column ID.
+	 * @returns Column details.
+	 * @throws If the provided ID is invalid.
 	 *
 	 * @example
 	 * const columnDetails = await table.getColumnDetails(123);
@@ -79,7 +79,7 @@ export class Table implements ParsableComponent<ICatalystTable> {
 	/**
 	 * Retrieves all columns for the current table.
 	 *
-	 * @returns {Promise<Array<ICatalystColumn>>} A list of columns.
+	 * @returns A list of columns.
 	 *
 	 * @example
 	 * const columns = await table.getAllColumns();
@@ -100,9 +100,9 @@ export class Table implements ParsableComponent<ICatalystTable> {
 	/**
 	 * Inserts a single row into the table.
 	 *
-	 * @param {ICatalystRowInput} row - The row data to insert.
-	 * @returns {Promise<ICatalystRow>} The inserted row.
-	 * @throws {CatalystDataStoreError} If the row data is invalid.
+	 * @param row - The row data to insert.
+	 * @returns The inserted row.
+	 * @throws If the row data is invalid.
 	 *
 	 * @example
 	 * const row = await table.insertRow({ Name: "John Doe", Age: 30 });
@@ -119,9 +119,9 @@ export class Table implements ParsableComponent<ICatalystTable> {
 	/**
 	 * Inserts multiple rows into the table.
 	 *
-	 * @param {Array<ICatalystRowInput>} rowArr - The rows to insert.
-	 * @returns {Promise<Array<ICatalystRow>>} The inserted rows.
-	 * @throws {CatalystDataStoreError} If the input is invalid.
+	 * @param rowArr - The rows to insert.
+	 * @returns The inserted rows.
+	 * @throws If the input is invalid.
 	 *
 	 * @example
 	 * const rows = await table.insertRows([{ Name: "Alice" }, { Name: "Bob" }]);
@@ -210,9 +210,9 @@ export class Table implements ParsableComponent<ICatalystTable> {
 	/**
 	 * Retrieves details of a specific row.
 	 *
-	 * @param {string | number} id - The row ID.
-	 * @returns {Promise<ICatalystRow>} The row data.
-	 * @throws {CatalystDataStoreError} If the row ID is invalid.
+	 * @param id - The row ID.
+	 * @returns The row data.
+	 * @throws If the row ID is invalid.
 	 *
 	 * @example
 	 * const row = await table.getRow(12345);
@@ -236,9 +236,9 @@ export class Table implements ParsableComponent<ICatalystTable> {
 	/**
 	 * Deletes a specific row from the table.
 	 *
-	 * @param {string | number} id - The row ID.
-	 * @returns {Promise<boolean>} Returns `true` if deleted successfully.
-	 * @throws {CatalystDataStoreError} If the row ID is invalid.
+	 * @param id - The row ID.
+	 * @returns Returns `true` if deleted successfully.
+	 * @throws If the row ID is invalid.
 	 *
 	 * @example
 	 * const success = await table.deleteRow(123);
@@ -263,9 +263,9 @@ export class Table implements ParsableComponent<ICatalystTable> {
 	/**
 	 * Deletes multiple rows from the table.
 	 *
-	 * @param {Array<string | number>} ids - List of row IDs to delete.
-	 * @returns {Promise<boolean>} Returns `true` if deleted successfully.
-	 * @throws {CatalystDataStoreError} If the input is invalid.
+	 * @param ids - List of row IDs to delete.
+	 * @returns Returns `true` if deleted successfully.
+	 * @throws If the input is invalid.
 	 *
 	 * @example
 	 * const success = await table.deleteRows([123, 456, 789]);
@@ -294,13 +294,13 @@ export class Table implements ParsableComponent<ICatalystTable> {
 	/**
 	 * Updates multiple rows in the table.
 	 *
-	 * @param {Array<ICatalystRowInput & { ROWID: string | number }>} rows -
+	 * @param rows - -
 	 *        An array of row objects, each containing a `ROWID` to identify the row to be updated.
 	 *
-	 * @returns {Promise<Array<ICatalystRow>>}
+	 * @returns 
 	 *          A promise that resolves to an array of updated row objects.
 	 *
-	 * @throws {CatalystDataStoreError}
+	 * @throws 
 	 *         If the input is not a valid non-empty array.
 	 *
 	 * @example
@@ -332,9 +332,9 @@ export class Table implements ParsableComponent<ICatalystTable> {
 	/**
 	 * Updates a single row in the table.
 	 *
-	 * @param {ICatalystRowInput & { ROWID: string | number }} row - The row data to update.
-	 * @returns {Promise<ICatalystRow>} The updated row.
-	 * @throws {CatalystDataStoreError} If the row data is invalid.
+	 * @param row - The row data to update.
+	 * @returns The updated row.
+	 * @throws If the row data is invalid.
 	 *
 	 * @example
 	 * const updatedRow = await table.updateRow({ ROWID: 123, Name: "John Updated" });
@@ -353,12 +353,12 @@ export class Table implements ParsableComponent<ICatalystTable> {
 	 *
 	 * @template T - A generic type that extends `BulkType` (`"read"` or `"write"`).
 	 *
-	 * @param {T} type - The type of bulk operation to perform (`"read"` or `"write"`).
+	 * @param type - The type of bulk operation to perform (`"read"` or `"write"`).
 	 *
-	 * @returns {ObjectType<T>}
+	 * @returns 
 	 *          An instance of either `BulkRead` or `BulkWrite` based on the provided type.
 	 *
-	 * @throws {CatalystDataStoreError}
+	 * @throws 
 	 *         If the provided `type` is not `"read"` or `"write"`.
 	 *
 	 * @example
@@ -386,7 +386,7 @@ export class Table implements ParsableComponent<ICatalystTable> {
 	/**
 	 * Converts the table details to a JSON string.
 	 *
-	 * @returns {string} The JSON representation of the table.
+	 * @returns The JSON representation of the table.
 	 *
 	 * @example
 	 * console.log(table.toString());
@@ -398,7 +398,7 @@ export class Table implements ParsableComponent<ICatalystTable> {
 	/**
 	 * Converts the table details to a JSON object.
 	 *
-	 * @returns {ICatalystTable} The table details as a JSON object.
+	 * @returns The table details as a JSON object.
 	 *
 	 * @example
 	 * console.log(table.toJSON());
@@ -418,12 +418,12 @@ export class TableAdmin extends Table {
 	 *
 	 * @template T - A generic type that extends `BulkType` (`"read"` or `"write"`).
 	 *
-	 * @param {T} type - The type of bulk operation to perform (`"read"` or `"write"`).
+	 * @param type - The type of bulk operation to perform (`"read"` or `"write"`).
 	 *
-	 * @returns {ObjectType<T>}
+	 * @returns 
 	 *          An instance of either `BulkRead` or `BulkWrite` based on the provided type.
 	 *
-	 * @throws {CatalystDataStoreError}
+	 * @throws 
 	 *         If the provided `type` is not `"read"` or `"write"`.
 	 *
 	 * @example

@@ -14,6 +14,7 @@ export class JWTAuthHandler {
 	authPortal: string = '';
 	cookie?: Record<string, string>;
 	accessTokenObj: { access_token?: string; expires_in?: number } = {};
+	private sessionVersion: string = '';
 	constructor(bucket: Bucket) {
 		this.bucket = bucket;
 		this._requester = this.bucket.getAuthorizationClient();
@@ -45,6 +46,18 @@ export class JWTAuthHandler {
 	}
 
 	async getJWTAccessToken() {
+		// In the browser, drop the in-memory token whenever the active project
+		// session changed underneath us so we don't return a token that belongs
+		// to the previous project.
+		if (typeof window !== 'undefined') {
+			const { getStratusSessionVersion } = await import('@zcatalyst/auth-client');
+			const currentVersion = getStratusSessionVersion();
+			if (currentVersion && currentVersion !== this.sessionVersion) {
+				this.accessTokenObj = {};
+				this.sessionVersion = currentVersion;
+			}
+		}
+
 		if (
 			this.accessTokenObj?.access_token &&
 			(this.accessTokenObj?.expires_in as number) > Date.now()
@@ -53,11 +66,18 @@ export class JWTAuthHandler {
 		}
 		await this.initializeConfig();
 		if (typeof window !== 'undefined') {
-			const { setToken, getToken } = await import('@zcatalyst/auth-client');
-			const jwt = getToken('stratus_jwt') as unknown as Record<string, unknown>;
+			const { setToken, getToken, isStratusJwtFresh, setStratusJwtExpiry, clearStratusJwt } =
+				await import('@zcatalyst/auth-client');
+			const fresh = isStratusJwtFresh();
+			const jwt = fresh ? getToken('stratus_jwt') : '';
 			if (!jwt) {
+				// Either the cookie was missing or it is too close to expiry to
+				// trust. Drop any stale state and mint a fresh token.
+				clearStratusJwt();
 				await this.processJwtToken();
 				setToken(this.accessTokenObj, 'stratus_jwt');
+				setStratusJwtExpiry(this.accessTokenObj.expires_in as number);
+				return this.accessTokenObj.access_token;
 			}
 			return jwt as unknown as string;
 		} else {

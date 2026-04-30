@@ -1,3 +1,9 @@
+/**
+ * Catalyst QuickML — invoke deployed machine-learning endpoints.
+ *
+ * @packageDocumentation
+ */
+
 import { Handler, IRequestConfig, RequestType } from '@zcatalyst/transport';
 import {
 	CatalystService,
@@ -37,8 +43,8 @@ export class QuickML implements Component {
 	 * Sends input data to a QuickML model for prediction.
 	 * @param endPointKey - The key associated with the deployed QuickML endpoint.
 	 * @param inputData - The input data as a key-value pair to be used for prediction.
-	 * @returns {ICatalystQuickMLResponse} The response containing the model's prediction.
-	 * @throws {CatalystQuickMLError} If validation fails for `endPointKey` or `inputData`.
+	 * @returns The response containing the model's prediction.
+	 * @throws If validation fails for `endPointKey` or `inputData`.
 	 * @example
 	 * ```ts
 	 * const response = await quickMlIns.predict("your-endpoint-key", { "column_name1": "value1", "column_name2": "value2" });

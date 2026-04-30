@@ -12,27 +12,27 @@ export class CatalystError extends Error {
 		this.errorInfo = errorInfo;
 	}
 
-	/** @return {string} The error code. */
+	/** @returns The error code. */
 	get code(): string {
 		return this.errorInfo?.code;
 	}
 
-	/** @return {string} The error message. */
+	/** @returns The error message. */
 	get message(): string {
 		return this.errorInfo?.message;
 	}
 
-	/** @return {any} The value that caused this error. */
+	/** @returns The value that caused this error. */
 	get value(): unknown {
 		return this.errorInfo?.value;
 	}
 
-	/** @return {any} The error status code. */
+	/** @returns The error status code. */
 	get statusCode(): number {
 		return this.errorInfo.statusCode || 400;
 	}
 
-	/** @return {ICatalystError} The object representation of the error. */
+	/** @returns The object representation of the error. */
 	toJSON(): ICatalystError {
 		return {
 			code: this.code,
@@ -42,7 +42,7 @@ export class CatalystError extends Error {
 		};
 	}
 
-	/** @return {string} The string representation of the error. */
+	/** @returns The string representation of the error. */
 	toString(): string {
 		return JSON.stringify(this.toJSON());
 	}

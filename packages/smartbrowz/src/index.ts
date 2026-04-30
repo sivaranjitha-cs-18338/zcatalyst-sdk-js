@@ -1,3 +1,9 @@
+/**
+ * Catalyst SmartBrowz — cloud-hosted headless browser automation.
+ *
+ * @packageDocumentation
+ */
+
 import { Handler, IRequestConfig, RequestType, ResponseType } from '@zcatalyst/transport';
 import {
 	CatalystService,

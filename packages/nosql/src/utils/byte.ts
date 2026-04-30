@@ -1,9 +1,7 @@
 import { CatalystNoSQLError } from '../utils/error';
 import { TNoSQLByte } from './types';
 
-/**
- * Byte(B) implementation of a NoSQL
- */
+/** * Byte(B) implementation of a NoSQL */
 export class NoSQLByte {
 	#bytes: TNoSQLByte | string;
 	constructor(bytes: TNoSQLByte | string) {
@@ -12,7 +10,7 @@ export class NoSQLByte {
 
 	/**
 	 * Check if an object is a NoSQL compatible buffer
-	 * @param data object to check
+	 * @param data - object to check
 	 * @returns true if the object is a compatible buffer
 	 */
 	static isBuffer(data: unknown): boolean {

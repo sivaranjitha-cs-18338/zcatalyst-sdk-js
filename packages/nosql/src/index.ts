@@ -1,3 +1,9 @@
+/**
+ * Catalyst NoSQL — schema-less document storage with rich item operations.
+ *
+ * @packageDocumentation
+ */
+
 import { Handler, IRequestConfig } from '@zcatalyst/transport';
 import {
 	CatalystService,
@@ -39,7 +45,7 @@ export class NoSQL implements Component {
 
 	/**
 	 * Get a NoSQL table with table Name or table Id
-	 * @param tableId Id or Name of the NoSQL Table
+	 * @param tableId - Id or Name of the NoSQL Table
 	 * @returns NoSQL Table object
 	 */
 	async getTable(tableId: string): Promise<NoSQLTable> {
@@ -81,14 +87,14 @@ export class NoSQL implements Component {
 	/**
 	 * Get a NoSQL table instance with table Name or table Id.
 	 * This function creates a NoSQL instance object without making an API call
-	 * @param id Id or Name of the table
+	 * @param id - Id or Name of the table
 	 * @returns an empty NoSQL table instance
 	 */
 	table(id: string): NoSQLTable;
 	/**
 	 * Get a NoSQLTable instance with the NoSQLTable details
 	 * This function creates a NoSQL instance object without making an API call
-	 * @param details NoSQL Table details
+	 * @param details - NoSQL Table details
 	 * @returns NoSQL table instance with the provided NoSQL Table details
 	 */
 	table(details: INoSQLTable): NoSQLTable;
@@ -109,9 +115,7 @@ export {
 	NoSQLByte,
 	NoSQLByteSet,
 	// Enum
-	/**
-	 * Enums used in NoSQL
-	 */
+	/** * Enums used in NoSQL */
 	NoSQLEnum,
 	// Item constructs
 	NoSQLItem,

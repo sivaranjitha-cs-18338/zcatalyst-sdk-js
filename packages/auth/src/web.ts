@@ -1,4 +1,5 @@
 import {
+	clearStratusJwt,
 	ConfigStore,
 	getCredentials,
 	JWT_COOKIE_PREFIX,
@@ -70,8 +71,8 @@ class Authentication implements Component {
 	async init(): Promise<void> {}
 
 	/**
-	 * @param id -> Dom elements id in which the login iframe should be loaded
-	 * @param config -> signInConfig
+	 * @param id - -> Dom elements id in which the login iframe should be loaded
+	 * @param config - -> signInConfig
 	 */
 	async signIn(id: string, config: ICatalystSignInConfig = {}): Promise<void> {
 		try {
@@ -221,7 +222,7 @@ class Authentication implements Component {
 		if (this.authProtocol === Auth_Protocol.JwtTokenProtocol) {
 			document.cookie = `${JWT_COOKIE_PREFIX}=; path=/; expires=${new Date().toUTCString()};`;
 			document.cookie = `user_cred=; path=/; expires=${new Date().toUTCString()};`;
-			document.cookie = `stratus_jwt=; path=/; expires=${new Date().toUTCString()};`;
+			clearStratusJwt();
 			// Force immediate redirect for JWT
 			window.location.replace(redirectURL);
 			return;

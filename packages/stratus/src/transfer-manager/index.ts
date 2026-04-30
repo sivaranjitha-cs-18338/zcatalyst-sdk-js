@@ -47,7 +47,7 @@ export class TransferManager {
 	 * @param key - The name of the object to be uploaded.
 	 * @param uploadId - (Optional) Upload ID for the multipart upload session.
 	 * 					 If not provided, a new upload is initiated.
-	 * @returns {MultipartUpload} An instance of the MultipartUpload.
+	 * @returns An instance of the MultipartUpload.
 	 */
 	async createMultipartInstance(key: string, uploadId?: string): Promise<MultipartUpload> {
 		await wrapValidatorsWithPromise(() => {
@@ -63,10 +63,10 @@ export class TransferManager {
 	 * Uploads an object in multiple parts.
 	 * This method divides the object into smaller parts and uploads them concurrently.
 	 * @param key - The name of the object to be uploaded.
-	 * @param body - The object body as a readable stream.
+	 * @param data - The object body as a readable stream.
 	 * @param partSize - The size (in MB) of each part.
 	 * @param concurrency - The maximum number of parts to upload concurrently. Default is 5.
-	 * @returns {IStratusMultipartSummaryRes} The result of the multipart upload, including the status and summary.
+	 * @returns The result of the multipart upload, including the status and summary.
 	 */
 	async putObjectAsParts(
 		key: string,
@@ -192,7 +192,7 @@ export class TransferManager {
 	 * @param start - The starting byte range of the object part to be retrieved.
 	 * @param end - The ending byte range of the object part.
 	 * @param retries - The number of retry attempts in case of failure. Default is 3.
-	 * @returns {IncomingMessage} A readable stream representing the part of the object.
+	 * @returns A readable stream representing the part of the object.
 	 */
 	async #getObjectPart(key: string, start: number, end: number, retries = 3): Promise<Readable> {
 		await wrapValidatorsWithPromise(() => {
@@ -219,7 +219,8 @@ export class TransferManager {
 	 *  This method allows iterating over large objects without loading the entire object into memory.
 	 * @param key - The name of the object to retrieve.
 	 * @param partSize - The size (in MB) of each part.
-	 * @returns {AsyncGenerator<Buffer, void>} An asynchronous generator that yields each part of the object as a Buffer.
+	 * @param versionId - Optional version ID of the object, if versioning is enabled.
+	 * @returns An asynchronous generator that yields each part of the object as a Buffer.
 	 */
 	async *getIterableObject(
 		key: string,
@@ -271,7 +272,7 @@ export class TransferManager {
 	 *  This method returns functions that can be called to download specific parts of an object.
 	 * @param key - The name of the object.
 	 * @param partSize - The size (in MB) of each part.
-	 * @returns { Array<() => Promise<Readable>> } An array of functions that return a readable stream for each part of the object.
+	 * @returns An array of functions that return a readable stream for each part of the object.
 	 */
 	async generatePartDownloaders(
 		key: string,

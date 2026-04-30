@@ -11,7 +11,7 @@ import { TNoSQLAttribute, TNoSQLAttributeResponse, TNoSQLValues } from './types'
 export class NoSQLUnMarshall {
 	/**
 	 * Make a native or near-native js object from NoSQL attribute
-	 * @param attr NoSQL attribute to be converted
+	 * @param attr - NoSQL attribute to be converted
 	 * @returns native or near-native js object
 	 */
 	static makeNative(attr: TNoSQLAttribute | TNoSQLAttributeResponse): TNoSQLValues {
@@ -54,7 +54,7 @@ export class NoSQLUnMarshall {
 
 	/**
 	 * Make a near-native Array from Array of NoSQL List attributes
-	 * @param list Array of NoSQL attributes
+	 * @param list - Array of NoSQL attributes
 	 * @returns Array of near-native js objects
 	 */
 	static makeList(list: Array<TNoSQLAttribute | TNoSQLAttributeResponse>): Array<TNoSQLValues> {
@@ -63,7 +63,7 @@ export class NoSQLUnMarshall {
 
 	/**
 	 * Make a near-native plain js object from NoSQL Map attribute
-	 * @param map NoSQL Map attribute
+	 * @param map - NoSQL Map attribute
 	 * @returns near-native plain js object
 	 */
 	static makeMap(
@@ -83,7 +83,7 @@ export class NoSQLUnMarshall {
 
 	/**
 	 * Make a number or bigint value from NoSQL Number attribute
-	 * @param numStr NoSQL Number attribute
+	 * @param numStr - NoSQL Number attribute
 	 * @returns number or bigint value
 	 */
 	static makeNumber(numStr: string): number | bigint {

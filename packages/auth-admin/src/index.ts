@@ -1,3 +1,9 @@
+/**
+ * Catalyst Authentication for Node.js (admin scope) — initializes a CatalystApp from a request and exposes server-side identity APIs.
+ *
+ * @packageDocumentation
+ */
+
 import {
 	CatalystAppError,
 	CatalystError,

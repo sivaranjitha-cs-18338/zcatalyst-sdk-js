@@ -22,7 +22,7 @@ export class WebNotification {
 	 * Sends a push notification to multiple recipients.
 	 * @param message - The notification message to be sent.
 	 * @param recipients - An array of Catalyst User IDs or Email IDs of the recipients.
-	 * @returns {boolean} `true` if the notification was sent successfully, otherwise `false`.
+	 * @returns `true` if the notification was sent successfully, otherwise `false`.
 	 * @example
 	 * ```ts
 	 * const success = await notificIns.sendNotification("Hello, users!", ["user1@example.com", "user2@example.com"]);

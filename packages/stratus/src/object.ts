@@ -39,7 +39,7 @@ export class StratusObject {
 	 * Retrieves the details of this object in the bucket.
 	 * @param versionId - Unique version identifier of the object.
 	 * 					If not provided, details for the latest version are fetched.
-	 * @returns {IStratusObjectDetails} The details of the object, including metadata, version information, etc.
+	 * @returns The details of the object, including metadata, version information, etc.
 	 */
 	async getDetails(versionId?: string): Promise<IStratusObjectDetails> {
 		const params = {
@@ -65,8 +65,8 @@ export class StratusObject {
 	/**
 	 * Sets the metadata for an object. It will replace the existing metadata.
 	 * @param metaDetails - A record of metadata key-value pairs to be set for the object.
-	 * @access admin
-	 * @returns {Record<string, string>} The updated object details, including the new metadata.
+	 * @remarks Requires admin scope.
+	 * @returns The updated object details, including the new metadata.
 	 */
 	async putMeta(metaDetails: Record<string, string>): Promise<Record<string, string>> {
 		await wrapValidatorsWithPromise(() => {
@@ -92,8 +92,8 @@ export class StratusObject {
 	 * The signed URL can be used to access the object for a specified duration.
 	 * @param url - The cached URL of the object.
 	 * @param expiry - The expiration time for the signed URL in seconds. Default 3600.
-	 * @access admin
-	 * @returns {IStratusSignedURLRes} The response containing the signed URL.
+	 * @remarks Requires admin scope.
+	 * @returns The response containing the signed URL.
 	 */
 	async generateCacheSignedUrl(url: string, expiry?: string): Promise<IStratusSignedURLRes> {
 		const request: IRequestConfig = {
@@ -115,8 +115,8 @@ export class StratusObject {
 	 * This method can be used to retrieve a limited set of object versions at a time, with support for pagination.
 	 * @param maxVersion - The maximum number of versions to return. Default 1000.
 	 * @param nextToken - The token for the next page of results. This is used to fetch the next set of versions.
-	 * @access admin
-	 * @returns {IStratusObjectVersions} The paginated list of object versions.
+	 * @remarks Requires admin scope.
+	 * @returns The paginated list of object versions.
 	 */
 	async listPagedVersions(
 		maxVersion?: string,
@@ -145,8 +145,8 @@ export class StratusObject {
 	 * Retrieves the object versions as an iterable. This method allows iteration over object
 	 * 						versions without needing to handle pagination manually.
 	 * @param maxVersion - The maximum number of versions per response. Default 1000.
-	 * @access admin
-	 * @returns {AsyncGenerator<IStratusObjectVersionDetails, void>} An asynchronous generator that yields the object version details.
+	 * @remarks Requires admin scope.
+	 * @returns An asynchronous generator that yields the object version details.
 	 */
 	async *listIterableVersions(
 		maxVersion?: string

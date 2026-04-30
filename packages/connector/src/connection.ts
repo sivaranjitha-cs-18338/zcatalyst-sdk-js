@@ -74,8 +74,8 @@ export class Connector {
 	}
 	/**
 	 * Retrieves the access token from cache or refreshes it if expired.
-	 * @returns {string} The access token.
-	 * @throws {CatalystConnectorError} If fetching the token fails.
+	 * @returns The access token.
+	 * @throws If fetching the token fails.
 	 * @example
 	 * const token = await connector.getAccessToken();
 	 * console.log(token);
@@ -107,9 +107,9 @@ export class Connector {
 
 	/**
 	 * Generates a new access token using an authorization code.
-	 * @param {string} code - The authorization code.
-	 * @returns {string} The newly generated access token.
-	 * @throws {CatalystConnectorError} If the provided grant token or redirect URL is invalid.
+	 * @param code - The authorization code.
+	 * @returns The newly generated access token.
+	 * @throws If the provided grant token or redirect URL is invalid.
 	 * @example
 	 * const token = await connector.generateAccessToken('auth_code_here');
 	 * console.log(token);
@@ -153,8 +153,8 @@ export class Connector {
 
 	/**
 	 * Refreshes the access token and stores it in cache.
-	 * @returns {string} The refreshed access token.
-	 * @throws {CatalystConnectorError} If refreshing fails.
+	 * @returns The refreshed access token.
+	 * @throws If refreshing fails.
 	 * @example
 	 * const refreshedToken = await connector.refreshAndPersistToken();
 	 * console.log(refreshedToken);
@@ -167,7 +167,7 @@ export class Connector {
 
 	/**
 	 * Refreshes the access token using the refresh token.
-	 * @throws {CatalystConnectorError} If the refresh token or refresh URL is invalid.
+	 * @throws If the refresh token or refresh URL is invalid.
 	 * @example
 	 * await connector.refreshAccessToken();
 	 */
@@ -238,7 +238,7 @@ export class Connector {
 
 	/**
 	 * Stores the access token in cache.
-	 * @returns {ICatalystCacheRes} The cache response.
+	 * @returns The cache response.
 	 * @example
 	 * const cacheResponse = await connector.putAccessTokenInCache();
 	 * console.log(cacheResponse);

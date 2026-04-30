@@ -1,3 +1,9 @@
+/**
+ * Internal HTTP / fetch transport layer used by every Catalyst component package.
+ *
+ * @packageDocumentation
+ */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CatalystApp, CatalystAppError, ZCAuth } from '@zcatalyst/auth-admin';
 
@@ -13,8 +19,8 @@ export class Handler {
 	component?: Component;
 	app?: any;
 	/**
-	 * @param {unknown} app The app used to fetch access tokens to sign API requests.
-	 * @constructor
+	 * @param app - The app used to fetch access tokens to sign API requests.
+	 * @param component - Optional component metadata for this handler.
 	 */
 	constructor(app?: unknown, component?: Component) {
 		if (!app) {

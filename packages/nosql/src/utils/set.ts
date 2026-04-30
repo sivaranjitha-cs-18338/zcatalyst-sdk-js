@@ -4,16 +4,14 @@ import { CatalystNoSQLError } from '../utils/error';
 import { NoSQLByte } from './byte';
 import { TNoSQLByte } from './types';
 
-/**
- * String set (SS) implementation for NoSQL
- */
+/** * String set (SS) implementation for NoSQL */
 export class NoSQLStringSet extends Set<string> {
 	constructor(values?: Array<string>) {
 		super(values);
 	}
 	/**
 	 * Add a string value to the set
-	 * @param str value to be added
+	 * @param str - value to be added
 	 * @returns NoSQLStringSet
 	 */
 	add(str: string): this {
@@ -33,9 +31,7 @@ export class NoSQLStringSet extends Set<string> {
 	}
 }
 
-/**
- * Number set (SN) implementation for NoSQL
- */
+/** * Number set (SN) implementation for NoSQL */
 export class NoSQLNumberSet extends Set<number | bigint> {
 	constructor(values?: Array<number | bigint>) {
 		super(values);
@@ -43,7 +39,7 @@ export class NoSQLNumberSet extends Set<number | bigint> {
 
 	/**
 	 * Add a number or bigint value to the set
-	 * @param num value to be added
+	 * @param num - value to be added
 	 * @returns NoSQLStringSet
 	 */
 	add(num: number | bigint): this {
@@ -68,9 +64,7 @@ export class NoSQLNumberSet extends Set<number | bigint> {
 	}
 }
 
-/**
- * Byte set (SB) implementation for NoSQL
- */
+/** * Byte set (SB) implementation for NoSQL */
 export class NoSQLByteSet extends Set<NoSQLByte> {
 	constructor(values?: Array<TNoSQLByte | string | NoSQLByte>) {
 		super(values?.map((val) => (val instanceof NoSQLByte ? val : new NoSQLByte(val))));
@@ -78,17 +72,17 @@ export class NoSQLByteSet extends Set<NoSQLByte> {
 
 	/**
 	 * Adds a buffer to the end of the set
-	 * @param buffer input buffer
+	 * @param buffer - input buffer
 	 */
 	add(buffer: TNoSQLByte): this;
 	/**
 	 * Adds a NoSQLByte to the end of the set
-	 * @param buffer input NoSQLByte
+	 * @param buffer - input NoSQLByte
 	 */
 	add(buffer: NoSQLByte): this;
 	/**
 	 * Adds a buffer to the end of the set
-	 * @param buffer base64 encoded string of the buffer
+	 * @param buffer - base64 encoded string of the buffer
 	 */
 	add(buffer: string): this;
 	add(buffer: TNoSQLByte | NoSQLByte | string): this {

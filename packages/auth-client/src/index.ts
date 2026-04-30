@@ -1,3 +1,9 @@
+/**
+ * Catalyst Authentication for browsers — sign-in flows, token storage and session management.
+ *
+ * @packageDocumentation
+ */
+
 import { ConfigStore } from './config-store';
 import {
 	API_DOMAIN,
@@ -20,6 +26,7 @@ import { Auth_Protocol } from './utils/enums';
 import { CatalystAuthError } from './utils/errors';
 import { setGlobal } from './utils/functions';
 import { CatalystConfig } from './utils/interfaces';
+import { clearStratusJwt, syncProjectSession } from './utils/session';
 
 export async function getCredentials() {
 	try {
@@ -56,6 +63,10 @@ export async function getCredentials() {
 		}
 		ConfigStore.set(INITIALIZED, true + '');
 		setGlobal('__catalyst', finalCredentials);
+
+		// Clear stratus_jwt only when the project session actually changed so
+		// same-project reloads keep the cached cookie valid.
+		syncProjectSession(finalCredentials);
 	} catch (error) {
 		throw new CatalystAuthError(
 			'CREDENTIAL_FETCH_ERROR',
@@ -75,9 +86,7 @@ export function setDefaultProjectConfig() {
 	}
 }
 
-/**
- * Validates required credential properties
- */
+/** * Validates required credential properties */
 function validateRequiredCredentials(credentialJson: CatalystConfig): void {
 	for (const requirement of REQUIREMENT.INIT_REQUIRE) {
 		if (!credentialJson.hasOwnProperty(requirement)) {
@@ -151,3 +160,15 @@ export async function collectZCRFToken(): Promise<unknown> {
 
 export { Auth_Protocol, ConfigStore };
 export * from './utils/constants';
+export {
+	clearStratusJwt,
+	getStratusJwtExpiry,
+	getStratusSessionVersion,
+	isStratusJwtFresh,
+	setStratusJwtExpiry,
+	STRATUS_JWT_COOKIE,
+	STRATUS_JWT_EXPIRY_KEY,
+	STRATUS_JWT_EXPIRY_SKEW_MS,
+	STRATUS_SESSION_VERSION_KEY,
+	syncProjectSession
+} from './utils/session';

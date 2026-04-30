@@ -1,3 +1,9 @@
+/**
+ * Catalyst Search — fast text search over Datastore records.
+ *
+ * @packageDocumentation
+ */
+
 import { Handler, IRequestConfig, RequestType } from '@zcatalyst/transport';
 import {
 	CatalystService,
@@ -38,8 +44,8 @@ export class Search implements Component {
 	/**
 	 * Executes a search query on the Catalyst search service.
 	 * @param searchQuery - The search criteria containing the query and table columns to search within.
-	 * @returns {ICatalystSearchResults} The search results matching the query.
-	 * @throws {CatalystSearchError} If the search query is invalid or missing required properties.
+	 * @returns The search results matching the query.
+	 * @throws If the search query is invalid or missing required properties.
 	 * @example
 	 * ```ts
 	 * const searchQuery = {

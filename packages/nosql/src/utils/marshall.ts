@@ -4,21 +4,13 @@ import { DataType } from './enum';
 import { NoSQLByteSet, NoSQLNumberSet, NoSQLStringSet } from './set';
 import { TNoSQLAttribute, TNoSQLByte, TNoSQLValues } from './types';
 
-/**
- * An optional configuration object for `serialize`
- */
+/** * An optional configuration object for `serialize` */
 export interface MarshallOptions {
-	/**
-	 * Whether to automatically convert empty strings, buffers, and sets to `null`
-	 */
+	/** * Whether to automatically convert empty strings, buffers, and sets to `null` */
 	convertEmptyValues?: boolean;
-	/**
-	 * Whether to remove undefined values while serializing.
-	 */
+	/** * Whether to remove undefined values while serializing. */
 	removeUndefinedValues?: boolean;
-	/**
-	 * Whether to convert class object to map attribute.
-	 */
+	/** * Whether to convert class object to map attribute. */
 	convertClassInstanceToMap?: boolean;
 	// /**
 	//  * Whether to convert the top level container
@@ -44,7 +36,7 @@ export class NoSQLMarshall {
 
 	/**
 	 * Make a NoSQL string attribute from string value
-	 * @param value string value
+	 * @param value - string value
 	 * @returns NoSQL string(S) attribute
 	 */
 	static makeString(value: string): { [DataType.S]: string } {
@@ -55,7 +47,7 @@ export class NoSQLMarshall {
 
 	/**
 	 * Make a NoSQL number attribute from number or bigint values
-	 * @param value number or bigint value
+	 * @param value - number or bigint value
 	 * @returns NoSQL number(N) attribute
 	 */
 	static makeNumber(value: number | bigint): { [DataType.N]: string } {
@@ -84,7 +76,7 @@ export class NoSQLMarshall {
 
 	/**
 	 * Make a NoSQL byte attribute
-	 * @param value base64 encoded string or NoSQLByte or array buffers listed in TNoSQLByte type
+	 * @param value - base64 encoded string or NoSQLByte or array buffers listed in TNoSQLByte type
 	 * @returns NoSQL byte attribute
 	 */
 	static makeByte(value: string | TNoSQLByte | NoSQLByte): { [DataType.B]: NoSQLByte } {
@@ -95,7 +87,7 @@ export class NoSQLMarshall {
 
 	/**
 	 * Make a NoSQL boolean attribute
-	 * @param value boolean value
+	 * @param value - boolean value
 	 * @returns NoSQL boolean (BOOL) attribute
 	 */
 	static makeBoolean(value: boolean): { [DataType.BOOL]: string } {
@@ -106,7 +98,7 @@ export class NoSQLMarshall {
 
 	/**
 	 * Make a NoSQL list attribute from an Array
-	 * @param value Array of NoSQL compatible data types
+	 * @param value - Array of NoSQL compatible data types
 	 * @returns NoSQL list(L) attribute
 	 */
 	static makeList(value: Array<TNoSQLValues>): { [DataType.L]: Array<TNoSQLAttribute> } {
@@ -119,8 +111,8 @@ export class NoSQLMarshall {
 
 	/**
 	 * Make a NoSQL map attribute from an object
-	 * @param value object
-	 * @param options marshalling options
+	 * @param value - object
+	 * @param options - marshalling options
 	 * @returns NoSQL Map(M) attribute
 	 */
 	static makeMap(
@@ -155,7 +147,7 @@ export class NoSQLMarshall {
 
 	/**
 	 * Make a NoSQL string set attribute from a set of strings or NoSQLStringSet
-	 * @param value Set of strings or NoSQLStringSet value
+	 * @param value - Set of strings or NoSQLStringSet value
 	 * @returns NoSQL string set(SS) attribute
 	 */
 	static makeStringSet(value: Set<string> | NoSQLStringSet): { [DataType.SS]: NoSQLStringSet } {
@@ -166,7 +158,7 @@ export class NoSQLMarshall {
 
 	/**
 	 * Make a NoSQL number set attribute from a set of number or bigint or NoSQLNumberSet
-	 * @param value Set of number or bigint or NoSQLNumberSet value
+	 * @param value - Set of number or bigint or NoSQLNumberSet value
 	 * @returns NoSQL number set(SN) attribute
 	 */
 	static makeNumberSet(value: Set<number | bigint> | NoSQLNumberSet): {
@@ -179,7 +171,7 @@ export class NoSQLMarshall {
 
 	/**
 	 * Make a NoSQL byte set attribute from a set of byte or base64 encoded string or NoSQLByteSet
-	 * @param value Set of byte or base64 encoded string or NoSQLByteSet value
+	 * @param value - Set of byte or base64 encoded string or NoSQLByteSet value
 	 * @returns NoSQL byte set(SB) attribute
 	 */
 	static makeByteSet(value: Set<TNoSQLByte> | Set<string> | Set<NoSQLByte> | NoSQLByteSet): {
@@ -192,8 +184,8 @@ export class NoSQLMarshall {
 
 	/**
 	 * Make NoSQL set attribute from set
-	 * @param set set to be converted
-	 * @param options options to be used when marshalling
+	 * @param set - set to be converted
+	 * @param options - options to be used when marshalling
 	 * @returns NoSQL set attribute (SS, SN, SB)
 	 */
 	static makeSet(
@@ -244,8 +236,8 @@ export class NoSQLMarshall {
 
 	/**
 	 * Make a NoSQL attribute from native js values
-	 * @param data value to be converted to NoSQL attribute
-	 * @param options options to be used when converting js values to NoSQL attributes
+	 * @param data - value to be converted to NoSQL attribute
+	 * @param options - options to be used when converting js values to NoSQL attributes
 	 * @returns NoSQL attribute
 	 */
 	static make(data: TNoSQLValues, options?: MarshallOptions): TNoSQLAttribute {

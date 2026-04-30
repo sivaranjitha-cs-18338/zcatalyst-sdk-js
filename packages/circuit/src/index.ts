@@ -1,3 +1,9 @@
+/**
+ * Catalyst Circuit — orchestrate workflows that span multiple Catalyst components.
+ *
+ * @packageDocumentation
+ */
+
 import { Handler, IRequestConfig, RequestType } from '@zcatalyst/transport';
 import {
 	CatalystService,
@@ -22,7 +28,7 @@ export class Circuit implements Component {
 
 	/**
 	 * Returns the component name.
-	 * @returns {string} The name of the circuit component.
+	 * @returns The name of the circuit component.
 	 */
 	getComponentName(): string {
 		return COMPONENT.circuit;
@@ -34,11 +40,11 @@ export class Circuit implements Component {
 
 	/**
 	 * Executes a specific circuit.
-	 * @param {string} id - The circuit ID.
-	 * @param {string} name - The execution name.
-	 * @param {{ [x: string]: string }} [input] - Optional input parameters.
-	 * @returns {unknown} The execution response.
-	 * @throws {CatalystCircuitError} If the circuit ID or name is invalid.
+	 * @param id - The circuit ID.
+	 * @param name - The execution name.
+	 * @param input - Optional input parameters.
+	 * @returns The execution response.
+	 * @throws If the circuit ID or name is invalid.
 	 */
 	async execute(id: string, name: string, input?: { [x: string]: string }): Promise<unknown> {
 		await wrapValidatorsWithPromise(() => {
@@ -63,10 +69,10 @@ export class Circuit implements Component {
 
 	/**
 	 * Fetches the status of a specific circuit execution.
-	 * @param {string} id - The circuit ID.
-	 * @param {string | number} exeId - The execution ID.
-	 * @returns {unknown} The execution status response.
-	 * @throws {CatalystCircuitError} If the circuit ID or execution ID is invalid.
+	 * @param id - The circuit ID.
+	 * @param exeId - The execution ID.
+	 * @returns The execution status response.
+	 * @throws If the circuit ID or execution ID is invalid.
 	 */
 	async status(id: string, exeId: string | number) {
 		await wrapValidatorsWithPromise(() => {
@@ -87,10 +93,10 @@ export class Circuit implements Component {
 
 	/**
 	 * Aborts a running circuit execution.
-	 * @param {string} id - The circuit ID.
-	 * @param {string} exeId - The execution ID.
-	 * @returns {unknown} The response confirming the execution abort.
-	 * @throws {CatalystCircuitError} If the circuit ID or execution ID is invalid.
+	 * @param id - The circuit ID.
+	 * @param exeId - The execution ID.
+	 * @returns The response confirming the execution abort.
+	 * @throws If the circuit ID or execution ID is invalid.
 	 */
 	async abort(id: string, exeId: string) {
 		await wrapValidatorsWithPromise(() => {

@@ -33,16 +33,14 @@ export class Datastore implements Component {
 	/**
 	 * Retrieves a table instance without making an API call.
 	 *
-	 * @param {string} id - The table ID or name.
-	 * @returns {Table} The table instance.
-	 * @throws {CatalystDataStoreError} If the provided ID is invalid.
+	 * @param id - The table ID or name.
+	 * @returns The table instance.
+	 * @throws If the provided ID is invalid.
 	 *
 	 * @example
-	 * const tableById = catalystApp.table(12345);
-	 * console.log(tableById);
-	 *
-	 * const tableByName = catalystApp.table("Users");
-	 * console.log(tableByName);
+	 * const datastore = new Datastore();
+	 * const tableById = datastore.table('12345');
+	 * const tableByName = datastore.table('Users');
 	 */
 	table(id: string): Table {
 		wrapValidators(() => {
@@ -63,11 +61,11 @@ export class DatastoreAdmin extends Datastore {
 	/**
 	 * Retrieves all tables in the datastore.
 	 *
-	 * @returns {Array<Table>} A list of all tables.
+	 * @returns A list of all tables.
 	 *
 	 * @example
-	 * const tables = await catalystApp.getAllTables();
-	 * console.log(tables);
+	 * const datastore = new DatastoreAdmin();
+	 * const tables = await datastore.getAllTables();
 	 */
 	async getAllTables(): Promise<Array<Table>> {
 		const request: IRequestConfig = {
@@ -89,13 +87,13 @@ export class DatastoreAdmin extends Datastore {
 	/**
 	 * Retrieves details of a specific table.
 	 *
-	 * @param {string | number} id - The ID of the table.
-	 * @returns {Table} The table details.
-	 * @throws {CatalystDataStoreError} If the provided ID is invalid.
+	 * @param id - The ID of the table.
+	 * @returns The table details.
+	 * @throws If the provided ID is invalid.
 	 *
 	 * @example
-	 * const tableDetails = await catalystApp.getTableDetails(12345);
-	 * console.log(tableDetails);
+	 * const datastore = new DatastoreAdmin();
+	 * const tableDetails = await datastore.getTableDetails('12345');
 	 */
 	async getTableDetails(id: string): Promise<Table> {
 		await wrapValidatorsWithPromise(() => {
@@ -116,16 +114,14 @@ export class DatastoreAdmin extends Datastore {
 	/**
 	 * Retrieves a table instance without making an API call.
 	 *
-	 * @param {string | number} id - The table ID or name.
-	 * @returns {Table} The table instance.
-	 * @throws {CatalystDataStoreError} If the provided ID is invalid.
+	 * @param id - The table ID or name.
+	 * @returns The table instance.
+	 * @throws If the provided ID is invalid.
 	 *
 	 * @example
-	 * const tableById = catalystApp.table(12345);
-	 * console.log(tableById);
-	 *
-	 * const tableByName = catalystApp.table("Users");
-	 * console.log(tableByName);
+	 * const datastore = new Datastore();
+	 * const tableById = datastore.table('12345');
+	 * const tableByName = datastore.table('Users');
 	 */
 	table(id: string): TableAdmin {
 		wrapValidators(() => {

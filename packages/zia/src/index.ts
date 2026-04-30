@@ -1,3 +1,9 @@
+/**
+ * Catalyst Zia — AI services such as OCR, object detection, sentiment analysis and more.
+ *
+ * @packageDocumentation
+ */
+
 import { Handler, IRequestConfig, RequestType } from '@zcatalyst/transport';
 import {
 	CatalystService,
@@ -55,7 +61,7 @@ export class Zia implements Component {
 
 	/**
 	 * Detect objects in an image.
-	 * @param file Read stream of the image file.
+	 * @param file - Read stream of the image file.
 	 * @returns The detected objects in the image.
 	 */
 	async detectObject(file: fs.ReadStream): Promise<ICatalystZiaObject> {
@@ -75,8 +81,8 @@ export class Zia implements Component {
 
 	/**
 	 * Extract text from an image using Optical Character Recognition (OCR).
-	 * @param file Read stream of the image file.
-	 * @param opts Optional parameters for language and model type.
+	 * @param file - Read stream of the image file.
+	 * @param opts - Optional parameters for language and model type.
 	 * @returns Extracted text from the image.
 	 */
 	async extractOpticalCharacters(
@@ -99,9 +105,9 @@ export class Zia implements Component {
 
 	/**
 	 * Extract Aadhaar card details using OCR.
-	 * @param frontImg Read stream of the Aadhaar front image.
-	 * @param backImg Read stream of the Aadhaar back image.
-	 * @param language Language for text extraction.
+	 * @param frontImg - Read stream of the Aadhaar front image.
+	 * @param backImg - Read stream of the Aadhaar back image.
+	 * @param language - Language for text extraction.
 	 * @returns Extracted Aadhaar card details.
 	 */
 	async extractAadhaarCharacters(
@@ -133,8 +139,8 @@ export class Zia implements Component {
 
 	/**
 	 * Scan a barcode from an image.
-	 * @param image Read stream of the barcode image.
-	 * @param opts Optional parameters such as format.
+	 * @param image - Read stream of the barcode image.
+	 * @param opts - Optional parameters such as format.
 	 * @returns Scanned barcode details.
 	 */
 	async scanBarcode(
@@ -166,7 +172,7 @@ export class Zia implements Component {
 	 *   @param opts.mode - The moderation mode (e.g., strict, moderate, or relaxed).
 	 * @returns An object containing the moderation analysis results.
 	 *
-	 * @throws {CatalystZiaError} If the provided image is not valid.
+	 * @throws If the provided image is not valid.
 	 */
 	async moderateImage(
 		image: fs.ReadStream,
@@ -203,7 +209,7 @@ export class Zia implements Component {
 	 *   @param opts.gender - Whether to determine the gender of the person in the image.
 	 * @returns An object containing the analyzed face attributes.
 	 *
-	 * @throws {CatalystZiaError} If the provided image is not valid.
+	 * @throws If the provided image is not valid.
 	 */
 	async analyseFace(
 		image: fs.ReadStream,
@@ -236,8 +242,8 @@ export class Zia implements Component {
 
 	/**
 	 * Compare two faces to check for a match.
-	 * @param sourceImage Read stream of the source image.
-	 * @param queryImage Read stream of the image to be compared.
+	 * @param sourceImage - Read stream of the source image.
+	 * @param queryImage - Read stream of the image to be compared.
 	 * @returns Object containing match status and confidence value.
 	 */
 	async compareFace(
@@ -269,7 +275,7 @@ export class Zia implements Component {
 	 * @param data - The input data to be passed to the model for prediction.
 	 * @returns The prediction result from the AutoML model.
 	 *
-	 * @throws {CatalystZiaError} If the model ID is invalid or the data is not an object.
+	 * @throws If the model ID is invalid or the data is not an object.
 	 */
 	async automl(
 		modelId: string,
@@ -295,10 +301,10 @@ export class Zia implements Component {
 
 	/**
 	 * Get the sentiment analytics for the list of documents.
-	 * @param listOfDocuments Array of strings whose sentiment is to be analysed.
-	 * @param keywords Entity-level sentiment key
+	 * @param listOfDocuments - Array of strings whose sentiment is to be analysed.
+	 * @param keywords - Entity-level sentiment key
 	 * @returns `ICatalystZiaSentimentAnalysis`
-	 * @link https://www.zoho.com/catalyst/sdk/nodeJS-sdk/zia_compinst.html
+	 * @see {@link https://www.zoho.com/catalyst/sdk/nodeJS-sdk/zia_compinst.html}
 	 */
 	async getSentimentAnalysis(
 		listOfDocuments: Array<string>,
@@ -309,9 +315,9 @@ export class Zia implements Component {
 
 	/**
 	 * Extracts the keywords from the list of documents provided.
-	 * @param listOfDocuments Array of strings, which has to processed for keyword extraction
+	 * @param listOfDocuments - Array of strings, which has to processed for keyword extraction
 	 * @returns `ICatalsytZiaKeywordExtraction`
-	 * @link https://www.zoho.com/catalyst/sdk/nodeJS-sdk/zia_compinst.html
+	 * @see {@link https://www.zoho.com/catalyst/sdk/nodeJS-sdk/zia_compinst.html}
 	 */
 	async getKeywordExtraction(
 		listOfDocuments: Array<string>
@@ -321,9 +327,9 @@ export class Zia implements Component {
 
 	/**
 	 * Performs NER (Named Entity Recognition) on the given list of documents.
-	 * @param listOfDocuments Array of strings to be processed for NER.
+	 * @param listOfDocuments - Array of strings to be processed for NER.
 	 * @returns `ICatalystZiaNERPrediction`
-	 * @link https://www.zoho.com/catalyst/sdk/nodeJS-sdk/zia_compinst.html
+	 * @see {@link https://www.zoho.com/catalyst/sdk/nodeJS-sdk/zia_compinst.html}
 	 */
 	async getNERPrediction(listOfDocuments: Array<string>): Promise<ICatalystZiaNERPrediction> {
 		return _getNERPrediction(this.requester, listOfDocuments);
@@ -339,10 +345,10 @@ export class Zia implements Component {
 	 *
 	 * Note: These text analytics features are also available as seperate functions. Please check other functions under `textAnalysis`.
 	 *
-	 * @param listOfDocuments Array of strings to be processed for text anaytics.
-	 * @param keywords Entity-level sentiment key
+	 * @param listOfDocuments - Array of strings to be processed for text anaytics.
+	 * @param keywords - Entity-level sentiment key
 	 * @returns `ICatalystZiaTextAnalytics`
-	 * @link https://www.zoho.com/catalyst/sdk/nodeJS-sdk/zia_compinst.html
+	 * @see {@link https://www.zoho.com/catalyst/sdk/nodeJS-sdk/zia_compinst.html}
 	 */
 	async getTextAnalytics(
 		listOfDocuments: Array<string>,

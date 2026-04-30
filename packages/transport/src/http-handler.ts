@@ -391,10 +391,7 @@ async function sendRequest(
 
 export class HttpClient {
 	app?: CatalystApp;
-	/**
-	 * @param {CatalystApp} app The app used to fetch access tokens to sign API requests.
-	 * @constructor
-	 */
+	/** * @param app - The app used to fetch access tokens to sign API requests. */
 	constructor(app?: CatalystApp) {
 		this.app = app;
 	}
@@ -474,8 +471,8 @@ export class AuthorizedHttpClient extends HttpClient {
 	readonly componentName?: string;
 	readonly componentVersion?: string;
 	/**
-	 * @param {unknown} app The app used to fetch access tokens to sign API requests.
-	 * @constructor
+	 * @param app - The app used to fetch access tokens to sign API requests.
+	 * @param component - Optional component metadata used to attach version headers.
 	 */
 	constructor(app?: CatalystApp, component?: Component) {
 		super(app);

@@ -32,7 +32,7 @@ export class Segment implements ParsableComponent<ICatalystSegment> {
 
 	/**
 	 * Returns the component name.
-	 * @returns {string} The name of the cache component.
+	 * @returns The name of the cache component.
 	 */
 	getComponentName(): string {
 		return COMPONENT.cache;
@@ -40,11 +40,11 @@ export class Segment implements ParsableComponent<ICatalystSegment> {
 
 	/**
 	 * Stores a value in the cache.
-	 * @param {string} key - The cache key.
-	 * @param {string} value - The value to be stored.
-	 * @param {number} [expiry] - Expiry time in hours (optional).
-	 * @returns {ICatalystCacheRes} The response containing cache details.
-	 * @throws {CatalystCacheError} If the cache key is invalid.
+	 * @param key - The cache key.
+	 * @param value - The value to be stored.
+	 * @param expiry - Expiry time in hours (optional).
+	 * @returns The response containing cache details.
+	 * @throws If the cache key is invalid.
 	 */
 	async put(key: string, value: string, expiry?: number): Promise<ICatalystCacheRes> {
 		await wrapValidatorsWithPromise(() => {
@@ -71,11 +71,11 @@ export class Segment implements ParsableComponent<ICatalystSegment> {
 
 	/**
 	 * Updates an existing cache entry.
-	 * @param {string} key - The cache key.
-	 * @param {string} value - The new value to store.
-	 * @param {number} [expiry] - Expiry time in hours (optional).
-	 * @returns {ICatalystCacheRes} The response containing updated cache details.
-	 * @throws {CatalystCacheError} If the cache key or value is invalid.
+	 * @param key - The cache key.
+	 * @param value - The new value to store.
+	 * @param expiry - Expiry time in hours (optional).
+	 * @returns The response containing updated cache details.
+	 * @throws If the cache key or value is invalid.
 	 */
 	async update(key: string, value: string, expiry?: number): Promise<ICatalystCacheRes> {
 		await wrapValidatorsWithPromise(() => {
@@ -102,9 +102,9 @@ export class Segment implements ParsableComponent<ICatalystSegment> {
 
 	/**
 	 * Retrieves the value of a specific cache key.
-	 * @param {string} cacheKey - The cache key.
-	 * @returns {string} The stored cache value.
-	 * @throws {CatalystCacheError} If the cache key is invalid or not found.
+	 * @param cacheKey - The cache key.
+	 * @returns The stored cache value.
+	 * @throws If the cache key is invalid or not found.
 	 */
 	async getValue(cacheKey: string): Promise<string> {
 		const cacheObj = await this.get(cacheKey);
@@ -113,9 +113,9 @@ export class Segment implements ParsableComponent<ICatalystSegment> {
 
 	/**
 	 * Fetches the cache entry details for a given key.
-	 * @param {string} cacheKey - The cache key.
-	 * @returns {ICatalystCacheRes} The cache entry details.
-	 * @throws {CatalystCacheError} If the cache key is invalid or not found.
+	 * @param cacheKey - The cache key.
+	 * @returns The cache entry details.
+	 * @throws If the cache key is invalid or not found.
 	 */
 	async get(cacheKey: string): Promise<ICatalystCacheRes> {
 		await wrapValidatorsWithPromise(() => {
@@ -137,9 +137,9 @@ export class Segment implements ParsableComponent<ICatalystSegment> {
 
 	/**
 	 * Deletes a cache entry.
-	 * @param {string} cacheKey - The cache key to delete.
-	 * @returns {boolean} Returns `true` if deletion is successful.
-	 * @throws {CatalystCacheError} If the cache key is invalid.
+	 * @param cacheKey - The cache key to delete.
+	 * @returns Returns `true` if deletion is successful.
+	 * @throws If the cache key is invalid.
 	 */
 	async delete(cacheKey: string): Promise<boolean> {
 		await wrapValidatorsWithPromise(() => {
@@ -161,7 +161,7 @@ export class Segment implements ParsableComponent<ICatalystSegment> {
 
 	/**
 	 * Converts the segment object to a JSON string.
-	 * @returns {string} The JSON representation of the segment.
+	 * @returns The JSON representation of the segment.
 	 */
 	toString(): string {
 		return JSON.stringify(this.toJSON());
@@ -169,7 +169,7 @@ export class Segment implements ParsableComponent<ICatalystSegment> {
 
 	/**
 	 * Converts the segment object to a JSON representation.
-	 * @returns {ICatalystSegment} The segment details in JSON format.
+	 * @returns The segment details in JSON format.
 	 */
 	toJSON(): ICatalystSegment {
 		return {

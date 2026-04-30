@@ -72,7 +72,7 @@ export class Bucket {
 
 	/**
 	 * Get the name of the bucket.
-	 * @returns { string } The name of the bucket as a string.
+	 * @returns The name of the bucket as a string.
 	 */
 	getName(): string {
 		return this.bucketDetails.bucket_name;
@@ -81,10 +81,10 @@ export class Bucket {
 	/**
 	 * Downloads an object from the bucket.
 	 * @param key - The unique identifier or path of the object within the bucket to be downloaded.
-	 * @param getObjectOptions - Optional options for customizing the download:
+	 * @param options - Optional options for customizing the download:
 	 *   - `range` (string): Specifies a byte range for partial downloads (e.g., "0-200").
 	 *   - `versionId` (string): Identifies a specific version of the object, if versioning is enabled.
-	 * @access admin, user
+	 * @remarks Requires admin, user scope.
 	 * @example
 	 * ```js
 	 * const key = 'out/sam/temp.txt';
@@ -95,7 +95,7 @@ export class Bucket {
 	 * // Invoke the object download operation
 	 * const getObjectRes = await bucket.getObject(key, options);
 	 * ```
-	 * @returns { Readable } A readable stream of the object (`Readable`).
+	 * @returns A readable stream of the object (`Readable`).
 	 */
 	async getObject(key: string, options?: IStratusGetObjectOptions): Promise<Readable> {
 		await wrapValidatorsWithPromise(() => {
@@ -128,7 +128,7 @@ export class Bucket {
 	 * @param versionId - The version ID of the object to delete (optional).
 	 * @param ttl - The time to live (TTL) in seconds.
 	 * 				The object will not be deleted immediately but after the specified time (optional).
-	 * @access admin, user
+	 * @remarks Requires admin, user scope.
 	 * @example
 	 * ```js
 	 * const key = 'out/sam/temp.txt';
@@ -140,7 +140,7 @@ export class Bucket {
 	 * const deleteObjectRes = await bucket.deleteObject(key, options);
 	 * console.log(deleteObjectRes);
 	 * ```
-	 * @returns { Record<string, string> } Containing a message about the deletion operation.
+	 * @returns Containing a message about the deletion operation.
 	 */
 	async deleteObject(
 		key: string,
@@ -151,41 +151,38 @@ export class Bucket {
 			versionId?: string;
 			ttl?: number;
 		} = {}
-	): Promise<Record<string, string>> {
+	): Promise<void> {
 		await wrapValidatorsWithPromise(() => {
 			isNonEmptyString(key, 'key', true);
 		}, CatalystStratusError);
-		const url = this.bucketDetails.bucket_url;
 		await wrapValidatorsWithPromise(() => {
 			isNonEmptyString(key, 'key', true);
 		}, CatalystStratusError);
-		const token = await this.#jwtAuth.getJWTAccessToken();
-		const headers = { Authorization: 'Zoho-oauthtoken ' + token };
 		const param = {
 			...(ttl ? { ttl: ttl } : {}),
-			...(versionId ? { versionId } : { deleteAllVersions: 'true' }),
-			zaid: this.#jwtAuth.zaid
+			...(versionId ? { versionId } : { deleteAllVersions: 'true' })
 		};
+		const { headers, params, url } = await this.#addAuthProperties(param);
 		const request: IRequestConfig = {
 			method: REQ_METHOD.delete,
 			url: url + `/${encodeURI(key)}`,
-			qs: param,
+			qs: params,
 			headers,
 			type: RequestType.JSON,
 			expecting: ResponseType.RAW,
-			service: CatalystService.STRATUS,
+			service: CatalystService.EXTERNAL,
 			auth: false,
 			track: true,
 			user: CREDENTIAL_USER.user
 		};
-		const resp = await this._requester.send(request);
-		return { message: resp.resp.data as unknown as string };
+		await this._requester.send(request);
+		return;
 	}
 
 	/**
 	 * Uploads an object to the bucket.
 	 * @param key - The name of the object key to upload.
-	 * @param body- The content of the object, which can be a string or StratusObjectRequest.
+	 * @param body - The content of the object, which can be a string or StratusObjectRequest.
 	 * @param uploadOptions - Optional settings for uploading the object, such as:
 	 *   - `overwrite` (string): Whether to overwrite an existing object when versioning is not enabled.
 	 *   - `ttl` (string): The duration for which the object will remain live.
@@ -195,7 +192,7 @@ export class Bucket {
 	 *   - `contentLength` (string): The raw length of the object being uploaded in bytes.
 	 *   - `cacheControl` (string): Defines browser caching policies for the object.
 	 *   - `storageClass` ('STANDARD' | 'ARCHIVE'): Specifies the storage class for the object. Defaults to 'STANDARD'.
-	 * @access admin, user
+	 * @remarks Requires admin, user scope.
 	 * @example
 	 * ```js
 	 * const key = 'out1/sam1/temp1.txt';
@@ -208,7 +205,7 @@ export class Bucket {
 	 * const putObjectRes = await bucket.putObject(key, body, options);
 	 * console.log(putObjectRes);
 	 * ```
-	 * @returns { boolean }
+	 * @returns
 	 */
 	async putObject(
 		key: string,
@@ -218,7 +215,7 @@ export class Bucket {
 	/**
 	 * Uploads an object to the bucket.
 	 * @param key - The name of the object key to upload.
-	 * @param body- The content of the object, which can be a string or StratusObjectRequest.
+	 * @param body - The content of the object, which can be a string or StratusObjectRequest.
 	 * @param uploadOptions - Optional settings for uploading the object, such as:
 	 *   - `overwrite` (string): Whether to overwrite an existing object when versioning is not enabled.
 	 *   - `ttl` (string): The duration for which the object will remain live.
@@ -229,7 +226,7 @@ export class Bucket {
 	 *   - `contentLength` (string): The raw length of the object being uploaded in bytes.
 	 *   - `cacheControl` (string): Defines browser caching policies for the object.
 	 *   - `storageClass` ('STANDARD' | 'ARCHIVE'): Specifies the storage class for the object. Defaults to 'STANDARD'.
-	 * @returns { {task_id: string} }
+	 * @returns
 	 */
 	async putObject(
 		key: string,
@@ -284,7 +281,7 @@ export class Bucket {
 	 * @param versionId - The version ID of the object (for versioned buckets, optional).
 	 * @param throwErr - Whether to throw an error if the object does not exist or is inaccessible.
 	 * 					 Defaults to `false`.
-	 * @access admin, user
+	 * @remarks Requires admin, user scope.
 	 * @example
 	 * ```js
 	 * const key = 'out1/sam1/temp1.txt';
@@ -292,13 +289,22 @@ export class Bucket {
 	 * const headObjectRes = await bucket.headObject(key, { versionId: 'dskjhgdfue627', throwErr: false });
 	 * console.log(headObjectRes);
 	 * ```
-	 * @returns {boolean} `true` if the object exists and is accessible, `false` otherwise.
+	 * @returns `true` if the object exists and is accessible, `false` otherwise.
 	 */
-	async headObject(key: string, { versionId }: { versionId?: string } = {}): Promise<boolean> {
+	async headObject(
+		key: string,
+		{
+			versionId,
+			throwErr
+		}: {
+			versionId?: string;
+			throwErr?: boolean;
+		} = {}
+	): Promise<boolean> {
 		await wrapValidatorsWithPromise(() => {
 			isNonEmptyString(key, 'key', true);
 		}, CatalystStratusError);
-		const param = versionId ? { versionId } : { deleteAllVersions: 'true' };
+		const param = versionId ? { versionId } : {};
 		const { headers, params, url } = await this.#addAuthProperties(param);
 		const request: IRequestConfig = {
 			method: REQ_METHOD.head,
@@ -306,20 +312,30 @@ export class Bucket {
 			qs: params,
 			headers,
 			type: RequestType.JSON,
-			expecting: ResponseType.JSON,
+			expecting: ResponseType.RAW,
 			service: CatalystService.EXTERNAL,
-			external: true,
+			auth: false,
 			user: CREDENTIAL_USER.user
 		};
-		const resp = await this._requester.send(request);
-		return resp.statusCode === 200;
+		try {
+			const resp = await this._requester.send(request);
+			return resp.statusCode === 200;
+		} catch (err) {
+			if (!throwErr) {
+				const status = (err as CatalystAPIError)?.statusCode;
+				if (status === 404 || status === 403 || status === 400) {
+					return false;
+				}
+			}
+			throw err;
+		}
 	}
 
 	/**
 	 * Initiates a multipart upload for an object in the bucket.
 	 * @param key - The name of the object to upload.
-	 * @access admin, user
-	 * @returns {IStratusInitiateUpload} Details of the initiated upload.
+	 * @remarks Requires admin, user scope.
+	 * @returns Details of the initiated upload.
 	 */
 	async initiateMultipartUpload(key: string): Promise<IStratusInitiateUpload> {
 		await wrapValidatorsWithPromise(() => {
@@ -353,8 +369,8 @@ export class Bucket {
 	 * @param body - The content to be uploaded (can be a `Stream` or `Buffer`).
 	 * @param partNumber - The part number (must be between 1 and 1000) indicating the order of the part.
 	 * @param overwrite - Whether to overwrite the part if it already exists (defaults to 'false').
-	 * @access admin, user
-	 * @returns {boolean} `true` if the part is successfully uploaded, `false` otherwise.
+	 * @remarks Requires admin, user scope.
+	 * @returns `true` if the part is successfully uploaded, `false` otherwise.
 	 */
 	async uploadPart(
 		key: string,
@@ -388,8 +404,8 @@ export class Bucket {
 	 * Completes the multipart upload after all parts have been uploaded.
 	 * @param key - The name of the object.
 	 * @param uploadId - The ID of the specific upload.
-	 * @access admin, user
-	 * @returns {boolean} `true` if the upload is completed successfully, `false` otherwise.
+	 * @remarks Requires admin, user scope.
+	 * @returns `true` if the upload is completed successfully, `false` otherwise.
 	 */
 	async completeMultipartUpload(key: string, uploadId: string): Promise<boolean> {
 		const { headers, params, url } = await this.#addAuthProperties({ uploadId });
@@ -413,8 +429,8 @@ export class Bucket {
 	 * Retrieves a summary of the uploaded parts for a multipart upload.
 	 * @param key - The name of the object.
 	 * @param uploadId - The ID of the specific upload.
-	 * @access admin, user
-	 * @returns {IStratusMultipartSummaryRes} A summary of the uploaded parts.
+	 * @remarks Requires admin, user scope.
+	 * @returns A summary of the uploaded parts.
 	 */
 	async getMultipartUploadSummary(
 		key: string,
@@ -493,7 +509,7 @@ export class BucketAdmin extends Bucket {
 
 	/**
 	 * Get the name of the bucket.
-	 * @returns { string } The name of the bucket as a string.
+	 * @returns The name of the bucket as a string.
 	 */
 	getName(): string {
 		return this.bucketDetails.bucket_name;
@@ -503,8 +519,8 @@ export class BucketAdmin extends Bucket {
 	 * Retrieve a paginated list of objects and their details in the bucket.
 	 * @param options - Configuration options for pagination, such as folder listing,
 	 * 				maximum objects, and prefix filters.
-	 * @access admin
-	 * @returns { IStratusObjects } An object containing details of the listed objects.
+	 * @remarks Requires admin scope.
+	 * @returns An object containing details of the listed objects.
 	 */
 	async listPagedObjects(options: IStratusPagedObjectOptions = {}): Promise<IStratusObjects> {
 		const param: Record<string, string> = {
@@ -559,10 +575,9 @@ export class BucketAdmin extends Bucket {
 
 	/**
 	 * Retrieve objects and their details in the bucket as an iterable.
-	 * @param prefix - (Optional) A prefix to filter the objects returned.
-	 * @param maxKeys - (Optional) The maximum number of objects to return per request.
-	 * @access admin
-	 * @returns { AsyncGenerator<StratusObject, void> } An asynchronous generator yielding `StratusObject` instances.
+	 * @param options - Paging options. Supports `prefix` (filter), `maxKeys` (page size) and `continuationToken` (resume).
+	 * @remarks Requires admin scope.
+	 * @returns An asynchronous generator yielding `StratusObject` instances.
 	 */
 	async *listIterableObjects(
 		options: IStratusPagedObjectOptions = {}
@@ -578,8 +593,8 @@ export class BucketAdmin extends Bucket {
 
 	/**
 	 * Fetch detailed information about the bucket.
-	 * @access admin
-	 * @returns { IStratusBucket } Containing metadata and configuration details of the bucket.
+	 * @remarks Requires admin scope.
+	 * @returns Containing metadata and configuration details of the bucket.
 	 */
 	async getDetails(): Promise<IStratusBucket> {
 		const request: IRequestConfig = {
@@ -598,8 +613,8 @@ export class BucketAdmin extends Bucket {
 
 	/**
 	 * Delete all the objects in the bucket.
-	 * @access admin
-	 * @returns { message: string } Details of the truncate operation.
+	 * @remarks Requires admin scope.
+	 * @returns Details of the truncate operation.
 	 */
 	async truncate(): Promise<{ message: string }> {
 		const param = {
@@ -623,7 +638,7 @@ export class BucketAdmin extends Bucket {
 	 * Copies an object within the bucket to a specified destination.
 	 * @param key - The name of the source object to copy.
 	 * @param destKey - The name of the destination object.
-	 * @access admin
+	 * @remarks Requires admin scope.
 	 * @example
 	 * ```js
 	 * const sourceKey = 'sam/out/temp.txt';
@@ -632,7 +647,7 @@ export class BucketAdmin extends Bucket {
 	 * const copyObjectRes = await bucket.copyObject(sourceKey, destKey);
 	 * console.log(copyObjectRes);
 	 * ```
-	 * @returns { IStratusObjectCopyRes } The result of the copy operation.
+	 * @returns The result of the copy operation.
 	 */
 	async copyObject(key: string, destKey: string): Promise<IStratusObjectCopyRes> {
 		await wrapValidatorsWithPromise(() => {
@@ -662,7 +677,7 @@ export class BucketAdmin extends Bucket {
 	 * Renames an existing object in the bucket.
 	 * @param key - The current name of the object to rename.
 	 * @param destKey - The new name for the object key.
-	 * @access admin
+	 * @remarks Requires admin scope.
 	 * @example
 	 * ```js
 	 * const sourceKey = 'sam/out/temp.txt';
@@ -670,7 +685,7 @@ export class BucketAdmin extends Bucket {
 	 * const renameObjectRes = await bucket.renameObject(sourceKey, destKey);
 	 * console.log(renameObjectRes);
 	 * ```
-	 * @returns { IStratusObjectRenameRes } The result of the rename operation.
+	 * @returns The result of the rename operation.
 	 */
 	async renameObject(key: string, destKey: string): Promise<IStratusObjectRenameRes> {
 		await wrapValidatorsWithPromise(() => {
@@ -701,7 +716,7 @@ export class BucketAdmin extends Bucket {
 	 * @param key - The name of the object for which the URL is generated.
 	 * @param urlAction - The HTTP method for the operation (`PUT` or `GET`).
 	 * @param signedUrlOptions - Optional settings for the URL, such as expiration time or activation period.
-	 * @access admin
+	 * @remarks Requires admin scope.
 	 * @example
 	 * ```js
 	 * const key = 'sam/out/temp.txt';
@@ -712,7 +727,7 @@ export class BucketAdmin extends Bucket {
 	 * const preSignedUrlRes = await bucket.generatePreSignedUrl(key, 'GET', options);
 	 * console.log(preSignedUrlRes);
 	 * ```
-	 * @returns { signature: string } An object containing the pre-signed URL.
+	 * @returns An object containing the pre-signed URL.
 	 */
 	async generatePreSignedUrl(
 		key: string,
@@ -747,7 +762,7 @@ export class BucketAdmin extends Bucket {
 	/**
 	 * Deletes a specified path and all its objects in the bucket.
 	 * @param path - The path to be deleted, relative to the bucket.
-	 * @access admin
+	 * @remarks Requires admin scope.
 	 * @example
 	 * ```js
 	 * const path = 'sam/';
@@ -755,7 +770,7 @@ export class BucketAdmin extends Bucket {
 	 * const pathDeleteRes = await bucket.deletePath(path);
 	 * console.log(pathDeleteRes);
 	 * ```
-	 * @returns { IStratusObjectDetails } Details of the deleted objects.
+	 * @returns Details of the deleted objects.
 	 */
 	async deletePath(path: string): Promise<IStratusObjectDetails> {
 		await wrapValidatorsWithPromise(() => {
@@ -779,7 +794,7 @@ export class BucketAdmin extends Bucket {
 	/**
 	 * Clears cached items in the bucket.
 	 * @param path  - An optional array of paths to clear cache for. If not provided, the entire cache is cleared.
-	 * @access admin
+	 * @remarks Requires admin scope.
 	 * @example
 	 * ```js
 	 * const path = ['sam', 'out/sam/temp.txt'];
@@ -787,7 +802,7 @@ export class BucketAdmin extends Bucket {
 	 * const purgeCacheRes = await bucket.purgeCache(path);
 	 * console.log(purgeCacheRes);
 	 * ```
-	 * @returns { IStratusObjectDetails } Details of the cleared cache items.
+	 * @returns Details of the cleared cache items.
 	 */
 	async purgeCache(path?: Array<string>): Promise<IStratusObjectDetails> {
 		const param = {
@@ -813,7 +828,7 @@ export class BucketAdmin extends Bucket {
 	 * @param versionId - The version ID of the object to delete (optional).
 	 * @param ttl - The time to live (TTL) in seconds.
 	 * 				The object will not be deleted immediately but after the specified time (optional).
-	 * @access admin, user
+	 * @remarks Requires admin, user scope.
 	 * @example
 	 * ```js
 	 * const key = 'out/sam/temp.txt';
@@ -825,9 +840,9 @@ export class BucketAdmin extends Bucket {
 	 * const deleteObjectRes = await bucket.deleteObject(key, options);
 	 * console.log(deleteObjectRes);
 	 * ```
-	 * @returns { Record<string, string> } Containing a message about the deletion operation.
+	 * @returns Containing a message about the deletion operation.
 	 */
-	async deleteObject(
+	override async deleteObject(
 		key: string,
 		{
 			versionId,
@@ -836,7 +851,7 @@ export class BucketAdmin extends Bucket {
 			versionId?: string;
 			ttl?: number;
 		} = {}
-	): Promise<Record<string, string>> {
+	): Promise<void> {
 		await wrapValidatorsWithPromise(() => {
 			isNonEmptyString(key, 'key', true);
 		}, CatalystStratusError);
@@ -849,7 +864,8 @@ export class BucketAdmin extends Bucket {
 				...(versionId ? { version_id: versionId } : {})
 			}
 		];
-		return await this.deleteObjects(objects, ttl);
+		await this.deleteObjects(objects, ttl);
+		return;
 	}
 
 	/**
@@ -857,7 +873,7 @@ export class BucketAdmin extends Bucket {
 	 * @param objects - An array of objects to be deleted.
 	 * @param ttl - The time to live (TTL) in seconds.
 	 * 				The objects will not be deleted immediately but after the specified time (optional).
-	 * @access admin
+	 * @remarks Requires admin scope.
 	 * @example
 	 * ```js
 	 * const objects = [
@@ -869,7 +885,7 @@ export class BucketAdmin extends Bucket {
 	 * const deleteObjectsRes = await bucket.deleteObjects(objects, ttl);
 	 * console.log(deleteObjectsRes);
 	 * ```
-	 * @returns { Record<string, string> } Containing the deletion status, typically `{ message: 'Objects deleted successfully' }`.
+	 * @returns Containing the deletion status, typically `{ message: 'Objects deleted successfully' }`.
 	 */
 	async deleteObjects(
 		objects: Array<{ key: string; versionId?: string }>,
@@ -953,7 +969,7 @@ export class BucketAdmin extends Bucket {
 	 * Extracts a given zip object and uploads all the files inside it as individual objects to the same bucket.
 	 * @param key - The name of the zip object to unzip.
 	 * @param destPath - The destination path where the unzipped files will be stored.
-	 * @access admin
+	 * @remarks Requires admin scope.
 	 * @example
 	 * ```js
 	 * const key = 'out/sam/temp.zip';
@@ -962,7 +978,7 @@ export class BucketAdmin extends Bucket {
 	 * const unzipObjectRes = await bucket.unzipObject(key, destPath);
 	 * console.log(unzipObjectRes);
 	 * ```
-	 * @returns { IStratusUnzipRes } Containing details about the extracted objects.
+	 * @returns Containing details about the extracted objects.
 	 */
 	async unzipObject(key: string, destPath: string): Promise<IStratusUnzipRes> {
 		await wrapValidatorsWithPromise(() => {
@@ -992,7 +1008,7 @@ export class BucketAdmin extends Bucket {
 	 * Retrieves the status of an unzip operation.
 	 * @param key - The name of the zip object that was being extracted.
 	 * @param taskId - The ID of the unzip task to check the status for.
-	 * @access admin
+	 * @remarks Requires admin scope.
 	 * @example
 	 * ```js
 	 * const key = 'out/sam/temp.zip';
@@ -1001,7 +1017,7 @@ export class BucketAdmin extends Bucket {
 	 * const getUnzipStatusRes = await bucket.getUnzipStatus(key, taskId);
 	 * console.log(getUnzipStatusRes);
 	 * ```
-	 * @returns { IStratusUnzipStatus } Containing the status of the unzip operation.
+	 * @returns Containing the status of the unzip operation.
 	 */
 	async getUnzipStatus(key: string, taskId: string): Promise<IStratusUnzipStatus> {
 		await wrapValidatorsWithPromise(() => {
@@ -1029,8 +1045,8 @@ export class BucketAdmin extends Bucket {
 
 	/**
 	 * Retrieves the CORS details of the bucket.
-	 * @access admin
-	 * @returns {Array<IStratusCorsRes>} The CORS configuration details for the bucket.
+	 * @remarks Requires admin scope.
+	 * @returns The CORS configuration details for the bucket.
 	 */
 	async getCors(): Promise<Array<IStratusCorsRes>> {
 		const corsDetails = this.#cors.getCors();
@@ -1043,7 +1059,7 @@ export class BucketAdmin extends Bucket {
 	 * @param versionId - The version ID of the object (for versioned buckets, optional).
 	 * @param throwErr - Whether to throw an error if the object does not exist or is inaccessible.
 	 * 					 Defaults to `false`.
-	 * @access admin, user
+	 * @remarks Requires admin, user scope.
 	 * @example
 	 * ```js
 	 * const key = 'out1/sam1/temp1.txt';
@@ -1051,7 +1067,7 @@ export class BucketAdmin extends Bucket {
 	 * const headObjectRes = await bucket.headObject(key, { versionId: 'dskjhgdfue627', throwErr: false });
 	 * console.log(headObjectRes);
 	 * ```
-	 * @returns {boolean} `true` if the object exists and is accessible, `false` otherwise.
+	 * @returns `true` if the object exists and is accessible, `false` otherwise.
 	 */
 	override async headObject(
 		key: string,
@@ -1101,9 +1117,9 @@ export class BucketAdmin extends Bucket {
 	/**
 	 * Get an object instance.
 	 * @param key - The name of the object.
-	 * @access admin, user
-	 * @returns {StratusObject} An instance of the object.
-	 * @throws {CatalystStratusError} If the `key` is invalid.
+	 * @remarks Requires admin, user scope.
+	 * @returns An instance of the object.
+	 * @throws If the `key` is invalid.
 	 */
 	object(key: string): StratusObject {
 		if (!isNonEmptyString(key)) {

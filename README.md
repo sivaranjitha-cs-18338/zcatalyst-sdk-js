@@ -27,11 +27,11 @@ yarn add @zcatalyst/auth
 The SDK provides access to Catalyst cloud services through individual packages. Import and initialize the services you need:
 
 ```typescript
-import { Filestore } from '@zcatalyst/filestore';
+import { Datastore } from '@zcatalyst/datastore';
 import { Cron } from '@zcatalyst/job-scheduling';
 
 // Initialize services
-const filestore = new Filestore();
+const datastore = new Datastore();
 const cron = new Cron();
 ```
 
@@ -41,8 +41,8 @@ The SDK includes the following services:
 
 | **Component**       | **Description** |
 |---------------------|-----------------|
+| **Auth**            | Authentication and user management for Node.js and browser environments. |
 | **Cache**           | In-memory data storage for fast access and reduced latency. |
-| **Filestore**       | Upload, store, and manage files securely in the cloud. |
 | **Datastore**       | Scalable relational database to store and manage structured data. |
 | **Circuit**         | Orchestrate workflows using multiple Catalyst components and services. |
 | **Connector**       | Connect and communicate with external APIs and services. |
@@ -55,8 +55,9 @@ The SDK includes the following services:
 | **Search**          | Perform fast and accurate searches on Datastore records. |
 | **QuickML**         | Train and deploy custom machine learning models easily. |
 | **SmartBrowz**      | Automate browser actions like form fills and navigation in the cloud. |
-| **Stratus**         | Manage Catalyst infrastructure with secure and scalable backend services. |
-| **UserManagement**  | Handle user authentication, roles, and permissions. |
+| **Stratus**         | Object storage for managing large-scale unstructured data. |
+| **Transport**       | Low-level HTTP/fetch transport layer used by all components. |
+| **Utils**           | Shared utilities, constants, validators and error types. |
 | **Zia**             | Add AI features like OCR, object detection, and sentiment analysis. |
 | **ZCQL**            | Use SQL-like queries to retrieve and manipulate data from Datastore. |
 
@@ -68,23 +69,23 @@ Example of using multiple services in a Lambda function:
 ```typescript
 import { ZCQL } from '@zcatalyst/zcql';
 import { zcAuth } from '@zcatalyst/auth';
-import { Filestore } from '@zcatalyst/filestore';
+import { Datastore } from '@zcatalyst/datastore';
 
 export async function handler(req, res) {
     // Initialize services
-    const auth = zcAuth.init(req);
+    const auth = await zcAuth.init(req);
     const zcql = new ZCQL();
-    const filestore = new Filestore();
+    const datastore = new Datastore();
 
     // Use services
     const queryResult = await zcql.executeZCQLQuery("SELECT * FROM users");
-    const files = await filestore.getAllFiles();
+    const usersTable = datastore.table('users');
 
     return {
         statusCode: 200,
         body: JSON.stringify({
             users: queryResult,
-            files: files
+            table: usersTable.identifier
         })
     };
 }

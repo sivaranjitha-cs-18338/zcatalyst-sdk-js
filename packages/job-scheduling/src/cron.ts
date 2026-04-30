@@ -61,7 +61,7 @@ export default class Cron {
 
 	/**
 	 * Create a new Dynamic cron
-	 * @param cronDetails Details of the cron based on the type of cron
+	 * @param cronDetails - Details of the cron based on the type of cron
 	 * @returns
 	 */
 	public async createCron(cronDetails: ICatalystCronDetails): Promise<ICatalystCronDetails> {
@@ -88,8 +88,8 @@ export default class Cron {
 
 	/**
 	 * Update a dynamic repetitive crons.
-	 * @param cronId ID or name of the cron to be updated
-	 * @param cronDetails Details to be updated based on the type of cron
+	 * @param cronId - ID or name of the cron to be updated
+	 * @param cronDetails - Details to be updated based on the type of cron
 	 * @returns
 	 */
 	public async updateCron(
@@ -118,7 +118,7 @@ export default class Cron {
 
 	/**
 	 * Disable a running cron
-	 * @param cronId ID or name of the cron to be disabled
+	 * @param cronId - ID or name of the cron to be disabled
 	 * @returns
 	 */
 	public async pauseCron(cronId: string): Promise<ICatalystCronDetails> {
@@ -143,7 +143,7 @@ export default class Cron {
 
 	/**
 	 * Enable a disabled cron
-	 * @param cronId ID or name of the cron to be enabled
+	 * @param cronId - ID or name of the cron to be enabled
 	 * @returns
 	 */
 	public async resumeCron(cronId: string): Promise<ICatalystCronDetails> {
@@ -168,7 +168,7 @@ export default class Cron {
 
 	/**
 	 * Execute the cron immediately.
-	 * @param cronId ID or name of the cron to run
+	 * @param cronId - ID or name of the cron to run
 	 * @returns
 	 */
 	public async runCron<T extends TCatalystJobs>(cronId: string): Promise<ICatalystJobDetails<T>> {
@@ -189,7 +189,7 @@ export default class Cron {
 
 	/**
 	 * Delete a dynamic cron
-	 * @param cronId ID or name of the corn to be deleted
+	 * @param cronId - ID or name of the corn to be deleted
 	 * @returns
 	 */
 	public async deleteCron(cronId: string): Promise<ICatalystCronDetails> {

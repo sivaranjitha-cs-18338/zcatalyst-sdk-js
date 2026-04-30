@@ -1,3 +1,9 @@
+/**
+ * Catalyst Job Scheduling — submit, schedule and manage cron and one-off jobs.
+ *
+ * @packageDocumentation
+ */
+
 import { Handler, IRequestConfig } from '@zcatalyst/transport';
 import {
 	CatalystService,

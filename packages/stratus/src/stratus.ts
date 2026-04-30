@@ -38,9 +38,9 @@ export class Stratus implements Component {
 	/**
 	 * Get an instance of a bucket by its name.
 	 * @param bucketName - The name of the bucket to create an instance for.
-	 * @access admin
-	 * @returns { Bucket } Instance representing the specified bucket.
-	 * @throws { CatalystStratusError } if the `bucketName` is not a valid non-empty string.
+	 * @remarks Requires admin scope.
+	 * @returns Instance representing the specified bucket.
+	 * @throws if the `bucketName` is not a valid non-empty string.
 	 */
 	bucket(bucketName: string): Bucket {
 		if (!isNonEmptyString(bucketName)) {
@@ -61,8 +61,8 @@ export class StratusAdmin extends Stratus {
 
 	/**
 	 * List all buckets and their metadata in a project.
-	 * @access admin
-	 * @returns {Array<Bucket>} An array of `Bucket` objects representing the buckets in the project.
+	 * @remarks Requires admin scope.
+	 * @returns An array of `Bucket` objects representing the buckets in the project.
 	 */
 	async listBuckets(): Promise<Array<Bucket>> {
 		const request: IRequestConfig = {
@@ -86,8 +86,8 @@ export class StratusAdmin extends Stratus {
 	 * Check if a bucket exists and verify user access permissions for it.
 	 * @param bucketName - The name of the bucket to check.
 	 * @param throwErr - If `true`, throws an error if the bucket doesn't exist (optional).
-	 * @access admin
-	 * @returns {boolean}`true` if the bucket exists and is accessible; otherwise, `false`.
+	 * @remarks Requires admin scope.
+	 * @returns `true` if the bucket exists and is accessible; otherwise, `false`.
 	 */
 	async headBucket(bucketName: string, throwErr?: boolean): Promise<boolean> {
 		await wrapValidatorsWithPromise(() => {
@@ -119,9 +119,9 @@ export class StratusAdmin extends Stratus {
 	/**
 	 * Get an instance of a bucket by its name.
 	 * @param bucketName - The name of the bucket to create an instance for.
-	 * @access admin
-	 * @returns { Bucket } Instance representing the specified bucket.
-	 * @throws { CatalystStratusError } if the `bucketName` is not a valid non-empty string.
+	 * @remarks Requires admin scope.
+	 * @returns Instance representing the specified bucket.
+	 * @throws if the `bucketName` is not a valid non-empty string.
 	 */
 	bucket(bucketName: string): BucketAdmin {
 		if (!isNonEmptyString(bucketName)) {

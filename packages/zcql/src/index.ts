@@ -1,3 +1,9 @@
+/**
+ * Catalyst ZCQL — execute SQL-like queries against the Datastore.
+ *
+ * @packageDocumentation
+ */
+
 import { Handler, IRequestConfig, RequestType, ResponseType } from '@zcatalyst/transport';
 import {
 	CatalystService,
@@ -16,9 +22,7 @@ type ICatalystTableData = { [tableName: string]: { [x: string]: any } };
 
 const { REQ_METHOD, CREDENTIAL_USER, COMPONENT, ACCEPT_HEADER } = CONSTANTS;
 
-/**
- *
- */
+/** * */
 export class ZCQL implements Component {
 	requester: Handler;
 	constructor(app?: unknown) {
@@ -41,7 +45,7 @@ export class ZCQL implements Component {
 
 	/**
 	 * Executes a ZCQL (Zoho Catalyst Query Language) query to fetch data from the datastore.
-	 * @param sql - The ZCQL query string to execute.
+	 * @param query - The ZCQL query string to execute.
 	 *              Example: `'SELECT * FROM Users WHERE status = 'active''`.
 	 *
 	 * @throws CatalystZCQLError - Thrown if the query string is empty or invalid.
@@ -56,7 +60,7 @@ export class ZCQL implements Component {
 	 * } catch (error) {
 	 *      console.error('Error executing query:', error);
 	 * }
-	 * ```
+	 * ```ts
 	 * @returns A promise resolving to an array of table values, each conforming to the `ICatalystTableData` interface.
 	 */
 	async executeZCQLQuery(query: string): Promise<Array<ICatalystTableData>> {

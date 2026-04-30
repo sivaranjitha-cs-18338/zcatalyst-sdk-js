@@ -1,10 +1,10 @@
 /**
  * Override a value with supplied environment variable if present.
  *
- * @param {string} envname The env key name.
- * @param {string} value The value to use if key is not present.
- * @param {Function} coerce Function to do manipulation of env value and given value.
- * @return {any} Either the env value or the given value according the presence.
+ * @param envname - The env key name.
+ * @param value - The value to use if key is not present.
+ * @param coerce - Function to do manipulation of env value and given value.
+ * @returns Either the env value or the given value according the presence.
  */
 export function envOverride<T>(
 	envname: string,

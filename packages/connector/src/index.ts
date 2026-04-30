@@ -1,3 +1,9 @@
+/**
+ * Catalyst Connector — securely store and reuse third-party credentials and configuration.
+ *
+ * @packageDocumentation
+ */
+
 import { Handler } from '@zcatalyst/transport';
 import { Component, CONSTANTS, isNonNullObject, ObjectHasProperties } from '@zcatalyst/utils';
 
@@ -30,9 +36,9 @@ export class Connection implements Component {
 	/**
 	 * Retrieves a connector instance by name.
 	 *
-	 * @param {string} connectorName - The name of the connector to retrieve.
-	 * @returns {Connector} An instance of the requested connector.
-	 * @throws {CatalystConnectorError} If the connection JSON is invalid or required properties are missing.
+	 * @param connectorName - The name of the connector to retrieve.
+	 * @returns An instance of the requested connector.
+	 * @throws If the connection JSON is invalid or required properties are missing.
 	 *
 	 * @example
 	 * try {

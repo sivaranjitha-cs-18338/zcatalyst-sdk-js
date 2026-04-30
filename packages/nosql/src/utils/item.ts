@@ -11,9 +11,7 @@ import {
 } from './types';
 import { NoSQLUnMarshall } from './unmarshall';
 
-/**
- * Implementation of a NoSQL Item
- */
+/** * Implementation of a NoSQL Item */
 export class NoSQLItem {
 	#attributes = {} as TNoSQLItem;
 
@@ -25,7 +23,7 @@ export class NoSQLItem {
 
 	/**
 	 * Get value of the null attribute
-	 * @param name Attribute name
+	 * @param name - Attribute name
 	 * @returns null if attribute is present
 	 */
 	getNull(name: string): null | undefined {
@@ -34,7 +32,7 @@ export class NoSQLItem {
 	}
 	/**
 	 * Add null(NULL) attribute to the item
-	 * @param name name of the null attribute
+	 * @param name - name of the null attribute
 	 * @returns NoSQLItem
 	 */
 	addNull(name: string): this {
@@ -44,7 +42,7 @@ export class NoSQLItem {
 
 	/**
 	 * Get value of a string(S) attribute
-	 * @param name name of the string attribute
+	 * @param name - name of the string attribute
 	 * @returns value of the string attribute
 	 */
 	getString(name: string): string | undefined {
@@ -52,8 +50,8 @@ export class NoSQLItem {
 	}
 	/**
 	 * Add string(S) attribute to the item
-	 * @param name name of the string attribute
-	 * @param value value of the string attribute
+	 * @param name - name of the string attribute
+	 * @param value - value of the string attribute
 	 * @returns NoSQLItem
 	 */
 	addString(name: string, value: string): this {
@@ -63,7 +61,7 @@ export class NoSQLItem {
 
 	/**
 	 * Get value of a number(N) attribute
-	 * @param name name of the number attribute
+	 * @param name - name of the number attribute
 	 * @returns value of the number attribute
 	 */
 	getNumber(name: string): number | bigint | undefined {
@@ -72,8 +70,8 @@ export class NoSQLItem {
 	}
 	/**
 	 * Add number(N) attribute to the item
-	 * @param name name of the number attribute
-	 * @param value value of the number attribute
+	 * @param name - name of the number attribute
+	 * @param value - value of the number attribute
 	 * @returns NoSQLItem
 	 */
 	addNumber(name: string, value: number | bigint): this {
@@ -83,7 +81,7 @@ export class NoSQLItem {
 
 	/**
 	 * Get value of a byte(B) attribute
-	 * @param name name of the byte attribute
+	 * @param name - name of the byte attribute
 	 * @returns value of the byte attribute
 	 */
 	getByte(name: string): NoSQLByte | undefined {
@@ -95,22 +93,22 @@ export class NoSQLItem {
 	}
 	/**
 	 * Add a byte(B) attribute to the item
-	 * @param name name of the byte attribute
-	 * @param value value(ArrayBuffer) of the byte attribute as base64 encoded string
+	 * @param name - name of the byte attribute
+	 * @param value - value(ArrayBuffer) of the byte attribute as base64 encoded string
 	 * @returns NoSQLItem
 	 */
 	addByte(name: string, value: string): this;
 	/**
 	 * Add a byte(B) attribute to the item
-	 * @param name name of the byte attribute
-	 * @param value value of the byte attribute as NoSQLByte
+	 * @param name - name of the byte attribute
+	 * @param value - value of the byte attribute as NoSQLByte
 	 * @returns NoSQLItem
 	 */
 	addByte(name: string, value: NoSQLByte): this;
 	/**
 	 * Add a byte(B) attribute to the item
-	 * @param name name of the byte attribute
-	 * @param value ArrayBuffer of type {@link TNoSQLByte}
+	 * @param name - name of the byte attribute
+	 * @param value - an `ArrayBuffer`-like value (see `TNoSQLByte`)
 	 */
 	addByte(name: string, value: TNoSQLByte): this;
 	addByte(name: string, value: string | TNoSQLByte | NoSQLByte): this {
@@ -120,7 +118,7 @@ export class NoSQLItem {
 
 	/**
 	 * Get value of a boolean(BOOL) attribute
-	 * @param name name of the boolean attribute
+	 * @param name - name of the boolean attribute
 	 * @returns value of the boolean attribute
 	 */
 	getBoolean(name: string): boolean | undefined {
@@ -128,8 +126,8 @@ export class NoSQLItem {
 	}
 	/**
 	 * Add a boolean(BOOL) attribute to the item
-	 * @param name name of the boolean attribute
-	 * @param value value of the boolean attribute
+	 * @param name - name of the boolean attribute
+	 * @param value - value of the boolean attribute
 	 * @returns NoSQLItem
 	 */
 	addBoolean(name: string, value: boolean): this {
@@ -139,7 +137,7 @@ export class NoSQLItem {
 
 	/**
 	 * Get value of a list(L) attribute
-	 * @param name name of the list attribute
+	 * @param name - name of the list attribute
 	 * @returns value of the list attribute
 	 */
 	getList(name: string): Array<TNoSQLValues> | undefined {
@@ -148,8 +146,8 @@ export class NoSQLItem {
 	}
 	/**
 	 * Add a list(L) attribute to the item
-	 * @param name name of the list attribute
-	 * @param value value of the list attribute
+	 * @param name - name of the list attribute
+	 * @param value - value of the list attribute
 	 * @returns NoSQLItem
 	 */
 	addList(name: string, value: Array<TNoSQLValues>): this {
@@ -159,7 +157,7 @@ export class NoSQLItem {
 
 	/**
 	 * Get value of a map(M) attribute
-	 * @param name name of the map attribute
+	 * @param name - name of the map attribute
 	 * @returns value of the map attribute
 	 */
 	getMap(name: string): Record<string, TNoSQLValues> | undefined {
@@ -168,9 +166,9 @@ export class NoSQLItem {
 	}
 	/**
 	 * Add a map(M) attribute to the item
-	 * @param name name of the map attribute
-	 * @param value value of the map attribute
-	 * @param options marshalling options to convert plain js objects to NoSQL attributes
+	 * @param name - name of the map attribute
+	 * @param value - value of the map attribute
+	 * @param options - marshalling options to convert plain js objects to NoSQL attributes
 	 * @returns NoSQLItem
 	 */
 	addMap(
@@ -184,7 +182,7 @@ export class NoSQLItem {
 
 	/**
 	 * Get value of a string set(SS) attribute
-	 * @param name name of the string set attribute
+	 * @param name - name of the string set attribute
 	 * @returns value of the string set attribute
 	 */
 	getStringSet(name: string): NoSQLStringSet | undefined {
@@ -196,15 +194,15 @@ export class NoSQLItem {
 	}
 	/**
 	 * Add a string set(SS) attribute to the item
-	 * @param name name of the string set attribute
-	 * @param value value of the string set attribute as a set of string
+	 * @param name - name of the string set attribute
+	 * @param value - value of the string set attribute as a set of string
 	 * @returns NoSQLItem
 	 */
 	addStringSet(name: string, value: Set<string>): this;
 	/**
 	 * Add a string set(SS) attribute to the item
-	 * @param name name of the string set attribute
-	 * @param value value of the string set attribute as NoSQLStringSet
+	 * @param name - name of the string set attribute
+	 * @param value - value of the string set attribute as NoSQLStringSet
 	 * @returns NoSQLItem
 	 */
 	addStringSet(name: string, value: NoSQLStringSet): this;
@@ -215,7 +213,7 @@ export class NoSQLItem {
 
 	/**
 	 * Get value of a number set(SN) attribute
-	 * @param name name of the number set attribute
+	 * @param name - name of the number set attribute
 	 * @returns value of the number set attribute
 	 */
 	getNumberSet(name: string): NoSQLNumberSet | undefined {
@@ -229,15 +227,15 @@ export class NoSQLItem {
 	}
 	/**
 	 * Add a number set(SN) attribute to the item
-	 * @param name name of the number set attribute
-	 * @param value value of the number set attribute as a set of number or bigint
+	 * @param name - name of the number set attribute
+	 * @param value - value of the number set attribute as a set of number or bigint
 	 * @returns NoSQLItem
 	 */
 	addNumberSet(name: string, value: Set<number | bigint>): this;
 	/**
 	 * Add a number set(SN) attribute to the item
-	 * @param name name of the number set attribute
-	 * @param value value of the number set attribute as NoSQLNumberSet
+	 * @param name - name of the number set attribute
+	 * @param value - value of the number set attribute as NoSQLNumberSet
 	 * @returns NoSQLItem
 	 */
 	addNumberSet(name: string, value: NoSQLNumberSet): this;
@@ -248,7 +246,7 @@ export class NoSQLItem {
 
 	/**
 	 * Get value of a byte set(SB) attribute
-	 * @param name name of the byte set attribute
+	 * @param name - name of the byte set attribute
 	 * @returns value of the byte set attribute
 	 */
 	getByteSet(name: string): NoSQLByteSet | undefined {
@@ -260,29 +258,29 @@ export class NoSQLItem {
 	}
 	/**
 	 * Add a byte set(SB) attribute to the item
-	 * @param name name of the byte set attribute
-	 * @param value value of the byte set attribute as a set of ArrayBuffers mentioned in {@link TNoSQLByte}
+	 * @param name - name of the byte set attribute
+	 * @param value - value of the byte set attribute as a set of `ArrayBuffer`-like values (see `TNoSQLByte`)
 	 * @returns NoSQLItem
 	 */
 	addByteSet(name: string, value: Set<TNoSQLByte>): this;
 	/**
 	 * Add a byte set(SB) attribute to the item
-	 * @param name name of the byte set attribute
-	 * @param value value of the byte set attribute as a set of NoSQLByte
+	 * @param name - name of the byte set attribute
+	 * @param value - value of the byte set attribute as a set of NoSQLByte
 	 * @returns NoSQLItem
 	 */
 	addByteSet(name: string, value: Set<NoSQLByte>): this;
 	/**
 	 * Add a byte set(SB) attribute to the item
-	 * @param name name of the byte set attribute
-	 * @param value value of the byte set attribute as a set of base64 encoded string of the buffer
+	 * @param name - name of the byte set attribute
+	 * @param value - value of the byte set attribute as a set of base64 encoded string of the buffer
 	 * @returns NoSQLItem
 	 */
 	addByteSet(name: string, value: Set<string>): this;
 	/**
 	 * Add a byte set(SB) attribute to the item
-	 * @param name name of the byte set attribute
-	 * @param value value of the byte set attribute as NoSQLByteSet
+	 * @param name - name of the byte set attribute
+	 * @param value - value of the byte set attribute as NoSQLByteSet
 	 * @returns NoSQLItem
 	 */
 	addByteSet(name: string, value: NoSQLByteSet): this;
@@ -296,9 +294,9 @@ export class NoSQLItem {
 
 	/**
 	 * Add a set of type string or number or TNoSQLByte as an attribute to this item.
-	 * @param name attribute name
-	 * @param value set to be added
-	 * @param options marshalling options
+	 * @param name - attribute name
+	 * @param value - set to be added
+	 * @param options - marshalling options
 	 * @returns NoSQLItem
 	 */
 	addSet(
@@ -314,9 +312,9 @@ export class NoSQLItem {
 	 * Adds a NoSQL attribute to the item without any validations or marshalling.
 	 *
 	 * Note: Use this function only when it's absolutely necessary. Prefer to user other attribute addition functions over this.
-	 * @param name name of the attribute
-	 * @param type NoSQL type of the attribute
-	 * @param value value of the attribute
+	 * @param name - name of the attribute
+	 * @param type - NoSQL type of the attribute
+	 * @param value - value of the attribute
 	 * @returns NoSQLItem
 	 */
 	addRaw(name: string, type: DataType, value: TNoSQLValues | TNoSQLItem): this {
@@ -328,9 +326,9 @@ export class NoSQLItem {
 
 	/**
 	 * Adds a NoSQL attribute to the item with validation and marshalling.
-	 * @param name name of the attribute
-	 * @param value value of the attribute
-	 * @param options options to marshall the value
+	 * @param name - name of the attribute
+	 * @param value - value of the attribute
+	 * @param options - options to marshall the value
 	 * @returns NoSQLItem
 	 */
 	add(name: string, value: TNoSQLValues, options: MarshallOptions): this {
@@ -340,7 +338,7 @@ export class NoSQLItem {
 
 	/**
 	 * Get a near-native value of the NoSQL attribute
-	 * @param name name of the attribute
+	 * @param name - name of the attribute
 	 * @returns value of the attribute type TNoSQLValues
 	 */
 	get(name: string): TNoSQLValues {
@@ -349,7 +347,7 @@ export class NoSQLItem {
 
 	/**
 	 * Remove an attribute from the item
-	 * @param name name of the attribute to be removed
+	 * @param name - name of the attribute to be removed
 	 * @returns value of the removed attribute
 	 */
 	remove(name: string): TNoSQLAttribute | TNoSQLAttributeResponse | undefined {
@@ -360,7 +358,7 @@ export class NoSQLItem {
 
 	/**
 	 * Check if an attribute exists in the item
-	 * @param name name of the attribute to check
+	 * @param name - name of the attribute to check
 	 * @returns true if the attribute is present
 	 */
 	has(name: string): boolean {
@@ -393,8 +391,8 @@ export class NoSQLItem {
 
 	/**
 	 * Create a NoSQL item from plain java script object
-	 * @param obj to be used to create the item
-	 * @param options marshalling options to convert native js types to NoSQL types
+	 * @param obj - to be used to create the item
+	 * @param options - marshalling options to convert native js types to NoSQL types
 	 * @returns new NoSQLItem
 	 */
 	static from(obj: Record<string, TNoSQLValues>, options?: MarshallOptions): NoSQLItem {

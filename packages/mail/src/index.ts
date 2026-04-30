@@ -1,3 +1,9 @@
+/**
+ * Catalyst Mail — send transactional and bulk email from your Catalyst app.
+ *
+ * @packageDocumentation
+ */
+
 import { Handler, IRequestConfig, RequestType } from '@zcatalyst/transport';
 import {
 	CatalystService,
@@ -37,9 +43,9 @@ export class Mail implements Component {
 	/**
 	 * Sends an email using Catalyst's email service.
 	 *
-	 * @param {ICatalystMail} mailObj - The email object containing sender, recipient, subject, content, and optional fields like CC, BCC, and attachments.
-	 * @returns {ICatalystMailRes} The response containing email details and status.
-	 * @throws {CatalystEmailError} If the email object is invalid or the request fails.
+	 * @param mailObj - The email object containing sender, recipient, subject, content, and optional fields like CC, BCC, and attachments.
+	 * @returns The response containing email details and status.
+	 * @throws If the email object is invalid or the request fails.
 	 *
 	 * @example
 	 * const mailObj: ICatalystMail = {
