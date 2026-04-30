@@ -61,7 +61,8 @@
   "dependencies": {
     "@zcatalyst/transport": "workspace:^",
     "@zcatalyst/utils": "workspace:^",
-    "@zcatalyst/auth-client": "workspace:^"
+    "@zcatalyst/auth-client": "workspace:^",
+     "@zcatalyst/auth-admin": "workspace:^"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",

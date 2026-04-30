@@ -1,15 +1,8 @@
-const base = require('../../jest.config.base.js');
+const base = require("../../jest.config.base.js");
 
-module.exports = {
+module.exports =  {
   ...base,
-  displayName: '@zcatalyst/datastreams',
-  testEnvironment: 'jsdom',
-  collectCoverageFrom: [
-    'src/**/*.ts',
-    '!src/**/*.d.ts',
-    '!src/**/*.test.ts',
-    '!src/**/*.spec.ts'
-  ],
-  coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'lcov', 'html']
+    moduleNameMapper: {
+    "^@zcatalyst/transport$": "../../transport/src/__mocks__",
+  }
 };

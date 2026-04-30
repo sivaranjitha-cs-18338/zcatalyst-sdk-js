@@ -222,18 +222,6 @@ importers:
         specifier: ^5.4.3
         version: 5.8.3
 
-  packages/filestore:
-    dependencies:
-      '@zcatalyst/auth-client':
-        specifier: workspace:^
-        version: link:../auth-client
-      '@zcatalyst/transport':
-        specifier: workspace:^
-        version: link:../transport
-      '@zcatalyst/utils':
-        specifier: workspace:^
-        version: link:../utils
-
   packages/functions:
     dependencies:
       '@zcatalyst/transport':
@@ -356,18 +344,6 @@ importers:
       '@zcatalyst/auth-client':
         specifier: workspace:^
         version: link:../auth-client
-      '@zcatalyst/utils':
-        specifier: workspace:^
-        version: link:../utils
-
-  packages/user-management:
-    dependencies:
-      '@zcatalyst/auth-client':
-        specifier: workspace:^
-        version: link:../auth-client
-      '@zcatalyst/transport':
-        specifier: workspace:^
-        version: link:../transport
       '@zcatalyst/utils':
         specifier: workspace:^
         version: link:../utils
@@ -2580,7 +2556,7 @@ packages:
     dependencies:
       semver: 7.7.2
       shelljs: 0.8.5
-      typescript: 6.0.0-dev.20260204
+      typescript: 6.0.0-dev.20260416
     dev: true
 
   /dunder-proto@1.0.1:
@@ -5733,8 +5709,8 @@ packages:
     hasBin: true
     dev: true
 
-  /typescript@6.0.0-dev.20260204:
-    resolution: {integrity: sha512-A8e1FQRu9GiXAZdv/+uYrp7cZgxTAK7VeNLqXU8KG1Yj2CosA5de38rBWnYrIaoinR5R/bAgFc1YCadCKZPjRQ==}
+  /typescript@6.0.0-dev.20260416:
+    resolution: {integrity: sha512-64CCow5rQc6+oBAPqLtvZ8f3iz4WVCLwMVkg6/kOfMQlGshVOMkBhCXn+MMP4SX4Xtnz48VpD98FkptirMEuEQ==}
     engines: {node: '>=14.17'}
     hasBin: true
     dev: true
