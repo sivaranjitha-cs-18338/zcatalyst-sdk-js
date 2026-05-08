@@ -72,7 +72,7 @@ describe('CatalystApp', () => {
 	describe('authenticateRequest', () => {
 		it('should set Authorization header for AccessTokenCredential', async () => {
 			const app = new CatalystApp(validOptions() as unknown);
-			const req: Record<string, unknown> = { headers: {} };
+			const req: unknown = { headers: {} };
 			await app.authenticateRequest(req);
 			expect(req.headers.Authorization).toBe('Zoho-oauthtoken test-token');
 		});
