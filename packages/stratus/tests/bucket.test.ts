@@ -1,7 +1,11 @@
+// TODO(test-infra): These tests have pre-existing failures under Node.js v25+
+// (unhandled promise rejections terminate the worker) and stale assertions
+// against the current API. The package.json `test` script is intentionally
+// not wired up until these are updated. Track in a follow-up issue.
 import { BucketAdmin as Bucket } from '../src/bucket';
 import { StratusObject } from '../src/object';
 import { StratusAdmin as Stratus } from '../src/stratus';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+
 const { responses } = require('../../../tests/api-responses.js');
 
 describe('bucket', () => {

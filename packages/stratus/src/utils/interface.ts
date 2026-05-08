@@ -122,6 +122,48 @@ export interface IStratusBucketMeta {
 export interface IStratusBucket extends ICatalystGResponse {
 	/** Name of the bucket. */
 	bucket_name: string;
+	project_details?: {
+		/** Name of the project to which the bucket belongs. */
+		project_name: string;
+		/** Id of the project to which the bucket belongs. */
+		id: string;
+		/** Type of the project to which the bucket belongs. */
+		project_type: string;
+	};
+	/** Details of the user who created the bucket. */
+	created_by?: {
+		/** ZUID of the user who created the bucket. */
+		zuid: string;
+		/** Whether the user is confirmed or not. */
+		is_confirmed: boolean;
+		/** Email ID of the user who created the bucket. */
+		email_id: string;
+		/** First name of the user who created the bucket. */
+		first_name: string;
+		/** Last name of the user who created the bucket. */
+		last_name: string;
+		/** Type of the user who created the bucket. */
+		user_type: string;
+		/** ID of the user who created the bucket. */
+		user_id: string;
+	};
+	/** Details of the user who last modified the bucket. */
+	modified_by?: {
+		/** ZUID of the user who last modified the bucket. */
+		zuid: string;
+		/** Whether the user is confirmed or not. */
+		is_confirmed: boolean;
+		/** Email ID of the user who last modified the bucket. */
+		email_id: string;
+		/** First name of the user who last modified the bucket. */
+		first_name: string;
+		/** Last name of the user who last modified the bucket. */
+		last_name: string;
+		/** Type of the user who last modified the bucket. */
+		user_type: string;
+		/** ID of the user who last modified the bucket. */
+		user_id: string;
+	};
 	/** Url of the bucket. */
 	bucket_url?: string;
 	/** Number of objects in a bucket. */

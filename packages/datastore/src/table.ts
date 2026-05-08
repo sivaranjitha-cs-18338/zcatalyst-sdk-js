@@ -297,10 +297,10 @@ export class Table implements ParsableComponent<ICatalystTable> {
 	 * @param rows - -
 	 *        An array of row objects, each containing a `ROWID` to identify the row to be updated.
 	 *
-	 * @returns 
+	 * @returns
 	 *          A promise that resolves to an array of updated row objects.
 	 *
-	 * @throws 
+	 * @throws
 	 *         If the input is not a valid non-empty array.
 	 *
 	 * @example
@@ -355,10 +355,10 @@ export class Table implements ParsableComponent<ICatalystTable> {
 	 *
 	 * @param type - The type of bulk operation to perform (`"read"` or `"write"`).
 	 *
-	 * @returns 
+	 * @returns
 	 *          An instance of either `BulkRead` or `BulkWrite` based on the provided type.
 	 *
-	 * @throws 
+	 * @throws
 	 *         If the provided `type` is not `"read"` or `"write"`.
 	 *
 	 * @example
@@ -420,10 +420,10 @@ export class TableAdmin extends Table {
 	 *
 	 * @param type - The type of bulk operation to perform (`"read"` or `"write"`).
 	 *
-	 * @returns 
+	 * @returns
 	 *          An instance of either `BulkRead` or `BulkWrite` based on the provided type.
 	 *
-	 * @throws 
+	 * @throws
 	 *         If the provided `type` is not `"read"` or `"write"`.
 	 *
 	 * @example

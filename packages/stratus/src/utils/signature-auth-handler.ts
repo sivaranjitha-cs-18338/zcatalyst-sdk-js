@@ -42,7 +42,7 @@ export class Util {
 		const request: IRequestConfig = {
 			method: REQ_METHOD.post,
 			path: '/bucket/signature',
-			qs: { bucket_name: this.bucket.bucketDetails.bucket_name },
+			qs: { bucket_name: this.bucket._bucketDetails.bucket_name },
 			type: RequestType.JSON,
 			expecting: ResponseType.JSON,
 			service: CatalystService.BAAS,

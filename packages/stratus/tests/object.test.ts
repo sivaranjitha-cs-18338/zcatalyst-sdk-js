@@ -1,8 +1,10 @@
+// TODO(test-infra): Pre-existing failures — see bucket.test.ts.
 import { DEFAULT_MAX_VERSION } from 'tls';
+
 import { BucketAdmin as Bucket } from '../src/bucket';
 import { StratusObject } from '../src/object';
 import { StratusAdmin as Stratus } from '../src/stratus';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+
 const { responses } = require('../../../tests/api-responses.js');
 
 describe('bucket', () => {

@@ -43,7 +43,7 @@ const { REQ_METHOD, CREDENTIAL_USER, STRATUS_SUFFIX } = CONSTANTS;
 
 export class Bucket {
 	_requester: Handler;
-	bucketDetails: IStratusBucket;
+	_bucketDetails: IStratusBucket;
 	#util: Util;
 	#jwtAuth: JWTAuthHandler;
 	constructor(requester: Handler, bucket: IStratusBucket | string) {
@@ -56,12 +56,12 @@ export class Bucket {
 					: (window.__catalyst?.environment as string)?.toLowerCase() +
 						'' +
 						window.__catalyst?.stratus_suffix;
-			this.bucketDetails = {
+			this._bucketDetails = {
 				bucket_name: bucket,
 				bucket_url: `https://${bucket}-${suffix}`
 			};
 		} else {
-			this.bucketDetails = bucket;
+			this._bucketDetails = bucket;
 		}
 		this.#util = new Util(this);
 	}
@@ -75,7 +75,7 @@ export class Bucket {
 	 * @returns The name of the bucket as a string.
 	 */
 	getName(): string {
-		return this.bucketDetails.bucket_name;
+		return this._bucketDetails.bucket_name;
 	}
 
 	/**
@@ -458,7 +458,7 @@ export class Bucket {
 		headers: Record<string, string> = {},
 		access = 'authenticated'
 	) {
-		const url = this.bucketDetails.bucket_url;
+		const url = this._bucketDetails.bucket_url;
 		if (access === 'public') {
 			return { params, headers, url };
 		}
@@ -484,11 +484,11 @@ export class Bucket {
 	}
 
 	toString(): string {
-		return JSON.stringify(this.bucketDetails);
+		return JSON.stringify(this._bucketDetails);
 	}
 
 	toJSON(): IStratusBucket {
-		return this.bucketDetails as IStratusBucket;
+		return this._bucketDetails as IStratusBucket;
 	}
 }
 
@@ -512,7 +512,7 @@ export class BucketAdmin extends Bucket {
 	 * @returns The name of the bucket as a string.
 	 */
 	getName(): string {
-		return this.bucketDetails.bucket_name;
+		return this._bucketDetails.bucket_name;
 	}
 
 	/**
@@ -524,7 +524,7 @@ export class BucketAdmin extends Bucket {
 	 */
 	async listPagedObjects(options: IStratusPagedObjectOptions = {}): Promise<IStratusObjects> {
 		const param: Record<string, string> = {
-			bucket_name: this.bucketDetails.bucket_name,
+			bucket_name: this._bucketDetails.bucket_name,
 			folder_listing: options.folderListing || 'false'
 		};
 
@@ -597,10 +597,19 @@ export class BucketAdmin extends Bucket {
 	 * @returns Containing metadata and configuration details of the bucket.
 	 */
 	async getDetails(): Promise<IStratusBucket> {
+		// Return cached details when the bucket was hydrated from a list/get response.
+		// `bucket_meta` is present in both `/bucket` (list) and `/bucket?bucket_name=`
+		// responses, so it is a reliable cache marker.
+		if (
+			this._bucketDetails.bucket_meta !== undefined ||
+			this._bucketDetails.objects_count !== undefined
+		) {
+			return this._bucketDetails as IStratusBucket;
+		}
 		const request: IRequestConfig = {
 			method: REQ_METHOD.get,
 			path: '/bucket',
-			qs: { bucket_name: this.bucketDetails.bucket_name },
+			qs: { bucket_name: this._bucketDetails.bucket_name },
 			type: RequestType.JSON,
 			expecting: ResponseType.JSON,
 			service: CatalystService.BAAS,
@@ -618,7 +627,7 @@ export class BucketAdmin extends Bucket {
 	 */
 	async truncate(): Promise<{ message: string }> {
 		const param = {
-			bucket_name: this.bucketDetails.bucket_name
+			bucket_name: this._bucketDetails.bucket_name
 		};
 		const request: IRequestConfig = {
 			method: REQ_METHOD.delete,
@@ -655,7 +664,7 @@ export class BucketAdmin extends Bucket {
 			isNonEmptyString(destKey, 'destKey', true);
 		}, CatalystStratusError);
 		const _param = {
-			bucket_name: this.bucketDetails.bucket_name,
+			bucket_name: this._bucketDetails.bucket_name,
 			object_key: key,
 			destination: destKey
 		};
@@ -693,7 +702,7 @@ export class BucketAdmin extends Bucket {
 			isNonEmptyString(destKey, 'destKey', true);
 		}, CatalystStratusError);
 		const param = {
-			bucket_name: this.bucketDetails.bucket_name,
+			bucket_name: this._bucketDetails.bucket_name,
 			current_key: key,
 			rename_to: destKey
 		};
@@ -739,7 +748,7 @@ export class BucketAdmin extends Bucket {
 			isNonEmptyString(urlAction, 'url_action', true);
 		}, CatalystStratusError);
 		const param: Record<string, string> = {
-			bucket_name: this.bucketDetails.bucket_name,
+			bucket_name: this._bucketDetails.bucket_name,
 			object_key: key
 		};
 		signedUrlOptions?.expiryIn && (param['expiry_in_seconds'] = signedUrlOptions.expiryIn);
@@ -776,7 +785,7 @@ export class BucketAdmin extends Bucket {
 		await wrapValidatorsWithPromise(() => {
 			isNonEmptyString(path, 'object_path', true);
 		}, CatalystStratusError);
-		const param = { bucket_name: this.bucketDetails.bucket_name, prefix: path };
+		const param = { bucket_name: this._bucketDetails.bucket_name, prefix: path };
 		const request: IRequestConfig = {
 			method: REQ_METHOD.delete,
 			path: '/bucket/object/prefix',
@@ -806,7 +815,7 @@ export class BucketAdmin extends Bucket {
 	 */
 	async purgeCache(path?: Array<string>): Promise<IStratusObjectDetails> {
 		const param = {
-			bucket_name: this.bucketDetails.bucket_name
+			bucket_name: this._bucketDetails.bucket_name
 		};
 		const request: IRequestConfig = {
 			method: REQ_METHOD.put,
@@ -903,7 +912,7 @@ export class BucketAdmin extends Bucket {
 			ttl_in_seconds: ttl
 		};
 		const param = {
-			bucket_name: this.bucketDetails.bucket_name
+			bucket_name: this._bucketDetails.bucket_name
 		};
 		const request: IRequestConfig = {
 			method: REQ_METHOD.put,
@@ -937,7 +946,7 @@ export class BucketAdmin extends Bucket {
 	// 	},
 	// 	continuationToken?: string
 	// ): Promise<{ data: IncomingMessage; continuationToken?: string }> {
-	// 	const url = this.bucketDetails.bucket_url;
+	// 	const url = this._bucketDetails.bucket_url;
 	// 	let inputData;
 	// 	if (objects instanceof Array) {
 	// 		const objList: Array<{ key: string }> = objects.map((key) => ({ key }));
@@ -986,7 +995,7 @@ export class BucketAdmin extends Bucket {
 			isNonEmptyString(destPath, 'dest_path', true);
 		}, CatalystStratusError);
 		const intrlparam = {
-			bucket_name: this.bucketDetails.bucket_name,
+			bucket_name: this._bucketDetails.bucket_name,
 			object_key: key,
 			destination: destPath
 		};
@@ -1025,7 +1034,7 @@ export class BucketAdmin extends Bucket {
 			isNonEmptyString(taskId, 'task_id', true);
 		}, CatalystStratusError);
 		const _param = {
-			bucket_name: this.bucketDetails.bucket_name,
+			bucket_name: this._bucketDetails.bucket_name,
 			object_key: key,
 			task_id: taskId
 		};
@@ -1087,7 +1096,7 @@ export class BucketAdmin extends Bucket {
 				return super.headObject(key, { versionId });
 			}
 			const params: Record<string, string> = {
-				bucket_name: this.bucketDetails.bucket_name,
+				bucket_name: this._bucketDetails.bucket_name,
 				object_key: key
 			};
 			versionId && (params['version_id'] = versionId);
@@ -1133,11 +1142,11 @@ export class BucketAdmin extends Bucket {
 	}
 
 	toString(): string {
-		return JSON.stringify(this.bucketDetails);
+		return JSON.stringify(this._bucketDetails);
 	}
 
 	toJSON(): IStratusBucket {
-		return this.bucketDetails as IStratusBucket;
+		return this._bucketDetails as IStratusBucket;
 	}
 
 	#serializeResponse(resp: Record<string, unknown>): Record<string, unknown> {

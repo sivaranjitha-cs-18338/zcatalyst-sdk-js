@@ -1,5 +1,5 @@
 import { QuickML } from '../src';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+
 const { responses } = require('../../../tests/api-responses.js');
 
 describe('testing quick ml', () => {
@@ -10,7 +10,7 @@ describe('testing quick ml', () => {
 	});
 
 	it('getComponentVersion returns package version', () => {
-		expect(quickml.getComponentVersion()).toBe('0.0.3');
+		expect(quickml.getComponentVersion()).toBe(require('../package.json').version);
 	});
 
 	it('quick ml endpoint predict', async () => {

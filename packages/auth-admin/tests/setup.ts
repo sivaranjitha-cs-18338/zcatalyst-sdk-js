@@ -10,7 +10,8 @@ jest.mock('../src', () => {
 });
 
 // Provide global helper to create mock app using ZCAuth
-(global as unknown).createMockCatalystApp = (options?: unknown) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as any).createMockCatalystApp = (options?: unknown) => {
 	const { ZCAuth } = require('../src/__mocks__');
 	const zcAuth = new ZCAuth();
 

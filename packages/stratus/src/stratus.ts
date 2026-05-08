@@ -61,8 +61,15 @@ export class StratusAdmin extends Stratus {
 
 	/**
 	 * List all buckets and their metadata in a project.
+	 *
+	 * Each entry in the returned array is a fully-hydrated `Bucket` instance whose
+	 * raw JSON metadata (the API payload) is available via:
+	 *  - `bucket.toJSON()` — returns the `IStratusBucket` object
+	 *  - `bucket.getDetails()` — returns the same object from cache (no extra API call)
+	 *  - `bucket.toString()` — JSON-stringified form
+	 *
 	 * @remarks Requires admin scope.
-	 * @returns An array of `Bucket` objects representing the buckets in the project.
+	 * @returns An array of `Bucket` instances; each exposes its JSON metadata via `toJSON()` / `getDetails()`.
 	 */
 	async listBuckets(): Promise<Array<Bucket>> {
 		const request: IRequestConfig = {
@@ -76,8 +83,8 @@ export class StratusAdmin extends Stratus {
 		};
 		const resp = await this.requester.send(request);
 		const jsonArr = resp.data.data as Array<IStratusBucket>;
-		const bucketArr: Array<Bucket> = jsonArr.map(
-			(bucket) => new Bucket(this.requester, bucket)
+		const bucketArr: Array<BucketAdmin> = jsonArr.map(
+			(bucket) => new BucketAdmin(this.requester, bucket)
 		);
 		return bucketArr;
 	}

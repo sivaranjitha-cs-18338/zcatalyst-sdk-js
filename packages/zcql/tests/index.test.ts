@@ -1,7 +1,7 @@
 import moment from 'moment';
 
 import { ZCQL } from '../src';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+
 const { responses } = require('../../../tests/api-responses.js');
 
 describe('zcql', () => {
@@ -12,7 +12,7 @@ describe('zcql', () => {
 	});
 
 	it('getComponentVersion returns package version', () => {
-		expect(zcql.getComponentVersion()).toBe('0.0.3');
+		expect(zcql.getComponentVersion()).toBe(require('../package.json').version);
 	});
 
 	it('execute ZCQL Query', async () => {

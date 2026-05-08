@@ -10,7 +10,7 @@ describe('Functions Module', () => {
 	});
 
 	it('getComponentVersion returns package version', () => {
-		expect(func.getComponentVersion()).toBe('0.0.3');
+		expect(func.getComponentVersion()).toBe(require('../package.json').version);
 	});
 
 	describe('execute function', () => {

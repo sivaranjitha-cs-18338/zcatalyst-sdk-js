@@ -1,5 +1,5 @@
 import { Search } from '../src';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+
 const { responses } = require('../../../tests/api-responses.js');
 
 describe('search', () => {
@@ -10,7 +10,7 @@ describe('search', () => {
 	});
 
 	it('getComponentVersion returns package version', () => {
-		expect(search.getComponentVersion()).toBe('0.0.3');
+		expect(search.getComponentVersion()).toBe(require('../package.json').version);
 	});
 
 	it('execute search query', async () => {

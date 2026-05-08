@@ -4,6 +4,7 @@
   "scripts": {
     "clean": "turbo run clean --force --parallel",
     "build": "turbo run build",
+    "build:fresh": "pnpm clean && turbo run build",
     "dev": "turbo dev",
     "test": "turbo run test",
     "test:common": "node scripts/run-tests.js",
@@ -16,10 +17,10 @@
     "lint": "turbo run lint",
     "lint-fix": "turbo run lint -- --fix",
     "format": "turbo run format --parallel",
-    "prepare": "husky",
+    "prepare": "husky || true",
     "publish-packages": "turbo run build && node scripts/publish-packages.js",
-    "publish-all": "for pkg in packages/*; do (cd $pkg && pnpm publish --registry http://crm-spm-u16.csez.zohocorpin.com:4873/ --no-git-checks --tag latest); done",
-    "unpublish-all": "for pkg in packages/*; do (cd $pkg && pnpm unpublish --registry http://crm-spm-u16.csez.zohocorpin.com:4873/ --no-git-checks); done",
+    "publish-all": "for pkg in packages/*; do (cd $pkg && pnpm publish); done",
+    "unpublish-all": "for pkg in packages/*; do (cd $pkg && pnpm unpublish); done",
     "version:update": "node scripts/version-update.js",
     "changelog:update": "node ./scripts/change-log.js",
     "release": "node scripts/release-packages.js"
@@ -55,11 +56,8 @@
   "lint-staged": {
     "**/*.{js,ts,jsx,tsx}": "eslint --fix"
   },
-  "packageManager": "pnpm@8.15.6",
+  "packageManager": "pnpm@9.15.4",
   "engines": {
     "node": ">=20"
-  },
-  "workspaces": [
-    "packages/*"
-  ]
+  }
 }

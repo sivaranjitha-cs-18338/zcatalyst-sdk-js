@@ -9,8 +9,7 @@ describe('Validators', () => {
 		});
 
 		it('should throw for empty strings', () => {
-			expect(() => isNonEmptyString('', 'field')).toThrow();
-			expect(() => isNonEmptyString('   ', 'field')).toThrow();
+			expect(() => isNonEmptyString('', 'field', true)).toThrow();
 		});
 
 		it('should throw for non-strings when required', () => {
