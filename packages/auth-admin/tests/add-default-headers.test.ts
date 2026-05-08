@@ -21,7 +21,7 @@ describe('addDefaultAppHeaders', () => {
 
 	it('should set PROJECT_ID, X-Catalyst-Environment and Environment headers from config', () => {
 		const headers: Record<string, string> = {};
-		const result = addDefaultAppHeaders(headers, baseConfig as unknown);
+		const result = addDefaultAppHeaders(headers, baseConfig as any);
 
 		expect(result['PROJECT_ID']).toBe('test-key');
 		expect(result['X-Catalyst-Environment']).toBe('development');
@@ -30,13 +30,13 @@ describe('addDefaultAppHeaders', () => {
 
 	it('should add CATALYST-ORG header when X_ZOHO_CATALYST_ORG_ID env var is set', () => {
 		process.env.X_ZOHO_CATALYST_ORG_ID = 'org-123';
-		const result = addDefaultAppHeaders({}, baseConfig as unknown);
+		const result = addDefaultAppHeaders({}, baseConfig as any);
 
 		expect(result['CATALYST-ORG']).toBe('org-123');
 	});
 
 	it('should not add CATALYST-ORG header when X_ZOHO_CATALYST_ORG_ID env var is unset', () => {
-		const result = addDefaultAppHeaders({}, baseConfig as unknown);
+		const result = addDefaultAppHeaders({}, baseConfig as any);
 
 		expect(result['CATALYST-ORG']).toBeUndefined();
 	});
@@ -45,13 +45,13 @@ describe('addDefaultAppHeaders', () => {
 		const result = addDefaultAppHeaders({}, {
 			...baseConfig,
 			projectSecretKey: 'secret-key'
-		} as unknown);
+		} as any);
 
 		expect(result['x-zc-project-secret-key']).toBe('secret-key');
 	});
 
 	it('should not add x-zc-project-secret-key when projectSecretKey is missing', () => {
-		const result = addDefaultAppHeaders({}, baseConfig as unknown);
+		const result = addDefaultAppHeaders({}, baseConfig as any);
 
 		expect(result['x-zc-project-secret-key']).toBeUndefined();
 	});
@@ -61,7 +61,7 @@ describe('addDefaultAppHeaders', () => {
 			'Custom-Header': 'custom-value',
 			'Another-Header': 'another-value'
 		};
-		const result = addDefaultAppHeaders(headers, baseConfig as unknown);
+		const result = addDefaultAppHeaders(headers, baseConfig as any);
 
 		expect(result).toBe(headers);
 		expect(result['Custom-Header']).toBe('custom-value');
