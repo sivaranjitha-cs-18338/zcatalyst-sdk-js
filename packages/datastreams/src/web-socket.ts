@@ -323,9 +323,15 @@ export class DataStreamsWebSocket extends EventEmitter {
 					 * containing "key_mismatch" (previous connection still alive), retry
 					 * connect() once before surfacing the error to on_error.
 					 */
-					const isConnectionAlive = String(jsonData[0]?.reason ?? '').includes(
+					const isKeyMismatch = String(jsonData[0]?.reason ?? '').includes(
 						'key_mismatch'
 					);
+
+					const invalidRequestFailure = String(jsonData[0]?.reason ?? '').includes(
+						'Invalid Request'
+					);
+
+					const isConnectionAlive = isKeyMismatch || invalidRequestFailure;
 
 					if (isConnectionAlive && this.fallbackConnectionAttempts === 0) {
 						this.fallbackConnectionAttempts += 1;
