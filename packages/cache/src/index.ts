@@ -1,3 +1,9 @@
+/**
+ * Catalyst Cache — in-memory key/value storage organised into segments for fast, low-latency reads.
+ *
+ * @packageDocumentation
+ */
+
 import { Handler, IRequestConfig } from '@zcatalyst/transport';
 import {
 	CatalystService,
@@ -8,12 +14,16 @@ import {
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
-import { version } from '../package.json';
+import pkg from '../package.json';
+const { version } = pkg;
 import { Segment } from './segment';
 import { CatalystCacheError } from './utils/error';
 
 const { REQ_METHOD, COMPONENT, CREDENTIAL_USER } = CONSTANTS;
 
+/**
+ * Provides access to Catalyst Cache segments and entries.
+ */
 export class Cache implements Component {
 	readonly requester: Handler;
 	constructor(app?: unknown) {
@@ -21,20 +31,26 @@ export class Cache implements Component {
 	}
 
 	/**
-	 * Returns the name of the component.
-	 * @returns {string} Component name
+	 * getComponentName operation.
 	 */
 	getComponentName(): string {
 		return COMPONENT.cache;
 	}
 
+	/**
+	 * getComponentVersion operation.
+	 */
 	getComponentVersion(): string {
 		return version;
 	}
 
 	/**
-	 * Fetches all segments.
-	 * @returns {Array<Segment>}  An array of Segment objects.
+	 * Retrieves every cache segment available in the project.
+	 * @returns A promise that resolves to Array<Segment>.
+	 * @example
+	 * ```ts
+	 * const segments = await cache.getAllSegment();
+	 * ```
 	 */
 	async getAllSegment(): Promise<Array<Segment>> {
 		const request: IRequestConfig = {
@@ -54,10 +70,14 @@ export class Cache implements Component {
 	}
 
 	/**
-	 * Fetches details of a specific segment.
-	 * @param {string} id - The segment ID.
-	 * @returns {Segment} Details of the given segment.
-	 * @throws {CatalystCacheError} If the provided segment ID is invalid.
+	 * Retrieves the details of a specific cache segment.
+	 * @param id - The segment, app, or template identifier.
+	 * @returns A promise that resolves to Segment.
+	 * @throws {CatalystCacheError} when input validation fails.
+	 * @example
+	 * ```ts
+	 * const segment = await cache.getSegmentDetails('12345');
+	 * ```
 	 */
 	async getSegmentDetails(id: string): Promise<Segment> {
 		await wrapValidatorsWithPromise(() => {
@@ -76,10 +96,14 @@ export class Cache implements Component {
 	}
 
 	/**
-	 * Creates or retrieves a Segment instance.
-	 * @param {string} [id] - The segment ID (optional).
-	 * @returns {Segment} A Segment instance.
-	 * @throws {CatalystCacheError} If the provided segment ID is invalid.
+	 * Creates a segment instance for a specific segment or for the default cache segment.
+	 * @param id - The segment, app, or template identifier.
+	 * @returns Segment.
+	 * @throws {CatalystCacheError} when input validation fails.
+	 * @example
+	 * ```ts
+	 * const segment = cache.segment('12345');
+	 * ```
 	 */
 	segment(id?: string): Segment {
 		if (typeof id === 'undefined') {

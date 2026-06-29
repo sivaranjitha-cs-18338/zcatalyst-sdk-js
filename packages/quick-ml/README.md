@@ -1,40 +1,16 @@
 # @zcatalyst/quickml
 
-JavaScript SDK for Catalyst QuickML - AutoML Model Training and Prediction
+JavaScript SDK for Catalyst QuickML - Prediction
 
 ## Overview
 
-The `@zcatalyst/quickml` package provides JavaScript/TypeScript methods to access [Catalyst QuickML](https://docs.catalyst.zoho.com/en/ai-ml/help/quickml/introduction/), an AutoML platform for building custom machine learning models without extensive ML expertise.
-
-**Catalyst QuickML** automates the ML pipeline - from data preparation to model training - enabling you to create custom prediction models using your own datasets.
-
-### Key Features
-
-- **Automated ML**: No-code ML model creation
-- **Classification & Regression**: Support for both model types
-- **Model Training**: Train on custom datasets
-- **Predictions**: Make predictions using trained models
-- **Model Management**: Create, train, and deploy models
-- **Performance Metrics**: Accuracy and performance tracking
-- **Quick Deployment**: API endpoints for predictions
-- **Data Handling**: Built-in data preprocessing
-
-### Use Cases
-
-- Customer churn prediction
-- Sales forecasting
-- Fraud detection
-- Product recommendations
-- Price optimization
-- Demand prediction
-- Risk assessment
-- Sentiment classification
+The `@zcatalyst/quickml` package provides JavaScript/TypeScript methods to call deployed [Catalyst QuickML](https://docs.catalyst.zoho.com/en/quickml/) prediction endpoints. Runs in Node.js (server-side) environments only.
 
 ### Prerequisites
 
 - A [Catalyst project](https://docs.catalyst.zoho.com/en/getting-started/catalyst-projects) set up
 - Training dataset in CSV format
-- Model trained in [QuickML Console](https://docs.catalyst.zoho.com/en/ai-ml/help/quickml/model-training/)
+- Model trained in [QuickML Console](https://docs.catalyst.zoho.com/en/quickml/)
 - Model endpoint key for predictions
 
 ## Installation
@@ -104,9 +80,6 @@ try {
 
 ### Error Handling
 
-When the service returns an exception, the error will include the exception information,
-as well as response metadata (e.g. request id).
-
 ```js
 try {
 	const data = await quickml.predict('endpoint_key', {
@@ -124,15 +97,9 @@ try {
 
 ## Resources
 
-- [Catalyst QuickML Documentation](https://docs.catalyst.zoho.com/en/ai-ml/help/quickml/introduction/)
-- [Model Training](https://docs.catalyst.zoho.com/en/ai-ml/help/quickml/model-training/)
-- [Model Testing](https://docs.catalyst.zoho.com/en/ai-ml/help/quickml/model-testing/)
-- [Model Deployment](https://docs.catalyst.zoho.com/en/ai-ml/help/quickml/model-deployment/)
-- [SDK Documentation](https://docs.catalyst.zoho.com/en/sdk/)
+- [Catalyst QuickML Documentation](https://docs.catalyst.zoho.com/en/quickml/)
 
 ## Contributing
-
-Contributions to this library are always welcome and highly encouraged.
 
 See [CONTRIBUTING](../../CONTRIBUTING.md) for more information on how to get started.
 

@@ -11,7 +11,8 @@ import {
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
-import { version } from '../package.json';
+import pkg from '../package.json';
+const { version } = pkg;
 import { CatalystUserManagementError } from './utils/error';
 import {
 	ICatalystCustomTokenDetails,
@@ -32,8 +33,10 @@ export enum USER_STATUS {
 	DISABLE = 'disable'
 }
 
+/** Provides user-scoped Catalyst user management operations such as current-user lookup and password reset. */
 export class UserManagement implements Component {
 	requester: Handler;
+	/** Creates a user management client for the provided Catalyst app. */
 	constructor(app?: unknown) {
 		this.requester = new Handler(app, this);
 	}
@@ -46,6 +49,7 @@ export class UserManagement implements Component {
 		return COMPONENT.user_management;
 	}
 
+	/** Retrieves the package version used by this component. */
 	getComponentVersion(): string {
 		return version;
 	}
@@ -75,6 +79,7 @@ export class UserManagement implements Component {
 	 * @param email - The email ID of the user requesting a password reset.
 	 * @param resetConfig - Configuration object containing user metadata.
 	 * @returns A promise that resolves to a confirmation message.
+	 * @throws {CatalystUserManagementError} when the email or reset configuration is invalid.
 	 *
 	 * @example
 	 * const resetConfig = {
@@ -104,7 +109,9 @@ export class UserManagement implements Component {
 	}
 }
 
+/** Provides admin-scoped Catalyst user management operations for project users and organizations. */
 export class UserManagementAdmin extends UserManagement {
+	/** Creates an admin user management client for the provided Catalyst app. */
 	constructor(app?: unknown) {
 		super(app);
 	}
@@ -121,7 +128,7 @@ export class UserManagementAdmin extends UserManagement {
 	async getAllUsers(): Promise<Array<ICatalystUser>>;
 	/**
 	 * Get all the users in an org associated with a project
-	 * @param orgId ID of the org to get the list of associated users.
+	 * @param orgId - ID of the org to get the list of associated users.
 	 * @returns List of all users in an org
 	 * @example
 	 * ```ts
@@ -130,6 +137,17 @@ export class UserManagementAdmin extends UserManagement {
 	 * ```
 	 */
 	async getAllUsers(orgId: string): Promise<Array<ICatalystUser>>;
+	/**
+	 * Retrieves all project users, optionally limited to an associated organization.
+	 *
+	 * @param orgId - Optional organization ID used to filter users.
+	 * @returns A promise that resolves to matching Catalyst users.
+	 *
+	 * @example
+	 * ```ts
+	 * const users = await userManagement.getAllUsers('123456789');
+	 * ```
+	 */
 	async getAllUsers(orgId?: string): Promise<Array<ICatalystUser>> {
 		const request: IRequestConfig = {
 			method: REQ_METHOD.get,
@@ -145,8 +163,9 @@ export class UserManagementAdmin extends UserManagement {
 
 	/**
 	 * Get a specific user's details
-	 * @param id ID of the user to get the details
+	 * @param id - ID of the user to get the details
 	 * @returns Catalyst user details
+	 * @throws {CatalystUserManagementError} when the user ID is invalid.
 	 * @example
 	 * ```ts
 	 * const userDetails = await userManagement.getUserDetails('987654321');
@@ -170,8 +189,9 @@ export class UserManagementAdmin extends UserManagement {
 
 	/**
 	 * Delete a user
-	 * @param id ID of the user to be deleted
+	 * @param id - ID of the user to be deleted
 	 * @returns `True` if user is deleted successfully
+	 * @throws {CatalystUserManagementError} when the user ID is invalid.
 	 * @example
 	 * ```ts
 	 * const isDeleted = await userManagement.deleteUser('987654321');
@@ -196,9 +216,10 @@ export class UserManagementAdmin extends UserManagement {
 
 	/**
 	 * Register a new User
-	 * @param signupConfig Meta data to register the user
-	 * @param userDetails Details of the user
+	 * @param signupConfig - Meta data to register the user
+	 * @param userDetails - Details of the user
 	 * @returns Catalyst user details
+	 * @throws {CatalystUserManagementError} when signupConfig or userDetails are invalid.
 	 * @example
 	 * ```ts
 	 * const newUser = await userManagement.registerUser(
@@ -259,6 +280,7 @@ export class UserManagementAdmin extends UserManagement {
 	 * @param signupConfig - Meta data to add the user.
 	 * @param userDetails - Details of the user.
 	 * @returns Catalyst user details.
+	 * @throws {CatalystUserManagementError} when signupConfig or userDetails are invalid.
 	 *
 	 * @example
 	 * ```ts
@@ -304,6 +326,7 @@ export class UserManagementAdmin extends UserManagement {
 	 *
 	 * @param bioReq - The request object containing arguments.
 	 * @returns The parsed signup validation request or undefined.
+	 * @throws {CatalystUserManagementError} when request details cannot be parsed as JSON.
 	 *
 	 * @example
 	 * ```ts
@@ -336,6 +359,7 @@ export class UserManagementAdmin extends UserManagement {
 	 *
 	 * @param customTokenDetails - Details for generating the token.
 	 * @returns The generated custom token.
+	 * @throws {CatalystUserManagementError} when custom token details are empty or invalid.
 	 *
 	 * @example
 	 * ```ts
@@ -368,6 +392,7 @@ export class UserManagementAdmin extends UserManagement {
 	 * @param id - ID of the user.
 	 * @param userStatus - The state to be updated.
 	 * @returns True if the state is changed.
+	 * @throws {CatalystUserManagementError} when the user ID or status is invalid.
 	 *
 	 * @example
 	 * ```ts
@@ -398,6 +423,7 @@ export class UserManagementAdmin extends UserManagement {
 	 * @param id - ID of the user to update.
 	 * @param userDetails - Details to be updated.
 	 * @returns Updated user details.
+	 * @throws {CatalystUserManagementError} when the user ID or user details are invalid.
 	 *
 	 * @example
 	 * ```ts

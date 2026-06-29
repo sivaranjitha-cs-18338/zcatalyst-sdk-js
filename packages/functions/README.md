@@ -1,39 +1,24 @@
 # @zcatalyst/functions
 
-JavaScript SDK for Catalyst Advanced I/O Functions - Serverless Function Execution
+JavaScript SDK for Catalyst Basic I/O Functions - Serverless Function Execution
 
 ## Overview
 
-The `@zcatalyst/functions` package provides JavaScript/TypeScript methods to execute [Catalyst Advanced I/O Functions](https://docs.catalyst.zoho.com/en/serverless/help/functions/advanced-io/introduction/). These are serverless functions that can handle API requests, perform complex business logic, and integrate with other Catalyst components.
+The `@zcatalyst/functions` package provides JavaScript/TypeScript methods to execute deployed [Catalyst Basic I/O Functions](https://docs.catalyst.zoho.com/en/serverless/help/functions/basic-io/) by ID or name.
 
-**Catalyst Advanced I/O Functions** enable you to write backend code without managing servers, execute it on-demand, and scale automatically based on traffic.
+## Operation Scope
 
-### Key Features
+Both the Node and browser entry points export the same class name (`Functions`) and the same method signature (`execute(idOrName, payload, opts?)`). What changes is how the request is authenticated and from where it can be invoked.
 
-- **Serverless Execution**: Run backend code without server management
-- **Function Invocation**: Execute functions by name or ID
-- **HTTP Methods**: Support for GET, POST, PUT, DELETE, PATCH
-- **Data Passing**: Send arguments and data to functions
-- **Auto-Scaling**: Functions scale automatically with load
-- **Component Integration**: Access all Catalyst services from functions
-- **Event-Driven**: Trigger functions from events and schedules
-- **Pay-per-Use**: Only charged for actual execution time
-
-### Use Cases
-
-- Build REST API endpoints
-- Process webhooks and callbacks
-- Perform background data processing
-- Integrate with third-party services
-- Handle file processing and transformations
-- Implement custom business logic
-- Schedule automated tasks
+| Operation | Method | Available in |
+|---|---|---|
+| Invoke a function from a Catalyst function  | `Functions.execute(idOrName, payload, opts?)` | Node + Browser (user) |
 
 ### Prerequisites
 
 - A [Catalyst project](https://docs.catalyst.zoho.com/en/getting-started/catalyst-projects) set up
 - Functions created and deployed in your project
-- Understanding of [function structure](https://docs.catalyst.zoho.com/en/serverless/help/functions/advanced-io/function-structure/)
+- Understanding of [function structure](https://docs.catalyst.zoho.com/en/serverless/help/functions/basic-io/)
 
 ## Installation
 
@@ -123,7 +108,7 @@ const result = await functions.execute('submit-data', {
 
 ### Environment Support
 
-This package automatically detects the environment and uses appropriate HTTP handling:
+This package has separate Node.js and browser entry points:
 
 - **Node.js**: Uses server-side HTTP requests
 - **Browser**: Uses client-side HTTP requests
@@ -147,9 +132,6 @@ try {
 
 ### Error Handling
 
-When the service returns an exception, the error will include the exception information,
-as well as response metadata (e.g. request id).
-
 ```js
 try {
   const result = await functions.execute('my-function');
@@ -161,7 +143,7 @@ try {
 }
 ```
 
-## API Reference
+## Method Details
 
 ### Function Execution
 
@@ -308,47 +290,13 @@ try {
 
 </details>
 
-### Function Types
-
-#### HTTP Methods
-
-**GET Requests:**
-- Parameters sent as query string
-- Suitable for data retrieval
-- Cacheable requests
-
-**POST Requests:**
-- Parameters sent in request body
-- Suitable for data creation/updates
-- Non-cacheable requests
-
-#### Return Types
-
-Functions can return various data types:
-
-```js
-// Simple string
-const textResult = await functions.execute('text-processor');
-
-// JSON data (as string)
-const jsonResult = await functions.execute('data-api');
-const parsedData = JSON.parse(jsonResult);
-
-// Binary data (base64 encoded)
-const binaryResult = await functions.execute('file-processor');
-```
-
 ## Resources
 
-- [Catalyst Functions Documentation](https://docs.catalyst.zoho.com/en/serverless/help/functions/advanced-io/introduction/)
-- [Function Structure](https://docs.catalyst.zoho.com/en/serverless/help/functions/advanced-io/function-structure/)
-- [Function Execution](https://docs.catalyst.zoho.com/en/serverless/help/functions/advanced-io/function-execution/)
-- [Functions SDK Reference](https://docs.catalyst.zoho.com/en/sdk/server-side-sdks/node-js-sdk/functions/)
-- [SDK Documentation](https://docs.catalyst.zoho.com/en/sdk/)
+- [Catalyst Functions Documentation](https://docs.catalyst.zoho.com/en/serverless/help/functions/advanced-io/)
+- [Function Structure](https://docs.catalyst.zoho.com/en/serverless/help/functions/basic-io/)
+- [Function Execution](https://docs.catalyst.zoho.com/en/serverless/help/functions/basic-io/)
 
 ## Contributing
-
-Contributions to this library are always welcome and highly encouraged.
 
 See [CONTRIBUTING](../../CONTRIBUTING.md) for more information on how to get started.
 

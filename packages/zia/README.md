@@ -4,37 +4,12 @@ JavaScript SDK for Catalyst Zia - AI and Machine Learning Services
 
 ## Overview
 
-The `@zcatalyst/zia` package provides JavaScript/TypeScript methods to access [Catalyst Zia](https://docs.catalyst.zoho.com/en/ai-ml/help/zia-services/introduction/), Zoho's AI and ML engine offering pre-trained AI services. Zia provides ready-to-use AI capabilities without requiring ML expertise.
-
-**Catalyst Zia** includes services for OCR, barcode detection, image moderation, object detection, face analytics, and more - all accessible through simple SDK methods.
-
-### Key Features
-
-- **Pre-trained AI**: Ready-to-use AI models without training
-- **OCR**: Extract text from images with high accuracy
-- **Barcode Detection**: Scan and read barcodes/QR codes
-- **Image Moderation**: Detect inappropriate content
-- **Face Analytics**: Identify faces and analyze attributes
-- **Object Detection**: Recognize objects in images
-- **Keyword Extraction**: Extract key terms from text
-- **MICR Code Detection**: Read bank cheque MICR codes
-- **Quick Integration**: Simple API with fast response times
-
-### Use Cases
-
-- Document digitization with OCR
-- Inventory management with barcode scanning
-- Content moderation for user uploads
-- Face recognition for security
-- Automated image tagging
-- Receipt and invoice processing
-- ID card and passport scanning
-- Sentiment analysis
+The `@zcatalyst/zia` package provides JavaScript/TypeScript methods to access [Catalyst Zia](https://docs.catalyst.zoho.com/en/) for OCR, barcode, image moderation, object detection, face, AutoML, and text-analysis APIs. Runs in Node.js (server-side) environments only.
 
 ### Prerequisites
 
 - A [Catalyst project](https://docs.catalyst.zoho.com/en/getting-started/catalyst-projects) set up
-- Understanding of [Zia services](https://docs.catalyst.zoho.com/en/ai-ml/help/zia-services/introduction/)
+- Understanding of [Zia services](https://docs.catalyst.zoho.com/en/zia-services/)
 - Image files for processing (for OCR, barcode, etc.)
 
 ## Installation
@@ -94,13 +69,8 @@ try {
 }
 ```
 
-Async-await is clean, concise, intuitive, easy to debug and has better error handling
-as compared to using Promise chains or callbacks.
-
 ### Error Handling
 
-When the service returns an exception, the error will include the exception information,
-as well as response metadata (e.g. request id).
 
 ```js
 try {
@@ -115,16 +85,14 @@ try {
 
 ## Resources
 
-- [Catalyst Zia Documentation](https://docs.catalyst.zoho.com/en/ai-ml/help/zia-services/introduction/)
-- [OCR](https://docs.catalyst.zoho.com/en/ai-ml/help/zia-services/ocr/)
-- [Barcode Detection](https://docs.catalyst.zoho.com/en/ai-ml/help/zia-services/barcode-detection/)
-- [Image Moderation](https://docs.catalyst.zoho.com/en/ai-ml/help/zia-services/image-moderation/)
-- [Face Analytics](https://docs.catalyst.zoho.com/en/ai-ml/help/zia-services/face-analytics/)
-- [SDK Documentation](https://docs.catalyst.zoho.com/en/sdk/)
+- [Catalyst Zia Documentation](https://docs.catalyst.zoho.com/en/zia-services/)
+- [OCR](https://docs.catalyst.zoho.com/en/zia-services/help/object-recognition/introduction/)
+- [Barcode Detection](https://docs.catalyst.zoho.com/en/zia-services/help/barcode-scanner/introduction/)
+- [Image Moderation](https://docs.catalyst.zoho.com/en/zia-services/help/image-moderation/introduction/)
+- [Face Analytics](https://docs.catalyst.zoho.com/en/zia-services/help/face-analytics/introduction/)
+
 
 ## Contributing
-
-Contributions to this library are always welcome and highly encouraged.
 
 See [CONTRIBUTING](../../CONTRIBUTING.md) for more information on how to get started.
 

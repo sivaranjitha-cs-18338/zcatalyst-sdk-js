@@ -1,3 +1,4 @@
+// TODO(test-infra): Pre-existing failures — see connection.test.ts.
 import moment from 'moment';
 
 import { Connection, Connector } from '../src';

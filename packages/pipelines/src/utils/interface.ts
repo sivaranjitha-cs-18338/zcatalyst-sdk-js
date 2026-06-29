@@ -22,7 +22,3 @@ export interface IPipelineRunResponse {
 	event_details: Record<string, string>;
 	history_status: string;
 }
-export interface IPipelineJobApproval {
-	is_approved: boolean;
-	comments?: string;
-}

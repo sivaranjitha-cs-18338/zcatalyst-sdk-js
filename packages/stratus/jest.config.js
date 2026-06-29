@@ -5,6 +5,6 @@ module.exports =  {
     moduleNameMapper: {
     "^@zcatalyst/utils$": "<rootDir>/../utils/src",
     "^@zcatalyst/auth-admin$": "<rootDir>/../auth-admin/src",
-    "^@zcatalyst/transport$": "../../transport/src/__mocks__",
+    "^@zcatalyst/transport$": "<rootDir>/../transport/src/__mocks__",
   }
 };

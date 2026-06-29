@@ -4,27 +4,7 @@ HTTP Transport Layer for Catalyst SDK - Internal Communication Module
 
 ## Overview
 
-The `@zcatalyst/transport` package provides a unified HTTP transport layer used internally by all Catalyst SDK packages. It handles HTTP/HTTPS communication between your application and Catalyst services.
-
-**Catalyst Transport** is an infrastructure package that abstracts the HTTP client implementation for both Node.js (using built-in `http`/`https` modules) and browser environments (using Fetch API).
-
-### Key Features
-
-- **Unified API**: Single interface for Node.js and browser
-- **Cross-Platform**: Works in Node.js and browser environments
-- **Optimized**: Environment-specific implementations
-- **Secure**: HTTPS support with proper certificate handling
-- **Request Handling**: Headers, body, query parameters
-- **Response Processing**: Automatic response parsing
-- **Error Handling**: Consistent error responses
-
-> **Note**: This is an internal infrastructure package used by other Catalyst SDK packages. Most developers won't need to use this directly - use the component-specific packages instead.
-
-### Use Cases
-
-- Custom integrations with Catalyst services
-- Building new Catalyst SDK components
-- Advanced HTTP request customization
+The `@zcatalyst/transport` package provides the `Handler` class and request/response types used by Catalyst SDK packages to send HTTP requests. It has Node.js and browser entry points.
 
 ### Prerequisites
 
@@ -44,8 +24,7 @@ using your favorite package manager:
 
 ### Import
 
-The Catalyst SDK provides a unified HTTP transport layer for making API requests.
-To use the transport handler, import the `Handler`:
+To use the transport handler, import `Handler`:
 
 ```js
 // ES5 example
@@ -112,12 +91,10 @@ const config = {
   data: {                    // Request body (JSON)
     key: 'value'
   },
-  params: {                  // URL query parameters
+  qs: {                      // URL query parameters
     page: 1,
     limit: 10
-  },
-  timeout: 30000,            // Request timeout in milliseconds
-  retries: 3                 // Number of retry attempts
+  }
 };
 ```
 
@@ -140,8 +117,6 @@ try {
 
 ### Error Handling
 
-When the service returns an exception, the error will include the exception information,
-as well as response metadata (e.g. request id).
 
 ```js
 try {
@@ -154,7 +129,7 @@ try {
 }
 ```
 
-## API Reference
+## Method Details
 
 ### Transport Operations
 
@@ -268,24 +243,9 @@ const response = await handler.send({
 
 </details>
 
-### Response Format
-
-The response object contains:
-
-```js
-{
-  data: {},              // Response data
-  status: 200,           // HTTP status code
-  statusText: 'OK',      // HTTP status text
-  headers: {},           // Response headers
-  config: {},            // Request configuration
-  request: {}            // Request object
-}
-```
-
 ### Environment Support
 
-This package automatically detects the environment and uses appropriate HTTP clients:
+This package has separate Node.js and browser entry points:
 
 - **Node.js**: Uses built-in `http` and `https` modules
 - **Browser**: Uses Fetch API
@@ -293,13 +253,11 @@ This package automatically detects the environment and uses appropriate HTTP cli
 ## Resources
 
 - [Catalyst SDK Documentation](https://docs.catalyst.zoho.com/en/sdk/)
-- [Catalyst API Reference](https://docs.catalyst.zoho.com/en/api/)
+- [Catalyst API Reference](https://docs.catalyst.zoho.com/en/sdk/)
 - [Node.js HTTP Module](https://nodejs.org/api/http.html)
 - [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
 
 ## Contributing
-
-Contributions to this library are always welcome and highly encouraged.
 
 See [CONTRIBUTING](../../CONTRIBUTING.md) for more information on how to get started.
 

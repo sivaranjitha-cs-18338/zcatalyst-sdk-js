@@ -27,6 +27,7 @@ export interface ICatalystAppConfig {
 	projectDomain: string;
 	environment?: string;
 	projectSecretKey?: string;
+	origin?: string;
 }
 
 export interface ICatalystProject {

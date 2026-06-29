@@ -1,3 +1,9 @@
+/**
+ * Catalyst Authentication for Node.js (admin scope) — initializes a CatalystApp from a request and exposes server-side identity APIs.
+ *
+ * @packageDocumentation
+ */
+
 import {
 	CatalystAppError,
 	CatalystError,
@@ -43,6 +49,24 @@ export class ZCAuth {
 	config: Record<string, string | number | Credential | Object> = {};
 	#appCollection: Record<string, CatalystApp> = {};
 
+	/**
+	 * Initializes and stores a Catalyst app instance from request headers or custom credentials.
+	 *
+	 * @param options - The initialization or request options.
+	 * @param options - The initialization or request options.
+	 * @param options.type - The initialization type.
+	 * @param options.appName - The registered Catalyst app name.
+	 * @param options.scope - The credential scope to use.
+	 * @returns The initialized Catalyst app instance.
+	 * @throws {CatalystAppError} when app initialization or validation fails.
+	 *
+	 * @example
+	 * ```ts
+	 * import { zcAuth, ZCAuth } from '@zcatalyst/auth-admin';
+	 * const app = zcAuth.init({ credential: { access_token: 'token' }, projectId: '123' }, { type: 'custom' });
+	 * const result = app; // use ZCAuth.init in a Node request handler
+	 * ```
+	 */
 	init(
 		options: Record<string, string | number>,
 		{ type, appName, scope }: { type?: string; appName?: string; scope?: 'admin' | 'user' } = {
@@ -127,6 +151,20 @@ export class ZCAuth {
 		return catalystApp;
 	}
 
+	/**
+	 * Returns a Catalyst app initialized from default credentials.
+	 *
+	 * @param appName - The registered Catalyst app name.
+	 * @returns The initialized default Catalyst app instance.
+	 * @throws {CatalystAppError} when app initialization or validation fails.
+	 *
+	 * @example
+	 * ```ts
+	 * import { zcAuth, ZCAuth } from '@zcatalyst/auth-admin';
+	 * const app = zcAuth.init({ credential: { access_token: 'token' }, projectId: '123' }, { type: 'custom' });
+	 * const result = app; // use ZCAuth.getDefaultCredentials in a Node request handler
+	 * ```
+	 */
 	getDefaultCredentials(appName?: string) {
 		if (typeof appName === 'undefined') {
 			appName = DEFAULT_APP_NAME;
@@ -153,6 +191,20 @@ export class ZCAuth {
 		return app;
 	}
 
+	/**
+	 * Returns a previously initialized Catalyst app by name.
+	 *
+	 * @param appName - The registered Catalyst app name.
+	 * @returns The registered Catalyst app instance.
+	 * @throws {CatalystAppError} when app initialization or validation fails.
+	 *
+	 * @example
+	 * ```ts
+	 * import { zcAuth, ZCAuth } from '@zcatalyst/auth-admin';
+	 * const app = zcAuth.init({ credential: { access_token: 'token' }, projectId: '123' }, { type: 'custom' });
+	 * const result = app; // use ZCAuth.app in a Node request handler
+	 * ```
+	 */
 	app(appName?: string): CatalystApp {
 		if (typeof appName === 'undefined') {
 			appName = DEFAULT_APP_NAME;
@@ -182,6 +234,11 @@ export class ZCAuth {
 		const environment = obj[PROJECT_HEADER.environment] || DEFAULT_ENV;
 		const projectDomain = obj[PROJECT_HEADER.domain] || CATALYST_ORIGIN;
 		const projectSecretKey = obj[PROJECT_HEADER.projectSecretKey];
+		// Use host if provided and non-empty, otherwise fall back to projectDomain
+		const origin =
+			obj['host'] && obj['host'].trim()
+				? `http://${obj['host']}`
+				: `https://${projectDomain}`;
 		if (!projectId) {
 			throw new CatalystAppError(
 				'PROJECT_ERROR',
@@ -194,7 +251,8 @@ export class ZCAuth {
 			projectKey,
 			environment,
 			projectDomain,
-			projectSecretKey
+			projectSecretKey,
+			origin
 		};
 	}
 
@@ -229,6 +287,10 @@ export class ZCAuth {
 export class CatalystApp {
 	credential: Credential;
 	config: ICatalystAppConfig;
+	/**
+	 * Creates a CatalystApp instance.
+	 * @param options - The options value.
+	 */
 	constructor(options: Record<string, string | number | Credential | Object>) {
 		try {
 			isNonNullObject(options, 'options', true);
@@ -253,7 +315,8 @@ export class CatalystApp {
 			projectKey: (options.project_key || options.projectKey) as string,
 			projectDomain: (options.project_domain || options.projectDomain) as string,
 			environment: (options.environment as string) || DEFAULT_ENV,
-			projectSecretKey: (options.project_secret_key || options.projectSecretKey) as string
+			projectSecretKey: (options.project_secret_key || options.projectSecretKey) as string,
+			origin: (options.origin as string) || CATALYST_ORIGIN
 		};
 	}
 
@@ -265,6 +328,18 @@ export class CatalystApp {
 		headers[AUTH_HEADER] = 'Zoho-ticket ' + token;
 	}
 
+	/**
+	 * Adds the appropriate authentication headers to a request object.
+	 *
+	 * @param req - The request object to authenticate.
+	 *
+	 * @example
+	 * ```ts
+	 * import { zcAuth, CatalystApp } from '@zcatalyst/auth-admin';
+	 * const app = zcAuth.init({ credential: { access_token: 'token' }, projectId: '123' }, { type: 'custom' });
+	 * await app.authenticateRequest({ headers: {} });
+	 * ```
+	 */
 	async authenticateRequest(req: Record<string, unknown>): Promise<void> {
 		// create the request headers if not already present
 		const headers: Record<string, string> = Object.assign({}, req.headers);
@@ -311,6 +386,20 @@ export class CatalystApp {
 	}
 }
 
+/**
+ * Adds Catalyst project headers required by SDK service requests.
+ *
+ * @param headers - The headers object to mutate or extend.
+ * @param values - The Catalyst app configuration values.
+ * @returns The updated headers object.
+ *
+ * @example
+ * ```ts
+ * import { zcAuth, addDefaultAppHeaders } from '@zcatalyst/auth-admin';
+ * const app = zcAuth.init({ credential: { access_token: 'token' }, projectId: '123' }, { type: 'custom' });
+ * addDefaultAppHeaders({}, app.config);
+ * ```
+ */
 export function addDefaultAppHeaders(headers: Record<string, string>, values?: ICatalystAppConfig) {
 	headers[PROJECT_KEY_NAME] = values?.projectKey as string;
 	headers[ENVIRONMENT_KEY_NAME] = values?.environment as string;

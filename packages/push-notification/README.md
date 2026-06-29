@@ -4,38 +4,27 @@ JavaScript SDK for Catalyst Push Notification - Mobile and Web Notifications
 
 ## Overview
 
-The `@zcatalyst/push-notification` package provides JavaScript/TypeScript methods to send [Catalyst Push Notifications](https://docs.catalyst.zoho.com/en/cloud-scale/help/push-notification/introduction/) to mobile apps (iOS/Android) and web applications.
+The `@zcatalyst/push-notification` package provides JavaScript/TypeScript methods to send [Catalyst Push Notifications](https://docs.catalyst.zoho.com/en/cloud-scale/help/push-notifications/introduction/) to mobile apps and web users. The browser entry point also provides notification enablement, state, retry, message handler, and error handler APIs.
 
-**Catalyst Push Notification** enables real-time user engagement through push notifications, helping you keep users informed and engaged with timely updates.
+## Operation Scope
 
-### Key Features
+Both the Node and browser entry points export the same class name (`PushNotification`), but the surface differs by entry point: the browser exposes in-app subscription helpers, while the Node entry point exposes the server-side send helpers via `mobile()` / `web()`.
 
-- **Mobile Notifications**: Send to iOS and Android devices
-- **Web Notifications**: Browser push notifications
-- **User Targeting**: Send to specific users or broadcast
-- **Rich Content**: Include titles, messages, images, and actions
-- **Delivery Tracking**: Monitor notification delivery status
-- **Silent Notifications**: Background data updates
-- **Real-Time**: Instant notification delivery
-- **Deep Linking**: Direct users to specific app screens
-
-### Use Cases
-
-- Send alerts and reminders
-- Notify users of updates and changes
-- Marketing campaigns and promotions
-- Order status updates
-- Chat and messaging notifications
-- Breaking news alerts
-- System notifications
-- User engagement campaigns
+| Operation | Method | Available in |
+|---|---|---|
+| Enable in-app push notifications for the current browser user | `PushNotification.enableNotification()` | Browser only (user) |
+| Retry a failed registration attempt | `PushNotification.retry()` | Browser only (user) |
+| Get the mobile notification service | `PushNotification.mobile()` → `MobileNotification` | Node only (admin) |
+| Get the web notification service | `PushNotification.web()` → `WebNotification` | Node only (admin) |
+| Send an iOS push notification | `MobileNotification.sendIOSNotification(payload)` | Node only (admin) |
+| Send an Android push notification | `MobileNotification.sendAndroidNotification(payload)` | Node only (admin) |
+| Send a notification (auto-detect platform) | `MobileNotification.sendNotification(payload)`, `MobileNotification.notify(payload)` | Node only (admin) |
+| Send a web push notification | `WebNotification.sendNotification(payload)` | Node only (admin) |
 
 ### Prerequisites
 
 - A [Catalyst project](https://docs.catalyst.zoho.com/en/getting-started/catalyst-projects) set up
-- [Mobile app configuration](https://docs.catalyst.zoho.com/en/cloud-scale/help/push-notification/mobile-app-config/) (for mobile notifications)
-- [Web push configuration](https://docs.catalyst.zoho.com/en/cloud-scale/help/push-notification/web-push/) (for web notifications)
-- APNs/FCM credentials configured
+- [Push notification configuration](https://docs.catalyst.zoho.com/en/cloud-scale/help/push-notifications/introduction/)
 
 ## Installation
 
@@ -123,7 +112,7 @@ console.log('Notification state:', pushNotification.state);
 
 ### Environment Support
 
-This package automatically detects the environment and provides appropriate functionality:
+This package has separate Node.js and browser entry points:
 
 - **Node.js**: Mobile and web notification sending capabilities
 - **Browser**: Push notification receiving and handling capabilities
@@ -146,8 +135,6 @@ try {
 
 ### Error Handling
 
-When the service returns an exception, the error will include the exception information,
-as well as response metadata (e.g. request id).
 
 ```js
 try {
@@ -160,7 +147,7 @@ try {
 }
 ```
 
-## API Reference
+## Method Details
 
 ### Node.js Methods
 
@@ -263,7 +250,7 @@ This method:
 - Fetches notification configuration from server
 - Dynamically loads WMS (Web Messaging Service) scripts
 - Initializes the notification service with RTCP or ZMP protocol
-- Sets up automatic retry logic with exponential backoff
+- Schedules retry attempts with exponential backoff when initialization fails
 
 </details>
 
@@ -375,51 +362,27 @@ const checkState = () => {
 ### Supported Platforms
 
 ```js
-import { MOBILE_PLATFORM } from '@zcatalyst/push-notification';
+import { MOBILE_PLATFORM } from '@zcatalyst/push-notification/mobile-notification';
 
 // Available platforms
 console.log(MOBILE_PLATFORM.IOS);      // 'ios'
 console.log(MOBILE_PLATFORM.ANDROID);  // 'android'
 ```
 
-### Platform-Specific Features
+> The `MOBILE_PLATFORM` enum is exported from `mobile-notification` (not the
+> package root). When you pass the platform to `notify()` you can also pass the
+> raw string `'ios'` or `'android'`.
 
-**iOS Notifications:**
-- Badge numbers
-- Sound customization
-- Subtitle support
-- Custom data payload
-- Silent notifications
-
-**Android Notifications:**
-- Custom icons
-- Color customization
-- Vibration patterns
-- Sound customization
-- Custom data payload
-- Priority levels
-
-## Browser Compatibility
-
-This package supports all modern browsers with ES6+ support. The browser implementation uses:
-
-- **WMS (Web Messaging Service)** for real-time communication
-- **RTCP Protocol** for enhanced authentication when available
-- **ZMP Protocol** as fallback authentication method
-- **Dynamic script injection** for loading WMS libraries
-- **Automatic retry logic** with exponential backoff
 
 ## Resources
 
-- [Catalyst Push Notification Documentation](https://docs.catalyst.zoho.com/en/cloud-scale/help/push-notification/introduction/)
-- [Mobile App Configuration](https://docs.catalyst.zoho.com/en/cloud-scale/help/push-notification/mobile-app-config/)
-- [Web Push Notifications](https://docs.catalyst.zoho.com/en/cloud-scale/help/push-notification/web-push/)
-- [Push Notification SDK Reference](https://docs.catalyst.zoho.com/en/sdk/server-side-sdks/node-js-sdk/push-notification/)
+- [Catalyst Push Notification Documentation](https://docs.catalyst.zoho.com/en/cloud-scale/help/push-notifications/introduction/)
+- [Mobile App Configuration](https://docs.catalyst.zoho.com/en/cloud-scale/help/push-notifications/introduction/)
+- [Web Push Notifications](https://docs.catalyst.zoho.com/en/cloud-scale/help/push-notifications/introduction/)
+- [Push Notification SDK Reference](https://docs.catalyst.zoho.com/en/sdk/)
 - [SDK Documentation](https://docs.catalyst.zoho.com/en/sdk/)
 
 ## Contributing
-
-Contributions to this library are always welcome and highly encouraged.
 
 See [CONTRIBUTING](../../CONTRIBUTING.md) for more information on how to get started.
 

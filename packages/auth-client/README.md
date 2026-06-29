@@ -4,34 +4,13 @@ JavaScript SDK for Catalyst Client Authentication - User Sign-In and Token Manag
 
 ## Overview
 
-The `@zcatalyst/auth-client` package provides client-side authentication methods for Catalyst applications, handling user sign-in, token management, and session handling.
-
-**Client Authentication** enables secure user authentication flows in both browser and Node.js environments, managing authentication tokens and user sessions automatically.
-
-### Key Features
-
-- **User Sign-In**: Handle user authentication flows
-- **Token Management**: Automatic token storage and refresh
-- **Session Handling**: Persistent user sessions
-- **Cross-Platform**: Works in browser and Node.js
-- **Secure**: OAuth 2.0 based authentication
-- **Auto Refresh**: Automatic token renewal
-- **Client-Side**: Optimized for client applications
-
-### Use Cases
-
-- User login/logout flows
-- Single sign-on (SSO)
-- Session management
-- Protected route authentication
-- Client-side API calls
-- User identity verification
+The `@zcatalyst/auth-client` package exposes credential, token, CSRF, configuration-store, and session helper APIs used by Catalyst client-side authentication flows.
 
 ### Prerequisites
 
 - A [Catalyst project](https://docs.catalyst.zoho.com/en/getting-started/catalyst-projects) set up
-- [Authentication configured](https://docs.catalyst.zoho.com/en/security/help/authentication/introduction/)
-- Client credentials if using OAuth
+- [Authentication configured](https://docs.catalyst.zoho.com/en/cloud-scale/help/authentication/introduction/)
+
 
 ## Installation
 
@@ -41,34 +20,77 @@ npm install @zcatalyst/auth-client
 
 ## Getting Started
 
-Import the `AuthClient` module and use its methods as needed:
+This package exposes browser helper functions that bootstrap the Catalyst Web
+SDK (via `/__catalyst/sdk/init`), persist credentials in `ConfigStore`, manage
+CSRF tokens and the `stratus_jwt` session cookie. It is **not** a high-level
+sign-in widget — for end-user sign-in flows use the Catalyst Web SDK
+(`<script>` tag) or `@zcatalyst/auth`.
 
 ```js
-const { zcAuth } = require('@zcatalyst/auth-client');
+// ES5
+const {
+  getCredentials,
+  setDefaultProjectConfig,
+  addDefaultAppHeaders,
+  getToken,
+  setToken,
+  collectZCRFToken,
+  ConfigStore,
+  Auth_Protocol
+} = require('@zcatalyst/auth-client');
+```
+
+```ts
+// ES6+
+import {
+  getCredentials,
+  addDefaultAppHeaders,
+  collectZCRFToken,
+  ConfigStore,
+  Auth_Protocol
+} from '@zcatalyst/auth-client';
 ```
 
 ### Async/await
 
+Bootstrap the project credentials once at app start, then read them from
+`ConfigStore` anywhere downstream:
+
 ```js
 try {
-  const token = await zcAuth.signIn('id', {});
-  console.log('Authentication successful:', token);
+  await getCredentials();
+  const projectId = ConfigStore.get('project_id');
+  console.log('Catalyst initialised for project', projectId);
 } catch (err) {
-  console.error('Authentication failed:', err);
+  console.error('Failed to load project credentials:', err);
 }
+```
+
+### Token helpers
+
+```js
+const token = getToken();           // reads "cookie" cookie
+setToken({ access_token: '…', expires_in: 3600 });
+await collectZCRFToken();           // copies CSRF token cookie into ConfigStore
+```
+
+### Session helpers
+
+```js
+import {
+  clearStratusJwt,
+  getStratusJwtExpiry,
+  isStratusJwtFresh,
+  syncProjectSession
+} from '@zcatalyst/auth-client';
 ```
 
 ## Resources
 
-- [Catalyst Authentication Documentation](https://docs.catalyst.zoho.com/en/security/help/authentication/introduction/)
-- [User Authentication](https://docs.catalyst.zoho.com/en/security/help/authentication/user-auth/)
-- [OAuth Configuration](https://docs.catalyst.zoho.com/en/security/help/authentication/oauth-config/)
-- [Authentication SDK Reference](https://docs.catalyst.zoho.com/en/sdk/server-side-sdks/node-js-sdk/authentication/)
-- [SDK Documentation](https://docs.catalyst.zoho.com/en/sdk/)
+- [Catalyst Authentication Documentation](https://docs.catalyst.zoho.com/en/cloud-scale/help/authentication/introduction/)
+
 
 ## Contributing
-
-Contributions to this library are always welcome and highly encouraged.
 
 See [CONTRIBUTING](../../CONTRIBUTING.md) for more information on how to get started.
 

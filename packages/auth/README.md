@@ -4,26 +4,26 @@ JavaScript SDK for Catalyst Authentication - Node.js and Browser Support
 
 ## Overview
 
-The `@zcatalyst/auth` package provides JavaScript/TypeScript methods to integrate [Catalyst Authentication](https://docs.catalyst.zoho.com/en/cloud-scale/help/authentication/introduction/) into your applications. This SDK enables you to implement user sign-in, sign-up, user management, and role-based access control in both Node.js server environments and web browsers.
+The `@zcatalyst/auth` package provides JavaScript/TypeScript methods for Catalyst authentication and user-management APIs. It has Node.js and browser entry points.
 
-**Catalyst** is Zoho's serverless platform that provides a fully-managed cloud infrastructure for building and deploying scalable applications. The Authentication component is part of Catalyst Cloud Scale services, offering secure user authentication and authorization with minimal coding effort.
+## Operation Scope
 
-This package is part of the Catalyst JavaScript SDK ecosystem:
+Both the Node and browser entry points export the same class name (`UserManagement`). The Node entry point exposes the admin-augmented surface in addition to the user surface; the browser entry point exposes only the user surface.
 
-- **Node.js**: For server-side functions, similar to [zcatalyst-sdk-node](https://docs.catalyst.zoho.com/en/sdk/nodejs/v2/overview/)
-- **Web**: For client-side applications, inspired by [Catalyst Web SDK](https://docs.catalyst.zoho.com/en/sdk/web/v4/overview/)
-
-> **Note**: This SDK automatically detects the environment (Node.js or Browser) and provides the appropriate authentication methods.
-
-### Key Features
-
-- **Native Catalyst Authentication** - Hosted and Embedded authentication types
-- **User Management** - Add, update, delete, and manage application users
-- **Role-Based Access Control** - Configure user roles and permissions
-- **Social Logins** - Google and Zoho sign-in providers
-- **JWT Authentication** - Token-based authentication support
-- **Dual Environment Support** - Works in both Node.js and browser environments
-- **Tree-shakeable** - Environment-specific imports for optimized bundles
+| Operation | `UserManagement` method | Available in |
+|---|---|---|
+| Get the currently signed-in user | `getCurrentUser()` | Node + Browser (user) |
+| Reset password for the current user | `resetPassword()` | Node + Browser (user) |
+| List every user in the project | `getAllUsers()` | Node only (admin) |
+| Get a specific user's details | `getUserDetails(id)` | Node only (admin) |
+| Delete a user | `deleteUser(id)` | Node only (admin) |
+| Register a new user | `registerUser(payload)` | Node only (admin) |
+| List orgs the user belongs to | `getAllOrgs()` | Node only (admin) |
+| Add a user to an org | `addUserToOrg(payload)` | Node only (admin) |
+| Inspect a pending signup validation request | `getSignupValidationRequest(id)` | Node only (admin) |
+| Mint a custom token for a user | `generateCustomToken(payload)` | Node only (admin) |
+| Enable / disable a user | `updateUserStatus(id, status)` | Node only (admin) |
+| Update a user's profile fields | `updateUserDetails(id, payload)` | Node only (admin) |
 
 ### Prerequisites
 
@@ -50,9 +50,9 @@ using your favorite package manager:
 The Catalyst SDK is modularized by Components.
 To handle authentication, you only need to import the `zcAuth` function:
 
-#### Environment-Specific Imports (Recommended)
+#### Environment-Specific Imports
 
-For better tree-shaking and explicit environment targeting:
+For explicit environment targeting:
 
 **Node.js Environment:**
 ```js
@@ -72,7 +72,7 @@ const { zcAuth, UserManagement } = require("@zcatalyst/auth/web");
 import { zcAuth, UserManagement } from "@zcatalyst/auth/web";
 ```
 
-#### Universal Import (Auto-detects Environment)
+#### Package Root Import
 
 ```js
 // CommonJS
@@ -88,43 +88,26 @@ import { zcAuth } from "@zcatalyst/auth";
 
 #### Node.js Environment (Server-Side)
 
-For server-side authentication in Catalyst functions, initialize the SDK with your project credentials:
+For server-side authentication in Catalyst functions, initialize the SDK with Catalyst request headers or a custom credential:
 
 ```js
 import { zcAuth } from "@zcatalyst/auth/node";
 
-// Initialize with project credentials
-await zcAuth.init({
-  projectId: 'your_project_id',      // Your Catalyst Project ID
-  projectKey: 'your_project_key',    // Your Project Secret Key
-  environment: 'development'         // 'development' or 'production'
-});
-
-// Get app instance for component access
-const app = await zcAuth.getApp('your_app_name');
+// Initialize with Catalyst request headers
+const app = await zcAuth.init(req);
 ```
 
-**Initialize with Scopes:**
-
-Catalyst supports **Admin** and **User** scopes to control access levels:
-
-- **Admin Scope**: Unrestricted access to all components (Data Store, File Store, ZCQL)
-- **User Scope**: Restricted access based on [role permissions](https://docs.catalyst.zoho.com/en/cloud-scale/help/authentication/user-management/roles/introduction/)
+**Initialize with Scope:**
 
 ```js
 import { zcAuth } from "@zcatalyst/auth/node";
 
-await zcAuth.init({
-  projectId: 'your_project_id',
-  projectKey: 'your_project_key'
-}, {
-  type: 'auto',
+await zcAuth.init(req, {
+  type: 'advancedio',
   appName: 'my-app',
-  scope: 'admin'  // or 'user' for restricted access
+  scope: 'admin'
 });
 ```
-
-> **Note**: Scopes apply to Data Store, File Store, and ZCQL operations. All operations use Admin scope by default.
 
 #### Browser Environment (Client-Side)
 
@@ -160,30 +143,14 @@ import { zcAuth } from "@zcatalyst/auth/web";
 await zcAuth.hostedSignIn('https://your-app.com/dashboard');
 ```
 
-### Authentication Types
-
-Catalyst provides multiple authentication methods:
-
-1. **[Native Catalyst Authentication](https://docs.catalyst.zoho.com/en/cloud-scale/help/authentication/native-catalyst-authentication/introduction/)**
-   - **[Hosted](https://docs.catalyst.zoho.com/en/cloud-scale/help/authentication/native-catalyst-authentication/hosted-authentication-type/introduction/)**: Redirect users to Catalyst's authentication page
-   - **[Embedded](https://docs.catalyst.zoho.com/en/cloud-scale/help/authentication/native-catalyst-authentication/embedded-authentication/introduction/)**: Integrate authentication as an iframe in your application
-
-2. **[Third-party Authentication](https://docs.catalyst.zoho.com/en/cloud-scale/help/authentication/third-party-authentication/introduction/)**: Use your own authentication service
-
-3. **[Social Logins](https://docs.catalyst.zoho.com/en/cloud-scale/help/authentication/social-logins/introduction/)**: Enable Google and Zoho sign-in providers
-
-This SDK supports all authentication types and can be configured from the [Catalyst Console](https://console.catalyst.zoho.com/).
-
 ### Environment Support
 
-This package automatically detects the execution environment and provides appropriate methods:
+Use the entry point that matches your runtime:
 
-| Environment | Available Methods | Use Case |
+| Environment | Available Methods | Context |
 |------------|------------------|----------|
-| **Node.js** | `init()`, `getApp()` | Server-side functions, API endpoints, backend logic |
-| **Browser** | `signIn()`, `signOut()`, `isUserAuthenticated()`, `hostedSignIn()`, `signUp()` | Client-side web applications, SPAs |
-
-> **Auto-Detection**: When you import `@zcatalyst/auth`, the SDK automatically loads the correct implementation based on your environment. For explicit control, use `@zcatalyst/auth/node` or `@zcatalyst/auth/web`.
+| **Node.js** | `init()`, `getApp()` | Server-side functions and backend code |
+| **Browser** | `signIn()`, `signOut()`, `isUserAuthenticated()`, `hostedSignIn()`, `signUp()` | Client-side web applications |
 
 ### Async/await
 
@@ -202,7 +169,7 @@ try {
 
 ### Error Handling
 
-The SDK throws structured error objects with detailed information:
+The SDK throws error objects with information such as message, statusCode, and name when available:
 
 ```js
 try {
@@ -220,7 +187,7 @@ try {
 - `CatalystAuthenticationError`: Authentication-specific errors
 - `CatalystUserManagementError`: User management operation errors
 
-## API Reference
+## Method Details
 
 ### Authentication (zcAuth)
 
@@ -253,20 +220,14 @@ Initialize the Catalyst SDK with your project credentials. This is required befo
 
 **Returns:** Promise<unknown>
 
-**Scopes:**
-- **admin**: Full access to Data Store, File Store, and ZCQL
-- **user**: Access controlled by [user role permissions](https://docs.catalyst.zoho.com/en/cloud-scale/help/authentication/user-management/roles/introduction/)
-
 **Example:**
 ```js
 import { zcAuth } from "@zcatalyst/auth/node";
 
 await zcAuth.init({
-  projectId: 'your_project_id',
-  projectKey: 'your_project_key',
-  environment: 'development'
+  headers: req.headers
 }, {
-  type: 'auto',
+  type: 'advancedio',
   appName: 'my-app',
   scope: 'admin'
 });
@@ -350,13 +311,11 @@ Redirects users to Catalyst's [Hosted Authentication](https://docs.catalyst.zoho
 
 **Returns:** Promise<void>
 
-**Use Case**: When you want Catalyst to handle the entire authentication UI without embedding it in your application.
-
 **Example:**
 ```js
 import { zcAuth } from "@zcatalyst/auth/web";
 
-await zcAuth.hostedSignIn('https://your-app.com/callback');
+await zcAuth.hostedSignIn('/index.html'); // redirect url
 ```
 
 </details>
@@ -366,10 +325,10 @@ await zcAuth.hostedSignIn('https://your-app.com/callback');
 <strong>signinWithJwt(callbackFn)</strong> - Sign In with JWT
 </summary>
 
-Configures JWT-based authentication with a callback function.
+Configures the browser auth protocol to use JWT and stores a callback function.
 
 **Parameters:**
-- `callbackFn` (function): Callback function to execute after JWT authentication
+- `callbackFn` (function): Callback function stored for JWT fetch handling
 
 **Returns:** void
 
@@ -405,7 +364,6 @@ Registers a new user to your application. Catalyst will send an email invite to 
 - User receives an email invitation to complete the signup process
 - After setting their password, users are redirected to the specified URL
 - Requires [Public Signup](https://docs.catalyst.zoho.com/en/cloud-scale/help/authentication/public-signup/) to be enabled in your project
-- Limited to 25 users in development environment; unlimited in production
 
 **Example:**
 ```js
@@ -438,7 +396,7 @@ Signs out the currently authenticated user and redirects to the specified URL.
 ```js
 import { zcAuth } from "@zcatalyst/auth/web";
 
-await zcAuth.signOut('https://your-app.com/login');
+await zcAuth.signOut('/login');
 ```
 
 </details>
@@ -610,7 +568,6 @@ These methods provide administrative control over users and are only available i
 **Usage:**
 ```js
 import { UserManagement } from "@zcatalyst/auth/node";
-// In Node.js, UserManagement automatically includes admin methods
 const userManagement = new UserManagement();
 ```
 
@@ -627,12 +584,6 @@ Retrieves all users in your Catalyst project or a specific organization.
 - `orgId` (string, optional): Organization ID to filter users by organization
 
 **Returns:** Promise<Array<ICatalystUser>>
-
-**Use Cases:**
-- List all application users
-- Export user data
-- Audit user accounts
-- Filter users by organization
 
 **Example:**
 ```js
@@ -704,14 +655,6 @@ Programmatically registers a new user in your Catalyst project. The user receive
 
 **Returns:** Promise<ICatalystNewUser>
 
-**Process:**
-1. User is added to the project
-2. Email invitation is sent with a password setup link
-3. User completes signup by setting their password
-4. User is redirected to the application
-
-**Development Limits:** Maximum 25 users; unlimited in production
-
 **Example:**
 ```js
 const newUser = await userManagement.registerUser(
@@ -762,8 +705,6 @@ Adds a user to a specific organization within your Catalyst project. Organizatio
 
 **Returns:** Promise<ICatalystNewUser>
 
-**Use Case:** Multi-tenant applications where users belong to different organizations
-
 **Example:**
 ```js
 const user = await userManagement.addUserToOrg(
@@ -792,12 +733,6 @@ Generates a custom authentication token for a user. Used for implementing custom
 
 **Returns:** Promise<ICatalystCustomTokenResponse>
 
-**Use Cases:**
-- Custom authentication workflows
-- Third-party system integrations
-- Mobile app authentication
-- API access tokens
-
 **Example:**
 ```js
 const token = await userManagement.generateCustomToken({ user_id: '12345' });
@@ -820,11 +755,6 @@ Enables or disables a user account. Disabled users cannot access the application
   - `USER_STATUS.DISABLE`: Disable user account
 
 **Returns:** Promise<boolean> - Returns `true` if status was updated successfully
-
-**Use Cases:**
-- Temporarily suspend user access
-- Reactivate suspended accounts
-- User account moderation
 
 **Example:**
 ```js
@@ -894,16 +824,10 @@ if (request) {
 - [Catalyst Authentication Documentation](https://docs.catalyst.zoho.com/en/cloud-scale/help/authentication/introduction/)
 - [Authentication Types](https://docs.catalyst.zoho.com/en/cloud-scale/help/authentication/authentication-types/)
 - [User Management](https://docs.catalyst.zoho.com/en/cloud-scale/help/authentication/user-management/introduction/)
-- [Data Store](https://docs.catalyst.zoho.com/en/cloud-scale/help/data-store/introduction/)
-- [File Store](https://docs.catalyst.zoho.com/en/cloud-scale/help/file-store/introduction/)
-- [ZCQL](https://docs.catalyst.zoho.com/en/cloud-scale/help/zcql/introduction/)
-- [Functions](https://docs.catalyst.zoho.com/en/serverless/functions/introduction/)
+- [Functions](https://docs.catalyst.zoho.com/en/serverless/help/functions/introduction/)
 - [User Roles](https://docs.catalyst.zoho.com/en/cloud-scale/help/authentication/user-management/roles/introduction/)
-- [Scopes and Permissions](https://docs.catalyst.zoho.com/en/cloud-scale/help/data-store/scopes-and-permissions/)
 
 ## Contributing
-
-Contributions to this library are always welcome and highly encouraged.
 
 See [CONTRIBUTING](../../CONTRIBUTING.md) for more information on how to get started.
 

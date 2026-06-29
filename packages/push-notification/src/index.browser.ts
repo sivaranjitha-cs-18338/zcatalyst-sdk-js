@@ -33,6 +33,9 @@ enum NotificationState {
 	ERROR = 'error'
 }
 
+/**
+ * Provides Catalyst push notification operations.
+ */
 export class PushNotification implements Component {
 	requester: Handler;
 	private _messageCallback?: MessageCallback;
@@ -44,41 +47,50 @@ export class PushNotification implements Component {
 	/**
 	 * Creates a new PushNotification instance.
 	 *
-	 * @param {unknown} [app] - The application instance for configuration
+	 * @param app - The application instance for configuration
 	 */
 	constructor(app?: unknown) {
 		this.requester = new Handler(app, this);
 	}
 
 	/**
-	 * Retrieves the component name for the notification service.
-	 * @returns The string identifier for the notification component.
+	 * getComponentName operation.
 	 */
 	getComponentName(): string {
 		return COMPONENT.notification;
 	}
 
 	/**
-	 * Gets the current state of the notification service
+	 * state operation.
+	 * @returns NotificationState.
+	 * @example
+	 * ```ts
+	 * const result = await pushNotification.state();
+	 * ```
 	 */
 	get state(): NotificationState {
 		return this._state;
 	}
 
 	/**
-	 * Checks if notifications are ready to use
+	 * isReady operation.
+	 * @returns boolean.
+	 * @example
+	 * ```ts
+	 * const result = await pushNotification.isReady();
+	 * ```
 	 */
 	get isReady(): boolean {
 		return this._state === NotificationState.READY;
 	}
 
 	/**
-	 * Enables push notifications for the application.
-	 * Initializes the WMS connection and sets up message handlers.
-	 * Includes automatic retry logic with exponential backoff.
-	 *
-	 * @returns {Promise<void>} Promise that resolves when notifications are successfully enabled
-	 * @throws {Error} When notification configuration fetch fails or WMS initialization fails
+	 * Enables browser push notifications and establishes the messaging connection.
+	 * @returns A promise that resolves to void.
+	 * @example
+	 * ```ts
+	 * await pushNotification.enableNotification();
+	 * ```
 	 */
 	async enableNotification(): Promise<void> {
 		if (this._state === NotificationState.INITIALIZING) {
@@ -120,8 +132,8 @@ export class PushNotification implements Component {
 	 * Fetches the notification configuration from the server.
 	 *
 	 * @private
-	 * @returns {Promise<NotificationConfig>} Promise resolving to notification configuration
-	 * @throws {Error} When the config fetch fails or required fields are missing
+	 * @returns Promise resolving to notification configuration
+	 * @throws When the config fetch fails or required fields are missing
 	 */
 	private async _fetchNotificationConfig(): Promise<NotificationConfig> {
 		const request: IRequestConfig = {
@@ -153,9 +165,9 @@ export class PushNotification implements Component {
 	 * Prevents duplicate script injection by checking for existing scripts.
 	 *
 	 * @private
-	 * @param {string} src - The URL of the script to inject
-	 * @returns {Promise<void>} Promise that resolves when script is loaded
-	 * @throws {Error} When script fails to load
+	 * @param src - The URL of the script to inject
+	 * @returns Promise that resolves when script is loaded
+	 * @throws When script fails to load
 	 */
 	private async _injectScript(src: string): Promise<void> {
 		return new Promise((resolve, reject) => {
@@ -180,9 +192,9 @@ export class PushNotification implements Component {
 	 * Chooses between RTCP and ZMP initialization based on available credentials.
 	 *
 	 * @private
-	 * @param {NotificationConfig} config - The notification configuration object
-	 * @returns {Promise<void>} Promise that resolves when WMS is initialized
-	 * @throws {Error} When ZAID is missing or WMS libraries fail to load
+	 * @param config - The notification configuration object
+	 * @returns Promise that resolves when WMS is initialized
+	 * @throws When ZAID is missing or WMS libraries fail to load
 	 */
 	private async _initializeWms(config: NotificationConfig): Promise<void> {
 		const zaid = ConfigStore.get('ZAID');
@@ -205,9 +217,9 @@ export class PushNotification implements Component {
 	 * Uses polling with a configurable timeout.
 	 *
 	 * @private
-	 * @param {number} [timeout=10000] - Maximum time to wait in milliseconds
-	 * @returns {Promise<void>} Promise that resolves when WMS libraries are available
-	 * @throws {Error} When WMS libraries don't load within the timeout period
+	 * @param [timeout=10000] - Maximum time to wait in milliseconds
+	 * @returns Promise that resolves when WMS libraries are available
+	 * @throws When WMS libraries don't load within the timeout period
 	 */
 	private async _waitForWms(timeout = 10000): Promise<void> {
 		const startTime = Date.now();
@@ -266,8 +278,8 @@ export class PushNotification implements Component {
 			WmsliteImpl.handleMessage = (
 				mtype: string,
 				msg: unknown,
-				meta: unknown,
-				prd_id: unknown
+				_meta: unknown,
+				_prd_id: unknown
 			): void => {
 				try {
 					LOGGER.info(`Message received: ${JSON.stringify(msg)}`);
@@ -308,10 +320,10 @@ export class PushNotification implements Component {
 	 * Used when sazuid and clientaccesstoken are available.
 	 *
 	 * @private
-	 * @param {string} uid - User identifier
-	 * @param {string} zaid - Zone application identifier
-	 * @param {string} sazuid - Service application zone user identifier
-	 * @param {string} token - Client access token for authentication
+	 * @param uid - User identifier
+	 * @param zaid - Zone application identifier
+	 * @param sazuid - Service application zone user identifier
+	 * @param token - Client access token for authentication
 	 */
 	#initWmsRTCP(uid: string, zaid: string, sazuid: string, token: string): void {
 		WmsLite.setNoDomainChange();
@@ -326,8 +338,8 @@ export class PushNotification implements Component {
 	 * Used as fallback when RTCP credentials are not available.
 	 *
 	 * @private
-	 * @param {string} uid - User identifier
-	 * @param {string} zaid - Zone application identifier
+	 * @param uid - User identifier
+	 * @param zaid - Zone application identifier
 	 */
 	#initWmsZmp(uid: string, zaid: string): void {
 		WmsLite.useSameDomain();
@@ -337,10 +349,13 @@ export class PushNotification implements Component {
 	}
 
 	/**
-	 * Sets the message handler callback for incoming push notifications.
-	 * Automatically sets up the handler if notifications are already ready.
-	 *
-	 * @param {MessageCallback} callback - Function to call when messages are received
+	 * messageHandler operation.
+	 * @param callback - The callback invoked when a browser notification message arrives.
+	 * @returns void.
+	 * @example
+	 * ```ts
+	 * const result = await pushNotification.messageHandler(callback);
+	 * ```
 	 */
 	public set messageHandler(callback: MessageCallback) {
 		this._messageCallback = callback;
@@ -351,20 +366,24 @@ export class PushNotification implements Component {
 	}
 
 	/**
-	 * Gets the current message handler callback.
-	 *
-	 * @returns {MessageCallback | undefined} The current message handler or undefined
+	 * messageHandler operation.
+	 * @returns MessageCallback | undefined.
+	 * @example
+	 * ```ts
+	 * const result = await pushNotification.messageHandler();
+	 * ```
 	 */
 	public get messageHandler(): MessageCallback | undefined {
 		return this._messageCallback;
 	}
 
 	/**
-	 * Manually trigger a retry of notification initialization.
-	 * Only works when the service is in an error state.
-	 * Resets the retry counter before attempting.
-	 *
-	 * @returns {Promise<void>} Promise that resolves when retry attempt completes
+	 * Retries browser push notification initialization after an error.
+	 * @returns A promise that resolves to void.
+	 * @example
+	 * ```ts
+	 * await pushNotification.retry();
+	 * ```
 	 */
 	public async retry(): Promise<void> {
 		if (this._state === NotificationState.ERROR) {

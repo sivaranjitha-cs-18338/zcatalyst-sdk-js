@@ -2,7 +2,7 @@ import moment from 'moment';
 
 import { Datastore } from '../src';
 import { Table } from '../src/table';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+
 const { responses } = require('../../../tests/api-responses.js');
 
 describe('test datastore', () => {
@@ -80,5 +80,35 @@ describe('test datastore', () => {
 				throw error;
 			}
 		}).toThrowError();
+	});
+
+	it('execute ZCQL query', async () => {
+		await expect(datastore.executeZCQLQuery('SELECT * FROM Users')).resolves.toStrictEqual(
+			responses['/query'].POST.data.data
+		);
+		await expect(datastore.executeZCQLQuery('')).rejects.toThrow();
+	});
+
+	it('execute search query', async () => {
+		await expect(
+			datastore.executeSearchQuery({
+				search: 'test',
+				search_table_columns: { test_table: ['test_column'] },
+				select_table_columns: { test_table: ['test_column'] },
+				order_by: { test_column: 'test_column' },
+				start: 0,
+				end: 10
+			})
+		).resolves.toStrictEqual(responses['/search'].POST.data.data);
+		await expect(
+			datastore.executeSearchQuery({
+				search: 'test',
+				search_table_columns: { test_table: ['test_column'] }
+			})
+		).resolves.toStrictEqual(responses['/search'].POST.data.data);
+
+		await expect((datastore as any).executeSearchQuery({})).rejects.toThrowError();
+
+		await expect((datastore as any).executeSearchQuery({ xx: 'xx' })).rejects.toThrowError();
 	});
 });

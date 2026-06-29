@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import http, { IncomingMessage } from 'http';
 import { Readable } from 'stream';
 import { inspect } from 'util';
@@ -69,7 +68,7 @@ function rejectWithContext(reject: (reason?: any) => void, statusCode: number, d
 				catalystError.data.message
 		);
 		return;
-	} catch (err) {
+	} catch {
 		// unknown error
 		reject(
 			'Request failed with status ' + statusCode + ' and response data : ' + inspect(data)

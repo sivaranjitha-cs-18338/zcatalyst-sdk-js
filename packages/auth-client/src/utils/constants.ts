@@ -121,17 +121,6 @@ export const CATALYST_DOMAIN = 'CATALYST_DOMAIN';
 export const ORG_ID = 'ORG_ID';
 
 // =============================================================================
-// BROWSER ENVIRONMENT CONSTANTS
-// =============================================================================
-
-export const CURRENT_CLIENT_PAGE_HOST = document.location.hostname;
-export const CURRENT_CLIENT_PAGE_PROTOCOL = document.location.protocol;
-export const CURRENT_CLIENT_PAGE_PORT = document.location.port;
-export const CURRENT_CLIENT_PAGE_ORIGIN = document.location.origin;
-export const CURRENT_CLIENT_PAGE_HREF = document.location.href;
-export const CURRENT_CLIENT_PATH_NAME = document.location.pathname;
-
-// =============================================================================
 // CSRF TOKEN CONSTANT
 // =============================================================================
 export const CSRF_TOKEN = 'CSRF_TOKEN';

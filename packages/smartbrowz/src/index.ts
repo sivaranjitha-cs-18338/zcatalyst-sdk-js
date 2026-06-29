@@ -1,3 +1,9 @@
+/**
+ * Catalyst SmartBrowz — cloud-hosted headless browser automation.
+ *
+ * @packageDocumentation
+ */
+
 import { Handler, IRequestConfig, RequestType, ResponseType } from '@zcatalyst/transport';
 import {
 	CatalystService,
@@ -10,7 +16,8 @@ import {
 import { IncomingMessage } from 'http';
 import { Readable } from 'stream';
 
-import { version } from '../package.json';
+import pkg from '../package.json';
+const { version } = pkg;
 import { Dataverse } from './dataverse';
 import { CatalystSmartbrowzError } from './utils/error';
 import {
@@ -25,6 +32,9 @@ const { REQ_METHOD, CREDENTIAL_USER } = CONSTANTS;
 type ICatalystSmartbrowzTemplateOptions = ICatalystSmartbrowzTemplate &
 	(ICatalystSmartbrowzScrShot | ICatalystSmartbrowzPdf);
 
+/**
+ * Runs SmartBrowz browser automation and Dataverse lookups.
+ */
 export class Smartbrowz implements Component {
 	readonly requester: Handler;
 	readonly #dataverse: Dataverse;
@@ -33,19 +43,23 @@ export class Smartbrowz implements Component {
 		this.#dataverse = new Dataverse({ requester: this.requester });
 	}
 
+	/**
+	 * getComponentName operation.
+	 */
 	getComponentName(): string {
 		return 'smartbrowz';
 	}
 
+	/**
+	 * getComponentVersion operation.
+	 */
 	getComponentVersion(): string {
 		return version;
 	}
 
 	async #execute(
 		details: (
-			| ICatalystSmartbrowzPdf
-			| ICatalystSmartbrowzScrShot
-			| ICatalystSmartbrowzTemplateOptions
+			ICatalystSmartbrowzPdf | ICatalystSmartbrowzScrShot | ICatalystSmartbrowzTemplateOptions
 		) &
 			ICatalystSmartbrowzReq
 	): Promise<Readable> {
@@ -63,6 +77,24 @@ export class Smartbrowz implements Component {
 		return resp.data as IncomingMessage;
 	}
 
+	/**
+	 * Converts a URL or HTML string to a PDF stream.
+	 * @param source - The URL or HTML string to render.
+	 * @param options - Optional settings for the request.
+	 *   - range - Optional range setting.
+	 *   - versionId - Optional versionId setting.
+	 *   - format - Optional format setting.
+	 *   - mode - Optional mode setting.
+	 *   - emotion - Optional emotion setting.
+	 *   - age - Optional age setting.
+	 *   - gender - Optional gender setting.
+	 * @returns A promise that resolves to Readable.
+	 * @throws {CatalystSmartbrowzError} when input validation fails.
+	 * @example
+	 * ```ts
+	 * const pdf = await smartbrowz.convertToPdf('https://example.com');
+	 * ```
+	 */
 	async convertToPdf(source: string, options?: ICatalystSmartbrowzPdf): Promise<Readable> {
 		await wrapValidatorsWithPromise(() => {
 			isNonEmptyString(source, 'url or html', true);
@@ -77,6 +109,24 @@ export class Smartbrowz implements Component {
 		return await this.#execute(pdfOptions);
 	}
 
+	/**
+	 * Captures a screenshot stream from a URL or HTML string.
+	 * @param source - The URL or HTML string to render.
+	 * @param options - Optional settings for the request.
+	 *   - range - Optional range setting.
+	 *   - versionId - Optional versionId setting.
+	 *   - format - Optional format setting.
+	 *   - mode - Optional mode setting.
+	 *   - emotion - Optional emotion setting.
+	 *   - age - Optional age setting.
+	 *   - gender - Optional gender setting.
+	 * @returns A promise that resolves to Readable.
+	 * @throws {CatalystSmartbrowzError} when input validation fails.
+	 * @example
+	 * ```ts
+	 * const screenshot = await smartbrowz.takeScreenshot('https://example.com');
+	 * ```
+	 */
 	async takeScreenshot(source: string, options?: ICatalystSmartbrowzScrShot): Promise<Readable> {
 		await wrapValidatorsWithPromise(() => {
 			isNonEmptyString(source, 'url or html', true);
@@ -91,6 +141,24 @@ export class Smartbrowz implements Component {
 		return await this.#execute(ScrOptions);
 	}
 
+	/**
+	 * Generates a SmartBrowz output stream from a saved template.
+	 * @param id - The segment, app, or template identifier.
+	 * @param options - Optional settings for the request.
+	 *   - range - Optional range setting.
+	 *   - versionId - Optional versionId setting.
+	 *   - format - Optional format setting.
+	 *   - mode - Optional mode setting.
+	 *   - emotion - Optional emotion setting.
+	 *   - age - Optional age setting.
+	 *   - gender - Optional gender setting.
+	 * @returns A promise that resolves to Readable.
+	 * @throws {CatalystSmartbrowzError} when input validation fails.
+	 * @example
+	 * ```ts
+	 * const output = await smartbrowz.generateFromTemplate('template-id', { output_options: { output_type: 'pdf' } });
+	 * ```
+	 */
 	async generateFromTemplate(
 		id: string,
 		options?: ICatalystSmartbrowzTemplateOptions
@@ -106,9 +174,16 @@ export class Smartbrowz implements Component {
 	}
 
 	/**
-	 * Get comprehensive details about any organization using its name, email address or website URL.
-	 * @param leadDetails - detail to identify the lead. Supported values Email, LeadName, WebsiteURL.
-	 * @returns enriched leads data
+	 * Retrieves enriched organization details from lead information.
+	 * @param options - Options for the getEnrichedLead operation.
+	 *   - email - The lead email address.
+	 *   - leadName - The organization or lead name.
+	 *   - websiteUrl - The organization website URL.
+	 * @returns ReturnType<Dataverse['getEnrichedLead']>.
+	 * @example
+	 * ```ts
+	 * const leads = await smartbrowz.getEnrichedLead({ websiteUrl: 'https://example.com' });
+	 * ```
 	 */
 	async getEnrichedLead({
 		email,
@@ -119,9 +194,13 @@ export class Smartbrowz implements Component {
 	}
 
 	/**
-	 * Get details about the technologies and frameworks used by an organization.
-	 * @param websiteUrl - Url of the website to find the tech stack.
-	 * @returns tech stack details of the website
+	 * Finds the technologies used by an organization website.
+	 * @param websiteUrl - The organization website URL.
+	 * @returns ReturnType<Dataverse['findTechStack']>.
+	 * @example
+	 * ```ts
+	 * const stack = await smartbrowz.findTechStack('https://example.com');
+	 * ```
 	 */
 	async findTechStack(
 		websiteUrl: Parameters<Dataverse['findTechStack']>[0]
@@ -130,9 +209,15 @@ export class Smartbrowz implements Component {
 	}
 
 	/**
-	 * Find out all the potential competitors of an organization.
-	 * @param orgDetails - details to identify the organization. Supported values are LeadName and WebsiteURL
-	 * @returns list of similar organizations.
+	 * Finds organizations similar to the provided company details.
+	 * @param options - Options for the getSimilarCompanies operation.
+	 *   - leadName - The organization or lead name.
+	 *   - websiteUrl - The organization website URL.
+	 * @returns ReturnType< Dataverse['getSimilarCompanies'] >.
+	 * @example
+	 * ```ts
+	 * const companies = await smartbrowz.getSimilarCompanies({ leadName: 'Example Inc' });
+	 * ```
 	 */
 	async getSimilarCompanies({
 		leadName,

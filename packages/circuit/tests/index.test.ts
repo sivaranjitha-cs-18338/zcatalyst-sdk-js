@@ -10,7 +10,7 @@ describe('testing circuit', () => {
 	});
 
 	it('getComponentVersion returns package version', () => {
-		expect(circuit.getComponentVersion()).toBe('0.0.3');
+		expect(circuit.getComponentVersion()).toBe(require('../package.json').version);
 	});
 
 	it('Circuit execute', async () => {

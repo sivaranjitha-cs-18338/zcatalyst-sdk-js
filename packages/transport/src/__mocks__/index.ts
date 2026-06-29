@@ -8,10 +8,10 @@ import { AuthorizedHttpClient, DefaultHttpResponse } from './http-handler';
 export class Handler {
 	app?: CatalystApp;
 	/**
-	 * @param {unknown} app The app used to fetch access tokens to sign API requests.
-	 * @constructor
+	 * @param app - The app used to fetch access tokens to sign API requests.
+	 * @param component - Optional component metadata.
 	 */
-	constructor(app?: unknown, component?: Component) {
+	constructor(app?: unknown, _component?: Component) {
 		if (!app) {
 			app = new ZCAuth().getDefaultCredentials() as unknown as CatalystApp;
 		}

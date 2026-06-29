@@ -1,5 +1,5 @@
 import { Mail } from '../src';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+
 const { responses } = require('../../../tests/api-responses.js');
 
 describe('email', () => {
@@ -10,7 +10,7 @@ describe('email', () => {
 	});
 
 	it('getComponentVersion returns package version', () => {
-		expect(email.getComponentVersion()).toBe('0.0.3');
+		expect(email.getComponentVersion()).toBe(require('../package.json').version);
 	});
 
 	it('send email', async () => {
@@ -31,7 +31,7 @@ describe('email', () => {
 				attachments: ['attach1']
 			})
 		).resolves.not.toBeNull();
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 		await expect((email as any).sendMail({})).rejects.toThrowError();
 	});
 });

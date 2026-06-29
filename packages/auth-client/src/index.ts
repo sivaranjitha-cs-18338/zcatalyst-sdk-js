@@ -1,3 +1,9 @@
+/**
+ * Catalyst Authentication for browsers — sign-in flows, token storage and session management.
+ *
+ * @packageDocumentation
+ */
+
 import { ConfigStore } from './config-store';
 import {
 	API_DOMAIN,
@@ -20,8 +26,21 @@ import { Auth_Protocol } from './utils/enums';
 import { CatalystAuthError } from './utils/errors';
 import { setGlobal } from './utils/functions';
 import { CatalystConfig } from './utils/interfaces';
+import { syncProjectSession } from './utils/session';
 
-export async function getCredentials() {
+/**
+ * Fetches browser project credentials and stores them for Catalyst client authentication.
+ *
+ * @returns The get credentials result.
+ * @throws {CatalystAuthError} when credentials or authentication state are invalid.
+ *
+ * @example
+ * ```ts
+ * import { getCredentials  } from '@zcatalyst/auth-client';
+ * await getCredentials();
+ * ```
+ */
+export async function getCredentials(): Promise<void> {
 	try {
 		setDefaultProjectConfig();
 		const response = await fetch(`/${URL_DIVIDER.RESERVED_URL}/sdk/init`, {
@@ -56,6 +75,10 @@ export async function getCredentials() {
 		}
 		ConfigStore.set(INITIALIZED, true + '');
 		setGlobal('__catalyst', finalCredentials);
+
+		// Clear stratus_jwt only when the project session actually changed so
+		// same-project reloads keep the cached cookie valid.
+		syncProjectSession(finalCredentials);
 	} catch (error) {
 		throw new CatalystAuthError(
 			'CREDENTIAL_FETCH_ERROR',
@@ -65,6 +88,17 @@ export async function getCredentials() {
 	}
 }
 
+/**
+ * Loads the default browser Catalyst configuration values into the session config store.
+ *
+ * @returns The set default project config result.
+ *
+ * @example
+ * ```ts
+ * import { setDefaultProjectConfig  } from '@zcatalyst/auth-client';
+ * await setDefaultProjectConfig();
+ * ```
+ */
 export function setDefaultProjectConfig() {
 	for (const [key, value] of Object.entries(defaultConfig)) {
 		if (value !== undefined && value !== null) {
@@ -75,9 +109,7 @@ export function setDefaultProjectConfig() {
 	}
 }
 
-/**
- * Validates required credential properties
- */
+/** * Validates required credential properties */
 function validateRequiredCredentials(credentialJson: CatalystConfig): void {
 	for (const requirement of REQUIREMENT.INIT_REQUIRE) {
 		if (!credentialJson.hasOwnProperty(requirement)) {
@@ -90,6 +122,18 @@ function validateRequiredCredentials(credentialJson: CatalystConfig): void {
 	}
 }
 
+/**
+ * Adds Catalyst project headers required by SDK service requests.
+ *
+ * @param headers - The headers object to mutate or extend.
+ * @returns The updated headers object.
+ *
+ * @example
+ * ```ts
+ * import { addDefaultAppHeaders  } from '@zcatalyst/auth-client';
+ * await addDefaultAppHeaders();
+ * ```
+ */
 export function addDefaultAppHeaders(headers: Record<string, string> = {}) {
 	const normalizedHeaders = headers as Record<string, string>;
 	// Modify the "Accept" header
@@ -109,6 +153,18 @@ export function addDefaultAppHeaders(headers: Record<string, string> = {}) {
 	return normalizedHeaders;
 }
 
+/**
+ * Returns the credential token payload used to authenticate Catalyst requests.
+ *
+ * @param key - The storage or cookie key.
+ * @returns The requested token value or credential payload.
+ *
+ * @example
+ * ```ts
+ * import { getToken  } from '@zcatalyst/auth-client';
+ * await getToken();
+ * ```
+ */
 export function getToken(key?: string) {
 	let jwtAuthToken = '';
 	const cookies = document.cookie.split(';');
@@ -122,10 +178,38 @@ export function getToken(key?: string) {
 	return jwtAuthToken;
 }
 
+/**
+ * Persists an authentication token in browser cookies.
+ *
+ * @param authObj - The token response to persist.
+ * @param key - The storage or cookie key.
+ * @returns The set token result.
+ *
+ * @example
+ * ```ts
+ * import { setToken  } from '@zcatalyst/auth-client';
+ * await setToken();
+ * ```
+ */
 export function setToken(authObj: { access_token?: string; expires_in?: number }, key?: string) {
-	document.cookie = `${key ? key : 'cookie'}=${authObj.access_token}; max-age=${authObj.expires_in}; path=/`;
+	// expires_in is an absolute timestamp in milliseconds; convert to max-age (seconds from now)
+	const maxAgeSeconds = authObj.expires_in
+		? Math.max(0, Math.floor((authObj.expires_in - Date.now()) / 1000))
+		: 0;
+	document.cookie = `${key ? key : 'cookie'}=${authObj.access_token}; max-age=${maxAgeSeconds}; path=/`;
 }
 
+/**
+ * Collects the ZCRF token cookie and stores it for authenticated browser requests.
+ *
+ * @returns A promise that resolves after token collection completes.
+ *
+ * @example
+ * ```ts
+ * import { collectZCRFToken  } from '@zcatalyst/auth-client';
+ * await collectZCRFToken();
+ * ```
+ */
 export async function collectZCRFToken(): Promise<unknown> {
 	return new Promise((resolve, reject) => {
 		try {
@@ -143,7 +227,7 @@ export async function collectZCRFToken(): Promise<unknown> {
 				}
 			}
 			resolve('success');
-		} catch (e) {
+		} catch {
 			resolve('success');
 		}
 	});
@@ -151,3 +235,15 @@ export async function collectZCRFToken(): Promise<unknown> {
 
 export { Auth_Protocol, ConfigStore };
 export * from './utils/constants';
+export {
+	clearStratusJwt,
+	getStratusJwtExpiry,
+	getStratusSessionVersion,
+	isStratusJwtFresh,
+	setStratusJwtExpiry,
+	STRATUS_JWT_COOKIE,
+	STRATUS_JWT_EXPIRY_KEY,
+	STRATUS_JWT_EXPIRY_SKEW_MS,
+	STRATUS_SESSION_VERSION_KEY,
+	syncProjectSession
+} from './utils/session';

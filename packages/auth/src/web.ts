@@ -1,4 +1,5 @@
 import {
+	clearStratusJwt,
 	ConfigStore,
 	getCredentials,
 	JWT_COOKIE_PREFIX,
@@ -14,7 +15,8 @@ import {
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
-import { version } from '../package.json';
+import pkg from '../package.json';
+const { version } = pkg;
 import {
 	AUTH_ERROR_MSG,
 	AUTH_STATIC_FILES,
@@ -38,12 +40,14 @@ import { applyQueryString, hasSuffInfo } from './utils/validators';
 
 const { CREDENTIAL_USER, REQ_METHOD, COMPONENT } = CONSTANTS;
 
+/** Provides browser authentication flows for hosted sign-in, embedded sign-in, sign-up, and user profile access. */
 class Authentication implements Component {
 	requester: Handler;
 	zaid: string = ConfigStore.get('ZAID') as string;
 	projectId: string = ConfigStore.get('PROJECT_ID') as string;
 	isAppsail: string = ConfigStore.get('IS_APPSAIL') as string;
 	authProtocol: Auth_Protocol = ConfigStore.get('AUTH_PROTOCOL') as unknown as Auth_Protocol;
+	/** Creates a browser authentication client for the provided Catalyst app. */
 	constructor(app?: unknown) {
 		this.requester = new Handler(app, this);
 		getCredentials().catch(() => {
@@ -62,15 +66,44 @@ class Authentication implements Component {
 		return COMPONENT.user_management;
 	}
 
+	/** Retrieves the package version used by this component. */
 	getComponentVersion(): string {
 		return version;
 	}
 
+	/**
+	 * Initializes the browser authentication component.
+	 *
+	 * @returns A promise that resolves when browser authentication initialization is complete.
+	 *
+	 * @example
+	 * ```ts
+	 * await zcAuth.init();
+	 * ```
+	 */
 	async init(): Promise<void> {}
 
 	/**
-	 * @param id -> Dom elements id in which the login iframe should be loaded
-	 * @param config -> signInConfig
+	 * Starts the embedded IAM sign-in flow inside a target DOM element or redirects an already authenticated user.
+	 *
+	 * @param id - DOM element ID where the login iframe should be mounted.
+	 * @param config - Sign-in configuration.
+	 *   - `redirectUrl`: URL to open after successful sign-in.
+	 *   - `serviceUrl`: Service URL used as the post-login destination.
+	 *   - `cssUrl`: Custom CSS URL for the sign-in page.
+	 *   - `signInProvidersOnly`: Whether to show only configured federated sign-in providers.
+	 *   - `forgotPasswordId`: DOM element ID where the forgot-password iframe should be mounted.
+	 *   - `forgotPasswordCssUrl`: Custom CSS URL for the forgot-password page.
+	 * @returns A promise that resolves after the sign-in iframe flow is prepared or a redirect is triggered.
+	 * @throws {CatalystAuthenticationError} when the target DOM element cannot be found.
+	 * @see {@link zcAuth} in `./node` for the Node.js authentication surface.
+	 *
+	 * @example
+	 * ```ts
+	 * import { zcAuth } from '@zcatalyst/auth';
+	 *
+	 * await zcAuth.signIn('login-container', { redirectUrl: '/dashboard' });
+	 * ```
 	 */
 	async signIn(id: string, config: ICatalystSignInConfig = {}): Promise<void> {
 		try {
@@ -82,11 +115,23 @@ class Authentication implements Component {
 			} else {
 				await this.#notSignedIn(id, config);
 			}
-		} catch (err) {
+		} catch {
 			await this.#notSignedIn(id, config);
 		}
 	}
 
+	/**
+	 * Redirects the browser to the Catalyst hosted sign-in page.
+	 *
+	 * @param redirectUrl - URL to return to after a successful hosted sign-in.
+	 * @returns A promise that resolves after credentials are available and the redirect is initiated.
+	 * @see {@link zcAuth} in `./node` for the Node.js authentication surface.
+	 *
+	 * @example
+	 * ```ts
+	 * await zcAuth.hostedSignIn('/dashboard');
+	 * ```
+	 */
 	async hostedSignIn(redirectUrl?: string): Promise<void> {
 		if (!ConfigStore.get('INITIALIZED')) {
 			await getCredentials();
@@ -94,11 +139,37 @@ class Authentication implements Component {
 		window.location.href = `/${URL_DIVIDER.RESERVED_URL}/${URL_DIVIDER.AUTH}/${URL_DIVIDER.LOGIN}?redirect_url=${encodeURIComponent(redirectUrl ?? '/')}`;
 	}
 
+	/**
+	 * Enables JWT token authentication and registers a callback to fetch user details.
+	 *
+	 * @param callbackFn - Callback invoked by the auth flow to fetch or refresh user details.
+	 * @returns Nothing.
+	 * @see {@link zcAuth} in `./node` for the Node.js authentication surface.
+	 *
+	 * @example
+	 * ```ts
+	 * zcAuth.signinWithJwt(() => {
+	 *   void fetch('/api/current-user');
+	 * });
+	 * ```
+	 */
 	public signinWithJwt(callbackFn: () => void): void {
 		ConfigStore.set(FETCH_DETAILS_CALLBACK_FN, callbackFn);
 		ConfigStore.set('AUTH_PROTOCOL', Auth_Protocol.JwtTokenProtocol);
 	}
 
+	/**
+	 * Retrieves the public sign-up configuration for the current Catalyst project.
+	 *
+	 * @returns A promise that resolves to the public sign-up settings response.
+	 * @see {@link zcAuth} in `./node` for the Node.js authentication surface.
+	 *
+	 * @example
+	 * ```ts
+	 * const signupSettings = await zcAuth.publicSignup();
+	 * console.log(signupSettings.data?.public_signup);
+	 * ```
+	 */
 	async publicSignup(): Promise<ICatalystAuthResponse> {
 		const appDomain = `${location.protocol}//${location.host}`;
 		const request: IRequestConfig = {
@@ -182,7 +253,7 @@ class Authentication implements Component {
 		this.#attachMutationObserver(Authentication.#getEmailInpErrorDiv(), this.#trackErrorMsgCnt);
 	}
 
-	async #trackErrorMsgCnt(mutationList: Array<MutationRecord>, observer: unknown) {
+	async #trackErrorMsgCnt(mutationList: Array<MutationRecord>, _observer: unknown) {
 		for (const mutation of mutationList) {
 			if (
 				mutation.type === 'attributes' &&
@@ -215,11 +286,24 @@ class Authentication implements Component {
 		}
 	}
 
+	/**
+	 * Signs out the current browser user and redirects to the requested URL.
+	 *
+	 * @param redirectURL - URL to navigate to after sign-out.
+	 * @returns A promise that resolves after the sign-out redirect is initiated.
+	 * @see {@link zcAuth} in `./node` for the Node.js authentication surface.
+	 *
+	 * @example
+	 * ```ts
+	 * await zcAuth.signOut('/signed-out');
+	 * ```
+	 */
 	async signOut(redirectURL = '/'): Promise<void> {
 		setDefaultProjectConfig();
 		if (this.authProtocol === Auth_Protocol.JwtTokenProtocol) {
 			document.cookie = `${JWT_COOKIE_PREFIX}=; path=/; expires=${new Date().toUTCString()};`;
 			document.cookie = `user_cred=; path=/; expires=${new Date().toUTCString()};`;
+			clearStratusJwt();
 			// Force immediate redirect for JWT
 			window.location.replace(redirectURL);
 			return;
@@ -247,7 +331,7 @@ class Authentication implements Component {
 					document.cookie = `CAUTH=; path=/accounts; expires=${new Date().toUTCString()};`;
 					// Use replace instead of href for immediate navigation
 					window.location.replace(redirectURL);
-				} catch (err) {
+				} catch {
 					// Use replace for error case too
 					window.location.replace(this.#constructSignOutUrl(redirectURL));
 				}
@@ -410,6 +494,28 @@ class Authentication implements Component {
 		return url;
 	}
 
+	/**
+	 * Registers a public user for the current Catalyst project.
+	 *
+	 * @param body - Sign-up details for the new user.
+	 *   - `last_name`: Last name of the user.
+	 *   - `email_id`: Email address of the user.
+	 *   - `first_name`: Optional first name of the user.
+	 *   - `platform_type`: Optional platform identifier, defaults to `web`.
+	 *   - `redirect_url`: Optional URL to open after sign-up.
+	 * @returns A promise that resolves to the sign-up API response data.
+	 * @throws {CatalystAuthenticationError} when required sign-up details are missing or invalid.
+	 * @see {@link zcAuth} in `./node` for the Node.js authentication surface.
+	 *
+	 * @example
+	 * ```ts
+	 * await zcAuth.signUp({
+	 *   last_name: 'Patel',
+	 *   email_id: 'maya.patel@example.com',
+	 *   platform_type: 'web'
+	 * });
+	 * ```
+	 */
 	public async signUp(body: ICatalystSignUpConfig): Promise<unknown> {
 		await wrapCheck((): void => {
 			hasSuffInfo(body, ['last_name', 'email_id']);
@@ -441,6 +547,19 @@ class Authentication implements Component {
 		return response.data;
 	}
 
+	/**
+	 * Checks whether a browser user is authenticated and returns user details when available.
+	 *
+	 * @param org_id - Optional organization ID used to validate the current user in a specific org.
+	 * @returns A promise that resolves to the current user details or `false` when unauthenticated.
+	 * @see {@link zcAuth} in `./node` for the Node.js authentication surface.
+	 *
+	 * @example
+	 * ```ts
+	 * const user = await zcAuth.isUserAuthenticated('123456789');
+	 * if (user) console.log('Signed in');
+	 * ```
+	 */
 	public async isUserAuthenticated(org_id?: string): Promise<unknown> {
 		const resp = await this.getProjectUserDetails(org_id);
 		if (resp.status === 'success') {
@@ -470,6 +589,19 @@ class Authentication implements Component {
 		return false;
 	}
 
+	/**
+	 * Retrieves the current project user details for the browser session.
+	 *
+	 * @param org_id - Optional organization ID used to scope the user lookup.
+	 * @returns A promise that resolves to the project user details response.
+	 * @see {@link zcAuth} in `./node` for the Node.js authentication surface.
+	 *
+	 * @example
+	 * ```ts
+	 * const details = await zcAuth.getProjectUserDetails();
+	 * console.log(details.data);
+	 * ```
+	 */
 	async getProjectUserDetails(org_id?: string): Promise<Record<string, unknown>> {
 		const request: IRequestConfig = {
 			method: REQ_METHOD.get,
@@ -488,6 +620,20 @@ class Authentication implements Component {
 		return resp.data;
 	}
 
+	/**
+	 * Changes the password for the currently authenticated browser user.
+	 *
+	 * @param oldPassword - Current password of the authenticated user.
+	 * @param newPassword - New password to set for the authenticated user.
+	 * @returns A promise that resolves to the change-password API response message.
+	 * @throws {CatalystAuthenticationError} when either password value is empty or invalid.
+	 * @see {@link zcAuth} in `./node` for the Node.js authentication surface.
+	 *
+	 * @example
+	 * ```ts
+	 * const message = await zcAuth.changePassword('old-password', 'new-password');
+	 * ```
+	 */
 	async changePassword(oldPassword: string, newPassword: string): Promise<string> {
 		await wrapValidatorsWithPromise(() => {
 			isNonEmptyString(oldPassword, 'old_password', true);

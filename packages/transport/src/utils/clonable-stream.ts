@@ -1,6 +1,18 @@
 import { nextTick } from 'process';
 import { PassThrough, Readable } from 'stream';
 
+/**
+ * Handles clone piped for the transport package.
+ *
+ * @param that - The that value.
+ * @returns The clone piped result.
+ *
+ * @example
+ * ```ts
+ * import { Handler } from '@zcatalyst/transport';
+ * const result = undefined;
+ * ```
+ */
 function clonePiped(that: CloneableStream) {
 	if (--that._clonesCount === 0 && !that.destroyed) {
 		that._original?.pipe(that);
@@ -8,6 +20,19 @@ function clonePiped(that: CloneableStream) {
 	}
 }
 
+/**
+ * Handles destroy for the transport package.
+ *
+ * @param this - The this value.
+ * @param error - The error value.
+ * @param callback - The callback value.
+ *
+ * @example
+ * ```ts
+ * import { Handler } from '@zcatalyst/transport';
+ * const result = undefined;
+ * ```
+ */
 function _destroy(
 	this: CloneableStream | StreamClone,
 	error: Error | null,
@@ -20,12 +45,47 @@ function _destroy(
 	nextTick(callback, error);
 }
 
+/**
+ * Handles forward destroy for the transport package.
+ *
+ * @param src - The src value.
+ * @param dest - The dest value.
+ *
+ * @example
+ * ```ts
+ * import { Handler } from '@zcatalyst/transport';
+ * const result = undefined;
+ * ```
+ */
 function forwardDestroy(src: Readable, dest: PassThrough): void {
+	/**
+	 * Handles destroy for the transport package.
+	 *
+	 * @param err - The err value.
+	 * @returns The destroy result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Handler } from '@zcatalyst/transport';
+	 * const result = undefined;
+	 * ```
+	 */
 	function destroy(err: Error) {
 		src.removeListener('close', onClose);
 		dest.destroy(err);
 	}
 
+	/**
+	 * Handles on close for the transport package.
+	 *
+	 * @returns The on close result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Handler } from '@zcatalyst/transport';
+	 * const result = undefined;
+	 * ```
+	 */
 	function onClose() {
 		dest.end();
 	}
@@ -36,6 +96,10 @@ function forwardDestroy(src: Readable, dest: PassThrough): void {
 
 class StreamClone extends PassThrough {
 	parent: CloneableStream;
+	/**
+	 * Creates a StreamClone instance.
+	 * @param parent - The parent value.
+	 */
 	constructor(parent: CloneableStream) {
 		super({ objectMode: parent.readableObjectMode });
 		this.parent = parent;
@@ -71,10 +135,33 @@ class StreamClone extends PassThrough {
 		nextTick(clonePiped, this.parent);
 	}
 
+	/**
+	 * Performs clone for the transport package.
+	 *
+	 * @returns The clone result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Handler } from '@zcatalyst/transport';
+	 * const result = undefined;
+	 * ```
+	 */
 	clone() {
 		return this.parent.clone();
 	}
 
+	/**
+	 * Performs is cloneable for the transport package.
+	 *
+	 * @param stream - The stream value.
+	 * @returns The is cloneable result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Handler } from '@zcatalyst/transport';
+	 * const result = undefined;
+	 * ```
+	 */
 	isCloneable(stream: unknown) {
 		return stream instanceof CloneableStream || stream instanceof StreamClone;
 	}
@@ -85,6 +172,10 @@ export default class CloneableStream extends PassThrough {
 	_clonesCount: number;
 	_internalPipe: boolean;
 	_hasListener: boolean;
+	/**
+	 * Creates a CloneableStream instance.
+	 * @param stream - The stream value.
+	 */
 	constructor(stream: Readable) {
 		super({ objectMode: stream.readableObjectMode });
 		this._original = stream;
@@ -114,6 +205,17 @@ export default class CloneableStream extends PassThrough {
 		nextTick(clonePiped, this);
 	}
 
+	/**
+	 * Performs resume for the transport package.
+	 *
+	 * @returns The resume result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Handler } from '@zcatalyst/transport';
+	 * const result = undefined;
+	 * ```
+	 */
 	resume(): this {
 		if (this._internalPipe) {
 			return this;
@@ -122,6 +224,18 @@ export default class CloneableStream extends PassThrough {
 		return this;
 	}
 
+	/**
+	 * Performs clone for the transport package.
+	 *
+	 * @returns The clone result.
+	 * @throws {Error} when validation fails.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Handler } from '@zcatalyst/transport';
+	 * const result = undefined;
+	 * ```
+	 */
 	clone(): StreamClone {
 		if (!this._original) {
 			throw new Error('already started');

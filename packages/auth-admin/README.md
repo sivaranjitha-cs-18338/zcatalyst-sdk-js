@@ -1,39 +1,17 @@
 # @zcatalyst/auth-admin
 
-JavaScript SDK for Catalyst Admin Authentication - Server-Side Admin Operations
+> **Internal package.** Consumed transitively by service packages. Do not install directly.
+
+JavaScript SDK for Catalyst Admin Authentication - Catalyst App Initialization
 
 ## Overview
 
-The `@zcatalyst/auth-admin` package provides server-side authentication methods for Catalyst applications, enabling administrative operations and project initialization in Node.js environments.
-
-**Admin Authentication** allows your backend code to authenticate with Catalyst using project credentials, enabling full access to Catalyst services and administrative operations.
-
-This package is designed specifically for **Node.js environments only** and will not work in browser environments. For browser authentication, use `@zcatalyst/auth` instead.
-
-### Key Features
-
-- **Project Authentication**: Initialize with project credentials
-- **Admin Access**: Full administrative capabilities
-- **Environment Config**: Support for dev/production environments
-- **Credential Management**: Secure project key handling
-- **Domain Configuration**: Custom domain support
-- **SDK Initialization**: Initialize Catalyst app instances
-- **Secure**: Server-side only authentication
-
-### Use Cases
-
-- Backend service initialization
-- Administrative script execution
-- Scheduled job authentication
-- Function-to-function calls
-- Server-side data operations
-- Automated workflows
-- Testing and development
+The `@zcatalyst/auth-admin` package provides Node.js APIs for initializing Catalyst app instances and accessing configured credentials. Its package metadata marks it as server-only for browser builds.
 
 ### Prerequisites
 
 - A [Catalyst project](https://docs.catalyst.zoho.com/en/getting-started/catalyst-projects) set up
-- Project credentials (ID, Key, Secret)
+- Project credentials
 - Node.js environment (server-side only)
 
 ## Installation
@@ -69,12 +47,14 @@ import { ZCAuth } from "@zcatalyst/auth-admin";
 ```js
 const auth = new ZCAuth();
 
-// Initialize with project credentials
-await auth.init({
+const app = auth.init({
+  credential: {
+    getToken: async () => 'access-token'
+  },
   projectId: 'your_project_id',
   projectKey: 'your_project_key',
   environment: 'development'
-});
+}, { type: 'custom' });
 ```
 
 #### Environment Variables
@@ -93,7 +73,7 @@ Then initialize without parameters:
 
 ```js
 const auth = new ZCAuth();
-await auth.init();
+const app = auth.getDefaultCredentials();
 ```
 
 ### Async/await
@@ -103,7 +83,7 @@ operator to wait for the promise returned by authentication operations:
 
 ```js
 try {
-  await auth.init(credentials);
+  const app = auth.init(credentials, { type: 'custom' });
 } catch (error) {
   // error handling
 } finally {
@@ -113,12 +93,10 @@ try {
 
 ### Error Handling
 
-When the service returns an exception, the error will include the exception information,
-as well as response metadata (e.g. request id).
 
 ```js
 try {
-  await auth.init(credentials);
+  const app = auth.init(credentials, { type: 'custom' });
 } catch (error) {
   const message = error.message;
   const status = error.statusCode;
@@ -126,7 +104,92 @@ try {
 }
 ```
 
-## API Reference
+## Supported Credential Types
+
+`@zcatalyst/auth-admin` exposes the following credential classes. Pass any of them as the `credential` field to `auth.init({ credential, ... }, { type })`.
+
+| Class | When to use |
+|---|---|
+| `RefreshTokenCredential` | You have a long-lived OAuth refresh token + client id/secret. |
+| `AccessTokenCredential` | You already hold a short-lived access token. |
+| `TicketCredential` | You have a Catalyst-issued ticket. |
+| `CookieCredential` | You forward a browser session cookie to the server. |
+| `CatalystCredential` | Wraps the headers Catalyst attaches to incoming serverless requests. |
+| `ApplicationDefaultCredential` | Loads credentials from `~/.config/<suffix>` or `CLIENT_ID`/`CLIENT_SECRET`/`REFRESH_TOKEN` env vars. |
+| `ApplicationCustomCredential` | Loads from a credential object you build at runtime (e.g. from your own secret store). |
+
+### Per-credential examples
+
+```ts
+import {
+  ZCAuth,
+  RefreshTokenCredential,
+  AccessTokenCredential,
+  TicketCredential,
+  CookieCredential,
+  CatalystCredential,
+  ApplicationDefaultCredential,
+  ApplicationCustomCredential
+} from '@zcatalyst/auth-admin';
+
+const auth = new ZCAuth();
+
+// 1. RefreshTokenCredential
+auth.init({
+  credential: new RefreshTokenCredential({
+    client_id: process.env.CLIENT_ID!,
+    client_secret: process.env.CLIENT_SECRET!,
+    refresh_token: process.env.REFRESH_TOKEN!
+  }),
+  projectId: 'your_project_id',
+  projectKey: 'your_project_key'
+}, { type: 'custom' });
+
+// 2. AccessTokenCredential
+auth.init({
+  credential: new AccessTokenCredential({ access_token: 'eyJ...' }),
+  projectId: 'your_project_id',
+  projectKey: 'your_project_key'
+}, { type: 'custom' });
+
+// 3. TicketCredential
+auth.init({
+  credential: new TicketCredential({ ticket: 'ticket-value' }),
+  projectId: 'your_project_id',
+  projectKey: 'your_project_key'
+}, { type: 'custom' });
+
+// 4. CookieCredential
+auth.init({
+  credential: new CookieCredential({ cookie: req.headers.cookie }),
+  projectId: 'your_project_id',
+  projectKey: 'your_project_key'
+}, { type: 'custom' });
+
+// 5. CatalystCredential — typical inside a Catalyst function
+auth.init({ credential: new CatalystCredential(req.headers as Record<string, string>) },
+  { type: 'advancedio' });
+
+// 6. ApplicationDefaultCredential — picks up file/env automatically
+auth.init({
+  credential: new ApplicationDefaultCredential(),
+  projectId: 'your_project_id',
+  projectKey: 'your_project_key'
+}, { type: 'custom' });
+
+// 7. ApplicationCustomCredential — build the credential object yourself
+auth.init({
+  credential: new ApplicationCustomCredential({
+    client_id: 'xxx',
+    client_secret: 'xxx',
+    refresh_token: 'xxx'
+  }),
+  projectId: 'your_project_id',
+  projectKey: 'your_project_key'
+}, { type: 'custom' });
+```
+
+## Method Details
 
 <details>
 <summary>
@@ -135,11 +198,15 @@ try {
 
 ```js
 const auth = new ZCAuth();
-await auth.init({
+const app = auth.init({
+  credential: {
+    getToken: async () => 'access-token'
+  },
   projectId: 'your_project_id',
   projectKey: 'your_project_key',
-  environment: 'development',
-  type: 'auto',
+  environment: 'development'
+}, {
+  type: 'custom',
   appName: 'my-app',
   scope: 'admin'
 });
@@ -153,7 +220,7 @@ await auth.init({
 </summary>
 
 ```js
-const app = await auth.app('your_app_name');
+const app = auth.app('your_app_name');
 ```
 
 </details>
@@ -164,22 +231,18 @@ const app = await auth.app('your_app_name');
 </summary>
 
 ```js
-const credentials = ZCAuth.getDefaultCredentials();
+const auth = new ZCAuth();
+const app = auth.getDefaultCredentials();
 ```
 
 </details>
 
 ## Resources
 
-- [Catalyst Authentication Documentation](https://docs.catalyst.zoho.com/en/security/help/authentication/introduction/)
-- [Admin Authentication](https://docs.catalyst.zoho.com/en/security/help/authentication/admin-auth/)
+- [Catalyst Authentication Documentation](https://docs.catalyst.zoho.com/en/cloud-scale/help/authentication/introduction/)
 - [Project Credentials](https://docs.catalyst.zoho.com/en/getting-started/catalyst-projects/)
-- [Authentication SDK Reference](https://docs.catalyst.zoho.com/en/sdk/server-side-sdks/node-js-sdk/authentication/)
-- [SDK Documentation](https://docs.catalyst.zoho.com/en/sdk/)
 
 ## Contributing
-
-Contributions to this library are always welcome and highly encouraged.
 
 See [CONTRIBUTING](../../CONTRIBUTING.md) for more information on how to get started.
 

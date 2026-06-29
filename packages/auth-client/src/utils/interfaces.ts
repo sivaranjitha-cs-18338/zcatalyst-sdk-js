@@ -1,4 +1,3 @@
-import { Auth_Protocol } from './enums';
 export interface CatalystFeature {
 	readonly URL: string | null;
 }

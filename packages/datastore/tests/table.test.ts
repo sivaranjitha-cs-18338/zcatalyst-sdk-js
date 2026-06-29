@@ -1,6 +1,6 @@
 import { Datastore } from '../src';
 import { TableAdmin as Table } from '../src/table';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+
 const { responses } = require('../../../tests/api-responses.js');
 
 describe('test table', () => {
@@ -20,7 +20,7 @@ describe('test table', () => {
 		await expect(table.insertRow({ testColumn: 'testColumn' })).resolves.toStrictEqual(
 			responses['/table/testTable/row'].POST.data.data[0]
 		);
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 		await expect((table as any).insertRow()).rejects.toThrowError();
 	});
 	it('insert rows', async () => {
@@ -49,8 +49,8 @@ describe('test table', () => {
 		await expect(table.getRow(NaN)).rejects.toThrowError();
 	});
 	it('delete row', async () => {
-		await expect(table.deleteRow('123')).resolves.toBeTruthy();
-		await expect(table.deleteRow('1234')).resolves.toBeFalsy();
+		await expect(table.deleteRow('123')).resolves.toBeUndefined();
+		await expect(table.deleteRow('1234')).resolves.toBeUndefined();
 		await expect(table.deleteRow('')).rejects.toThrowError();
 		await expect(table.deleteRow(NaN)).rejects.toThrowError();
 	});
@@ -64,7 +64,7 @@ describe('test table', () => {
 		await expect(table.updateRow({ ROWID: 123 })).resolves.toStrictEqual(
 			responses['/table/testTable/row'].PATCH.data.data[0]
 		);
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 		await expect((table as any).updateRow()).rejects.toThrowError();
 	});
 	it('update rows', async () => {
@@ -79,7 +79,7 @@ describe('test table', () => {
 		await expect(table.updateRows([{ ROWID: 123 }, { ROWID: 123 }])).resolves.toStrictEqual(
 			responses['/table/testTable/row'].PATCH.data.data
 		);
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 		await expect((table as any).updateRows([])).rejects.toThrowError();
 	});
 	it('to string', async () => {

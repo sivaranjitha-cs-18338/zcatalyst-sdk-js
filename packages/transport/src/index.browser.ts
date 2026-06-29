@@ -8,12 +8,26 @@ export { PrefixedCatalystError } from '@zcatalyst/utils';
 export class Handler {
 	component?: Component;
 	/**
-	 * @constructor
+	 * Creates a Handler instance.
+	 * @param app - The app value.
+	 * @param component - The component value.
 	 */
 	constructor(app?: unknown, component?: Component) {
 		this.component = component;
 	}
 
+	/**
+	 * Sends a Catalyst HTTP request and returns the wrapped response.
+	 *
+	 * @param options - The initialization or request options.
+	 * @returns The send result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Handler } from '@zcatalyst/transport';
+	 * const result = undefined;
+	 * ```
+	 */
 	async send(options: IRequestConfig): Promise<ICatalystClientRes> {
 		return (await ResponseHandler.send(
 			options,

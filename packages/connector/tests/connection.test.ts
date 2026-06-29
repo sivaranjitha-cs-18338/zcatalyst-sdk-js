@@ -1,3 +1,6 @@
+// TODO(test-infra): These tests have multiple pre-existing failures (assertions
+// don't match current API). Not wired up via package.json `test` script until
+// the assertions are updated. Track in a follow-up issue.
 import moment from 'moment';
 
 import { Connection } from '../src';

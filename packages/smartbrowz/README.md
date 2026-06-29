@@ -1,39 +1,15 @@
 # @zcatalyst/smartbrowz
 
-JavaScript SDK for Catalyst SmartBrowz - Web Scraping and Document Conversion
+JavaScript SDK for Catalyst SmartBrowz - PDF, Screenshot, and Dataverse APIs
 
 ## Overview
 
-The `@zcatalyst/smartbrowz` package provides JavaScript/TypeScript methods to access [Catalyst SmartBrowz](https://docs.catalyst.zoho.com/en/ai-ml/help/smartbrowz/introduction/), a headless browser service for web scraping, screenshot capture, and HTML-to-PDF conversion.
-
-**Catalyst SmartBrowz** enables you to automate browser tasks, extract web content, capture screenshots, and convert web pages to PDF format without managing browser infrastructure.
-
-### Key Features
-
-- **Web Scraping**: Extract content from websites
-- **PDF Conversion**: Convert HTML/URLs to PDF documents
-- **Screenshot Capture**: Capture webpage screenshots
-- **Headless Browser**: Automated browser operations
-- **Customizable**: Configure page size, format, and options
-- **Dynamic Content**: Handle JavaScript-rendered pages
-- **Batch Processing**: Process multiple pages efficiently
-- **Serverless**: No browser infrastructure management
-
-### Use Cases
-
-- Generate PDF reports from web pages
-- Capture website screenshots
-- Scrape product information
-- Archive web content
-- Generate invoices and receipts
-- Create printable documents from HTML
-- Monitor website changes
-- Extract structured data from websites
+The `@zcatalyst/smartbrowz` package provides JavaScript/TypeScript methods to access [Catalyst SmartBrowz](https://docs.catalyst.zoho.com/en/smartbrowz/) for PDF conversion, screenshots, template generation, and Dataverse lookups. Runs in Node.js (server-side) environments only.
 
 ### Prerequisites
 
 - A [Catalyst project](https://docs.catalyst.zoho.com/en/getting-started/catalyst-projects) set up
-- Understanding of [SmartBrowz operations](https://docs.catalyst.zoho.com/en/ai-ml/help/smartbrowz/smartbrowz-operations/)
+- Understanding of [SmartBrowz operations](https://docs.catalyst.zoho.com/en/smartbrowz/)
 - Valid URLs or HTML content for processing
 
 ## Installation
@@ -95,8 +71,6 @@ try {
 
 ### Error Handling
 
-When the service returns an exception, the error will include the exception information,
-as well as response metadata (e.g. request id).
 
 ```js
 try {
@@ -111,15 +85,10 @@ try {
 
 ## Resources
 
-- [Catalyst SmartBrowz Documentation](https://docs.catalyst.zoho.com/en/ai-ml/help/smartbrowz/introduction/)
-- [SmartBrowz Operations](https://docs.catalyst.zoho.com/en/ai-ml/help/smartbrowz/smartbrowz-operations/)
-- [PDF Conversion](https://docs.catalyst.zoho.com/en/ai-ml/help/smartbrowz/pdf-conversion/)
-- [SmartBrowz SDK Reference](https://docs.catalyst.zoho.com/en/sdk/server-side-sdks/node-js-sdk/smartbrowz/)
-- [SDK Documentation](https://docs.catalyst.zoho.com/en/sdk/)
+- [Catalyst SmartBrowz Documentation](https://docs.catalyst.zoho.com/en/smartbrowz/)
+- [PDF Conversion](https://docs.catalyst.zoho.com/en/smartbrowz/help/pdfnscreenshot/introduction/)
 
 ## Contributing
-
-Contributions to this library are always welcome and highly encouraged.
 
 See [CONTRIBUTING](../../CONTRIBUTING.md) for more information on how to get started.
 

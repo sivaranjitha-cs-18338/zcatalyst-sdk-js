@@ -4,32 +4,7 @@ JavaScript SDK for Catalyst NoSQL - Non-Relational Database Management
 
 ## Overview
 
-The `@zcatalyst/nosql` package provides JavaScript/TypeScript methods to interact with [Catalyst NoSQL](https://docs.catalyst.zoho.com/en/cloud-scale/help/nosql/introduction/), a fully-managed, non-relational database for handling unstructured and semi-structured data. NoSQL is part of Catalyst Cloud Scale services powered by a highly scalable proprietary infrastructure.
-
-**Catalyst NoSQL** uses key-value pair based document-type storage with support for [Custom JSON format](https://docs.catalyst.zoho.com/en/cloud-scale/help/nosql/working-with-data/introduction/#the-catalyst-custom-json-format) and multiple data types. It offers high-volume storage with multi-level scalability through data partitioning across clusters.
-
-### Key Features
-
-- **Document Storage**: Key-value pair based JSON document storage
-- **Flexible Schema**: Schema-less design - items need not follow the same structure
-- **High Scalability**: Vertical and horizontal scaling with distributed storage
-- **Multiple Data Types**: Support for string, number, boolean, array, map, and more
-- **Write-Heavy Systems**: Optimized for high write throughput with peer-to-peer replication
-- **Query Search**: Powerful query capabilities for document retrieval
-- **Partitioned Storage**: Data distribution across clusters for better performance
-- **No Relationships**: Independent data entities without inter-dependencies
-
-### Use Cases
-
-Choose NoSQL if:
-- Your data is **unstructured or semi-structured** and cannot fit tabular format
-- You need **flexible schema** that can change dynamically
-- Data points are **independent** without relationships
-- You're building a **write-heavy system** requiring high throughput
-- **Horizontal scalability** and distributed storage are priorities
-- Your data is primarily in **JSON format**
-
-> **Alternative**: For structured relational data, use [@zcatalyst/datastore](https://www.npmjs.com/package/@zcatalyst/datastore) instead. See [comparison guide](https://docs.catalyst.zoho.com/en/cloud-scale/help/nosql/introduction/#catalyst-data-store-vs-nosql).
+The `@zcatalyst/nosql` package provides JavaScript/TypeScript methods to interact with [Catalyst NoSQL](https://docs.catalyst.zoho.com/en/cloud-scale/help/nosql/introduction/) tables and items. It also exports item, marshalling, unmarshalling, set, byte, and enum helpers. Runs in Node.js (server-side) environments only.
 
 ### Prerequisites
 
@@ -109,9 +84,6 @@ try {
 
 ### Error Handling
 
-When the service returns an exception, the error will include the exception information,
-as well as response metadata (e.g. request id).
-
 ```js
 try {
 	const data = await table.insertItems({
@@ -138,12 +110,8 @@ try {
 - [NoSQL vs Data Store](https://docs.catalyst.zoho.com/en/cloud-scale/help/nosql/introduction/#catalyst-data-store-vs-nosql)
 - [Custom JSON Format](https://docs.catalyst.zoho.com/en/cloud-scale/help/nosql/working-with-data/introduction/#the-catalyst-custom-json-format)
 - [NoSQL Components](https://docs.catalyst.zoho.com/en/cloud-scale/help/nosql/components/)
-- [NoSQL SDK Reference](https://docs.catalyst.zoho.com/en/sdk/server-side-sdks/node-js-sdk/nosql/)
-- [SDK Documentation](https://docs.catalyst.zoho.com/en/sdk/)
 
 ## Contributing
-
-Contributions to this library are always welcome and highly encouraged.
 
 See [CONTRIBUTING](../../CONTRIBUTING.md) for more information on how to get started.
 

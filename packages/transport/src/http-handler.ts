@@ -8,7 +8,8 @@ import { Readable, Stream } from 'stream';
 import { URL } from 'url';
 import { inspect } from 'util';
 
-import { version } from '../package.json';
+import pkg from '../package.json';
+const { version } = pkg;
 import { RequestType, ResponseType } from './utils/enums';
 import { CatalystAPIError } from './utils/errors';
 import FORM from './utils/form-data';
@@ -43,12 +44,28 @@ export class DefaultHttpResponse {
 	headers: IncomingHttpHeaders;
 	config: IRequestConfig;
 	resp: IAPIResponse;
+	/**
+	 * Creates a DefaultHttpResponse instance.
+	 * @param resp - The resp value.
+	 */
 	constructor(resp: IAPIResponse) {
 		this.statusCode = resp.statusCode as number;
 		this.headers = resp.headers;
 		this.config = resp.config;
 		this.resp = resp;
 	}
+	/**
+	 * Returns the parsed response payload.
+	 *
+	 * @returns The data result.
+	 * @throws {CatalystAPIError} when the operation cannot be completed.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Handler } from '@zcatalyst/transport';
+	 * // Use DefaultHttpResponse.data while preparing or sending an SDK request.
+	 * ```
+	 */
 	get data() {
 		switch (this.config.expecting) {
 			case ResponseType.STRING:
@@ -91,6 +108,19 @@ export class DefaultHttpResponse {
 	}
 }
 
+/**
+ * Handles reject with context.
+ *
+ * @param reject - The reject value.
+ * @param statusCode - The statusCode value.
+ * @param data - The data value.
+ *
+ * @example
+ * ```ts
+ * import { Handler } from '@zcatalyst/transport';
+ * // Use rejectWithContext while preparing or sending an SDK request.
+ * ```
+ */
 function rejectWithContext(
 	reject: (err?: unknown) => void,
 	statusCode: number,
@@ -105,7 +135,7 @@ function rejectWithContext(
 			message: catalystError.data.message
 		});
 		return;
-	} catch (err) {
+	} catch {
 		// unknown error
 		reject({
 			statusCode,
@@ -114,6 +144,18 @@ function rejectWithContext(
 	}
 }
 
+/**
+ * Handles stream to buffer.
+ *
+ * @param stream - The stream value.
+ * @returns The streamToBuffer result.
+ *
+ * @example
+ * ```ts
+ * import { Handler } from '@zcatalyst/transport';
+ * // Use streamToBuffer while preparing or sending an SDK request.
+ * ```
+ */
 async function streamToBuffer(stream: IncomingMessage): Promise<Buffer> {
 	const chunks: Array<Buffer> = [];
 	return new Promise((resolve, reject) => {
@@ -126,6 +168,18 @@ async function streamToBuffer(stream: IncomingMessage): Promise<Buffer> {
 	});
 }
 
+/**
+ * Handles construct form data.
+ *
+ * @param data - The data value.
+ * @returns The constructFormData result.
+ *
+ * @example
+ * ```ts
+ * import { Handler } from '@zcatalyst/transport';
+ * // Use constructFormData while preparing or sending an SDK request.
+ * ```
+ */
 function constructFormData(data: Record<string, unknown>): FORM {
 	const formData = new FORM();
 	const keyData = Object.keys(data);
@@ -135,11 +189,25 @@ function constructFormData(data: Record<string, unknown>): FORM {
 	return formData;
 }
 
+/**
+ * Handles finalize request.
+ *
+ * @param resolve - The resolve value.
+ * @param reject - The reject value.
+ * @param response - The response value.
+ * @returns The finalizeRequest result.
+ *
+ * @example
+ * ```ts
+ * import { Handler } from '@zcatalyst/transport';
+ * // Use _finalizeRequest while preparing or sending an SDK request.
+ * ```
+ */
 async function _finalizeRequest(
 	resolve: (value: IAPIResponse) => void,
 	reject: (reason?: unknown) => void,
 	response: IAPIResponse
-) {
+): Promise<void> {
 	if (response.statusCode === undefined) {
 		reject(
 			new CatalystAPIError(
@@ -179,6 +247,19 @@ async function _finalizeRequest(
 	}
 }
 
+/**
+ * Handles append query data.
+ *
+ * @param url - The url value.
+ * @param data - The data value.
+ * @returns The appendQueryData result.
+ *
+ * @example
+ * ```ts
+ * import { Handler } from '@zcatalyst/transport';
+ * // Use _appendQueryData while preparing or sending an SDK request.
+ * ```
+ */
 function _appendQueryData(url: string, data: IRequestConfig['qs']) {
 	if (data && Object.keys(data).length > 0) {
 		url += url.includes('?') ? '&' : '?';
@@ -187,6 +268,22 @@ function _appendQueryData(url: string, data: IRequestConfig['qs']) {
 	return url;
 }
 
+/**
+ * Handles request.
+ *
+ * @param transport - The transport value.
+ * @param options - The options value.
+ * @param config - The config value.
+ * @param data - The data value.
+ * @param retryCount - The retryCount value.
+ * @returns The request result.
+ *
+ * @example
+ * ```ts
+ * import { Handler } from '@zcatalyst/transport';
+ * // Use _request while preparing or sending an SDK request.
+ * ```
+ */
 async function _request(
 	transport: typeof https | typeof http,
 	options: https.RequestOptions,
@@ -299,6 +396,12 @@ async function _request(
 		if (data instanceof ReadableStream) {
 			data = webStreamToNodeStream(data);
 		}
+		// Handle string or Buffer data for RAW type
+		if (typeof data === 'string' || Buffer.isBuffer(data)) {
+			req.write(data);
+			req.end();
+			return;
+		}
 		(data as FORM).on('error', (er) => {
 			reject(er);
 			req.end();
@@ -307,6 +410,18 @@ async function _request(
 	});
 }
 
+/**
+ * Handles web stream to node stream.
+ *
+ * @param webStream - The webStream value.
+ * @returns The webStreamToNodeStream result.
+ *
+ * @example
+ * ```ts
+ * import { Handler } from '@zcatalyst/transport';
+ * // Use webStreamToNodeStream while preparing or sending an SDK request.
+ * ```
+ */
 function webStreamToNodeStream(webStream: ReadableStream) {
 	const reader = webStream.getReader();
 	return new Readable({
@@ -321,11 +436,26 @@ function webStreamToNodeStream(webStream: ReadableStream) {
 	});
 }
 
+/**
+ * Handles send request.
+ *
+ * @param config - The config value.
+ * @param componentName - The componentName value.
+ * @param componentVersion - The componentVersion value.
+ * @returns The sendRequest result.
+ * @throws {CatalystAPIError} when the operation cannot be completed.
+ *
+ * @example
+ * ```ts
+ * import { Handler } from '@zcatalyst/transport';
+ * // Use sendRequest while preparing or sending an SDK request.
+ * ```
+ */
 async function sendRequest(
 	config: IRequestConfig,
 	componentName?: string,
 	componentVersion?: string
-) {
+): Promise<IAPIResponse> {
 	let data: string | Stream | FORM | undefined;
 	let userAgent = USER_AGENT.PREFIX + version;
 	if (componentName) {
@@ -390,15 +520,31 @@ async function sendRequest(
 
 export class HttpClient {
 	app?: CatalystApp;
-	/**
-	 * @param {CatalystApp} app The app used to fetch access tokens to sign API requests.
-	 * @constructor
-	 */
+	/** * @param app - The app used to fetch access tokens to sign API requests. */
 	constructor(app?: CatalystApp) {
 		this.app = app;
 	}
 
-	async send(req: IRequestConfig, apmTrackerName?: string, componentVersion?: string) {
+	/**
+	 * Sends a Catalyst HTTP request and returns the wrapped response.
+	 *
+	 * @param req - The req value.
+	 * @param apmTrackerName - The apmTrackerName value.
+	 * @param componentVersion - The componentVersion value.
+	 * @returns The send result.
+	 * @throws {CatalystAPIError} when the operation cannot be completed.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Handler } from '@zcatalyst/transport';
+	 * // Use HttpClient.send while preparing or sending an SDK request.
+	 * ```
+	 */
+	async send(
+		req: IRequestConfig,
+		apmTrackerName?: string,
+		componentVersion?: string
+	): Promise<DefaultHttpResponse> {
 		req.headers = Object.assign({}, req.headers);
 		req.qs = Object.assign({}, req.qs);
 		req.retry = req.retry || true;
@@ -473,8 +619,8 @@ export class AuthorizedHttpClient extends HttpClient {
 	readonly componentName?: string;
 	readonly componentVersion?: string;
 	/**
-	 * @param {unknown} app The app used to fetch access tokens to sign API requests.
-	 * @constructor
+	 * @param app - The app used to fetch access tokens to sign API requests.
+	 * @param component - Optional component metadata used to attach version headers.
 	 */
 	constructor(app?: CatalystApp, component?: Component) {
 		super(app);
@@ -484,6 +630,18 @@ export class AuthorizedHttpClient extends HttpClient {
 		}
 	}
 
+	/**
+	 * Sends a Catalyst HTTP request and returns the wrapped response.
+	 *
+	 * @param request - The request value.
+	 * @returns The send result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Handler } from '@zcatalyst/transport';
+	 * // Use AuthorizedHttpClient.send while preparing or sending an SDK request.
+	 * ```
+	 */
 	async send(request: IRequestConfig): Promise<DefaultHttpResponse> {
 		const requestCopy = Object.assign({ user: CREDENTIAL_USER.user }, request);
 		requestCopy.headers = Object.assign({}, request.headers);

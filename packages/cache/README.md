@@ -1,33 +1,10 @@
 # @zcatalyst/cache
 
-JavaScript SDK for Catalyst Cache - High-Performance In-Memory Storage
+JavaScript SDK for Catalyst Cache
 
 ## Overview
 
-The `@zcatalyst/cache` package provides JavaScript/TypeScript methods to interact with [Catalyst Cache](https://docs.catalyst.zoho.com/en/cloud-scale/help/cache/introduction/), a high-performance in-memory storage component for faster data retrieval. Cache is part of Catalyst Cloud Scale services.
-
-**Catalyst Cache** is designed to store ephemeral data or frequently accessed information with sub-millisecond response times, reducing load on primary databases and significantly enhancing application performance.
-
-### Key Features
-
-- **Sub-millisecond Access**: Ultra-fast data retrieval from memory
-- **High Performance**: Handles large data volumes with minimal latency
-- **Segment Management**: Partition cache into logical segments
-- **TTL Support**: Time-to-live for automatic data expiration
-- **In-Memory Storage**: Independent service alongside main data storage
-- **Scalable**: Handle dynamic loads in real-time applications
-- **Key-Value Store**: Simple key-value pair storage model
-- **Console Management**: Manage cache items directly from console
-
-### Use Cases
-
-- **Session Storage**: Store user session data for quick access
-- **API Response Caching**: Cache frequent API responses
-- **Database Query Results**: Store frequently accessed query results
-- **Rate Limiting**: Track API rate limits and quotas
-- **Temporary Data**: Store short-lived application state
-- **Real-time Applications**: Support memory-intensive microservices
-- **Performance Optimization**: Reduce database load for hot data
+The `@zcatalyst/cache` package provides JavaScript/TypeScript methods to interact with [Catalyst Cache](https://docs.catalyst.zoho.com/en/cloud-scale/help/cache/introduction/). It exposes `Cache` and `Segment` APIs for segment lookup and cache key operations. Runs in Node.js (server-side) environments only.
 
 ### Prerequisites
 
@@ -95,13 +72,8 @@ try {
 }
 ```
 
-Async-await is clean, concise, intuitive, easy to debug and has better error handling
-as compared to using Promise chains or callbacks.
-
 ### Error Handling
 
-When the service returns an exception, the error will include the exception information,
-as well as response metadata (e.g. request id).
 
 ```js
 try {
@@ -119,13 +91,11 @@ try {
 - [Catalyst Cache Documentation](https://docs.catalyst.zoho.com/en/cloud-scale/help/cache/introduction/)
 - [Cache Key Concepts](https://docs.catalyst.zoho.com/en/cloud-scale/help/cache/key-concepts/)
 - [Cache Architecture](https://docs.catalyst.zoho.com/en/cloud-scale/help/cache/architecture/)
-- [Cache Segments](https://docs.catalyst.zoho.com/en/cloud-scale/help/cache/segments/)
-- [Cache SDK Reference](https://docs.catalyst.zoho.com/en/sdk/server-side-sdks/node-js-sdk/cache/)
+- [Cache Segments](https://docs.catalyst.zoho.com/en/cloud-scale/help/cache/)
+- [Cache SDK Reference](https://docs.catalyst.zoho.com/en/sdk/)
 - [SDK Documentation](https://docs.catalyst.zoho.com/en/sdk/)
 
 ## Contributing
-
-Contributions to this library are always welcome and highly encouraged.
 
 See [CONTRIBUTING](../../CONTRIBUTING.md) for more information on how to get started.
 

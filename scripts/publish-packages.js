@@ -16,10 +16,14 @@ const isUnpublish = args.includes('--unpublish');
 const registryIndex = args.indexOf('--registry');
 const tagIndex = args.indexOf('--tag');
 
-const DEFAULT_REGISTRY =
-	process.env.ZC_NPM_REGISTRY ||
-	'http://crm-spm-u16.csez.zohocorpin.com:4873/';
-const registry = registryIndex !== -1 ? args[registryIndex + 1] : DEFAULT_REGISTRY;
+const registryArg = registryIndex !== -1 ? args[registryIndex + 1] : undefined;
+const registry = registryArg || process.env.ZC_NPM_REGISTRY;
+if (!registry) {
+	console.error(
+		'Error: no registry specified. Pass --registry <url> or set ZC_NPM_REGISTRY.'
+	);
+	process.exit(1);
+}
 const tag = tagIndex !== -1 ? args[tagIndex + 1] : 'beta';
 
 const packagesDir = join(__dirname, '..', 'packages');

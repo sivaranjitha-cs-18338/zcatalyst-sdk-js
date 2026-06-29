@@ -1,40 +1,17 @@
 # @zcatalyst/circuit
 
-JavaScript SDK for Catalyst Circuit - API Gateway and Circuit Execution
+JavaScript SDK for Catalyst Circuit - Circuit Execution
 
 ## Overview
 
-The `@zcatalyst/circuit` package provides JavaScript/TypeScript methods to execute [Catalyst Circuit](https://docs.catalyst.zoho.com/en/serverless/help/circuit/introduction/), a powerful API Gateway for building, managing, and exposing HTTP API endpoints. Circuit allows you to create managed APIs and integrate multiple Catalyst functions into workflows.
-
-**Catalyst Circuit** acts as a gateway between your application's front-end and back-end logic, enabling you to orchestrate function executions and manage API routes efficiently.
-
-### Key Features
-
-- **API Gateway**: Create and manage RESTful API endpoints
-- **Function Orchestration**: Chain multiple functions in workflows
-- **Route Management**: Define custom API routes and paths
-- **Access Control**: Manage permissions and authentication
-- **High Performance**: Optimized for low latency
-- **Request Handling**: Process HTTP requests with full control
-- **Integration Hub**: Connect multiple services and functions
-- **Custom Logic**: Execute circuits with dynamic parameters
-
-### Use Cases
-
-- Build managed REST APIs
-- Orchestrate multi-step workflows
-- Route requests to different functions
-- Implement API versioning
-- Create microservices architecture
-- Handle complex business processes
-- Aggregate data from multiple sources
+The `@zcatalyst/circuit` package provides JavaScript/TypeScript methods to execute [Catalyst Circuit](https://docs.catalyst.zoho.com/en/serverless/help/circuits/introduction/) and check or abort executions. Runs in Node.js (server-side) environments only.
 
 ### Prerequisites
 
 - A [Catalyst project](https://docs.catalyst.zoho.com/en/getting-started/catalyst-projects) set up
 - Circuit configured in your project
 - Functions created for circuit execution
-- Understanding of [circuit concepts](https://docs.catalyst.zoho.com/en/serverless/help/circuit/key-concepts/)
+- Understanding of [circuit concepts](https://docs.catalyst.zoho.com/en/serverless/help/circuits/key-concepts/)
 
 ## Installation
 
@@ -91,13 +68,8 @@ try {
 }
 ```
 
-Async-await is clean, concise, intuitive, easy to debug and has better error handling
-as compared to using Promise chains or callbacks.
-
 ### Error Handling
 
-When the service returns an exception, the error will include the exception information,
-as well as response metadata (e.g. request id).
 
 ```js
 try {
@@ -112,15 +84,13 @@ try {
 
 ## Resources
 
-- [Catalyst Circuit Documentation](https://docs.catalyst.zoho.com/en/serverless/help/circuit/introduction/)
-- [Circuit Key Concepts](https://docs.catalyst.zoho.com/en/serverless/help/circuit/key-concepts/)
-- [Circuit Configuration](https://docs.catalyst.zoho.com/en/serverless/help/circuit/circuit-config/)
-- [Circuit SDK Reference](https://docs.catalyst.zoho.com/en/sdk/server-side-sdks/node-js-sdk/circuit/)
+- [Catalyst Circuit Documentation](https://docs.catalyst.zoho.com/en/serverless/help/circuits/introduction/)
+- [Circuit Key Concepts](https://docs.catalyst.zoho.com/en/serverless/help/circuits/key-concepts/)
+- [Circuit Configuration](https://docs.catalyst.zoho.com/en/serverless/help/circuits/introduction/)
+- [Circuit SDK Reference](https://docs.catalyst.zoho.com/en/sdk/)
 - [SDK Documentation](https://docs.catalyst.zoho.com/en/sdk/)
 
 ## Contributing
-
-Contributions to this library are always welcome and highly encouraged.
 
 See [CONTRIBUTING](../../CONTRIBUTING.md) for more information on how to get started.
 

@@ -4,18 +4,7 @@ Utility Functions for Catalyst SDK - Internal Helper Module
 
 ## Overview
 
-The `@zcatalyst/utils` package provides common utility functions and helpers used internally across all Catalyst SDK packages. This includes validation, formatting, type checking, and shared constants.
-
-**Catalyst Utils** is an infrastructure package containing shared code to reduce duplication across SDK components and ensure consistency.
-
-### Key Features
-
-- **Validation Helpers**: Input validation and sanitization
-- **Type Checking**: Runtime type validation
-- **Data Formatting**: Standard formatting functions
-- **Shared Constants**: Common values and configurations
-- **Performance Utils**: Optimization helpers
-- **Error Utilities**: Error creation and handling
+The `@zcatalyst/utils` package exports shared constants, enums, errors, interfaces, logger, MIME types, service utilities, and validators used by Catalyst SDK packages. Runs in Node.js (server-side) environments only.
 
 > **Note**: This is an internal infrastructure package used by other Catalyst SDK packages. Most developers won't need to use this directly - use the component-specific packages instead.
 
@@ -37,11 +26,7 @@ using your favorite package manager:
 
 > **Note**: This package is primarily for internal SDK use. For application development, use the component-specific packages like `@zcatalyst/datastore`, `@zcatalyst/auth`, etc.
 
-If you're building custom integrations or extensions to the Catalyst SDK, you may use utility functions as needed:
-
-```js
-const { validateInput, formatResponse } = require('@zcatalyst/utils');
-```
+If you're building custom integrations or extensions to the Catalyst SDK, import the exported utilities you need from the package root.
 
 ## Resources
 
@@ -50,8 +35,6 @@ const { validateInput, formatResponse } = require('@zcatalyst/utils');
 - [GitHub Repository](https://github.com/catalystbyzoho/zcatalyst-sdk-js)
 
 ## Contributing
-
-Contributions to this library are always welcome and highly encouraged.
 
 See [CONTRIBUTING](../../CONTRIBUTING.md) for more information on how to get started.
 

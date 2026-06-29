@@ -14,7 +14,7 @@ interface ICatalystLoggerOptions {
  * threshold set by log level which is WARN(4). Whereas the logs INFO(3), DEBUG(2) and FINE(1) won't be logged as their level is lesser than the
  * set threshold
  *
- * ```md
+ * ```text
  * | Level | Precedence |
  * |-------|------------|
  * | NONE  | INF        |
@@ -39,6 +39,9 @@ export enum LEVEL {
 export class Logger {
 	logOptions: ICatalystLoggerOptions;
 
+	/**
+	 * Creates a Logger instance.
+	 */
 	constructor(options?: ICatalystLoggerOptions) {
 		this.logOptions = {
 			enable_debug: options?.enable_debug || false,
@@ -53,30 +56,85 @@ export class Logger {
 		return new Date().toISOString();
 	}
 
+	/**
+	 * Performs info for Logger.
+	 *
+	 * @param message - The message value.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Logger } from '@zcatalyst/utils';
+	 * const result = new Logger();
+	 * ```
+	 */
 	info(message: string): void {
 		if (this.logOptions.enable_info) {
 			this.#logToConsole(`[INFO ] [${this.#getTimestamp()}] : ${message}`);
 		}
 	}
 
+	/**
+	 * Performs warn for Logger.
+	 *
+	 * @param message - The message value.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Logger } from '@zcatalyst/utils';
+	 * const result = new Logger();
+	 * ```
+	 */
 	warn(message: string): void {
 		if (this.logOptions.enable_warn) {
 			this.#logToConsole(`[WARN ] [${this.#getTimestamp()}] : ${message}`);
 		}
 	}
 
+	/**
+	 * Performs error for Logger.
+	 *
+	 * @param message - The message value.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Logger } from '@zcatalyst/utils';
+	 * const result = new Logger();
+	 * ```
+	 */
 	error(message: string): void {
 		if (this.logOptions.enable_error) {
 			this.#logToConsole(`[ERROR] [${this.#getTimestamp()}] : ${message}`);
 		}
 	}
 
+	/**
+	 * Performs debug for Logger.
+	 *
+	 * @param message - The message value.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Logger } from '@zcatalyst/utils';
+	 * const result = new Logger();
+	 * ```
+	 */
 	debug(message: string): void {
 		if (this.logOptions.enable_debug) {
 			this.#logToConsole(`[DEBUG] [${this.#getTimestamp()}] : ${message}`);
 		}
 	}
 
+	/**
+	 * Performs fine for Logger.
+	 *
+	 * @param message - The message value.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Logger } from '@zcatalyst/utils';
+	 * const result = new Logger();
+	 * ```
+	 */
 	fine(message: string): void {
 		if (this.logOptions.enable_fine) {
 			this.#logToConsole(`[FINE ] [${this.#getTimestamp()}] : ${message}`);
@@ -100,8 +158,14 @@ export class Logger {
 
 	/**
 	 * Set the log level for the logger.
-	 * @param level the log level to set. Defaults to {@link LEVEL.NONE}
+	 * @param level - the log level to set. Defaults to {@link LEVEL.NONE}
 	 * @returns Logger instance
+	 *
+	 * @example
+	 * ```ts
+	 * import { Logger } from '@zcatalyst/utils';
+	 * const result = new Logger();
+	 * ```
 	 */
 	setLogLevel(level: LEVEL = LEVEL.NONE): Logger {
 		// reset log levels
@@ -160,6 +224,12 @@ export class Logger {
  *
  * @param level - The log level to set. Defaults to {@link LEVEL.NONE}
  * @returns A new Logger instance
+ *
+ * @example
+ * ```ts
+ * import { createLogger } from '@zcatalyst/utils';
+ * const result = createLogger();
+ * ```
  */
 export function createLogger(level: LEVEL = LEVEL.NONE): Logger {
 	return new Logger().setLogLevel(level);

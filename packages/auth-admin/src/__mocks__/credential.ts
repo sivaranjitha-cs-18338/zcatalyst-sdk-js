@@ -16,7 +16,6 @@ import {
 import { CatalystAuthError } from '../errors';
 const {
 	CREDENTIAL_SUFFIX,
-	CATALYST_AUTH_ENV_KEY,
 	REQ_METHOD,
 	CREDENTIAL_HEADER,
 	CREDENTIAL_TYPE,
@@ -51,13 +50,13 @@ function fromPath(filePath: string): { [x: string]: string } | null {
 	let jsonString: string;
 	try {
 		jsonString = readFileSync(filePath, 'utf8');
-	} catch (ignored) {
+	} catch {
 		// Ignore errors if the file is not present, as this is sometimes an expected condition
 		return null;
 	}
 	try {
 		return JSON.parse(jsonString);
-	} catch (err) {
+	} catch {
 		// Throw a nicely formed error message if the file contents cannot be parsed
 		throw new Error('INVALID_CREDENTIAL' + 'Failed to parse token file: ');
 	}

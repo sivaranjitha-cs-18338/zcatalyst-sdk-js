@@ -43,7 +43,7 @@ function fromPath(filePath: string): { [x: string]: string } | null {
 	let jsonString: string;
 	try {
 		jsonString = readFileSync(filePath, 'utf8');
-	} catch (ignored) {
+	} catch {
 		// Ignore errors if the file is not present, as this is sometimes an expected condition
 		return null;
 	}
@@ -171,13 +171,62 @@ async function requestAccessToken(request: Record<string, unknown>) {
 }
 
 export abstract class Credential {
+	/**
+	 * Returns the credential token payload.
+	 *
+	 * @returns The getToken result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { zcAuth } from '@zcatalyst/auth-admin';
+	 * const app = zcAuth.init({ credential: { access_token: 'token' }, projectId: '123' }, { type: 'custom' });
+	 * // Use Credential.getToken in a Node request handler.
+	 * ```
+	 */
 	abstract getToken(): Promise<{ [x: string]: string }>;
+	/**
+	 * Returns the current credential scope.
+	 *
+	 * @returns The getCurrentUser result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { zcAuth } from '@zcatalyst/auth-admin';
+	 * const app = zcAuth.init({ credential: { access_token: 'token' }, projectId: '123' }, { type: 'custom' });
+	 * // Use Credential.getCurrentUser in a Node request handler.
+	 * ```
+	 */
 	getCurrentUser(): string {
 		return CREDENTIAL_USER.admin;
 	}
+	/**
+	 * Switches the active credential scope.
+	 *
+	 * @param _givenUser - The _givenUser value.
+	 * @returns The switchUser result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { zcAuth } from '@zcatalyst/auth-admin';
+	 * const app = zcAuth.init({ credential: { access_token: 'token' }, projectId: '123' }, { type: 'custom' });
+	 * // Use Credential.switchUser in a Node request handler.
+	 * ```
+	 */
 	switchUser(_givenUser?: string): string | null {
 		return null;
 	}
+	/**
+	 * Returns the effective user type.
+	 *
+	 * @returns The getCurrentUserType result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { zcAuth } from '@zcatalyst/auth-admin';
+	 * const app = zcAuth.init({ credential: { access_token: 'token' }, projectId: '123' }, { type: 'custom' });
+	 * // Use Credential.getCurrentUserType in a Node request handler.
+	 * ```
+	 */
 	getCurrentUserType(): string {
 		return CREDENTIAL_USER.admin;
 	}
@@ -188,6 +237,10 @@ export class RefreshTokenCredential extends Credential {
 	clientId: string;
 	clientSecret: string;
 	cachedToken: { access_token: string; expires_in: number } | null;
+	/**
+	 * Creates a RefreshTokenCredential instance.
+	 * @param refreshObj - The refreshObj value.
+	 */
 	constructor(refreshObj: { [x: string]: string }) {
 		super();
 		this.clientId = getAttr(refreshObj, 'clientId', 'client_id');
@@ -196,6 +249,18 @@ export class RefreshTokenCredential extends Credential {
 		this.cachedToken = null;
 	}
 
+	/**
+	 * Returns the credential token payload.
+	 *
+	 * @returns The getToken result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { zcAuth } from '@zcatalyst/auth-admin';
+	 * const app = zcAuth.init({ credential: { access_token: 'token' }, projectId: '123' }, { type: 'custom' });
+	 * // Use RefreshTokenCredential.getToken in a Node request handler.
+	 * ```
+	 */
 	async getToken(): Promise<{ ['access_token']: string }> {
 		if (this.cachedToken === null || this.cachedToken['expires_in'] <= Date.now()) {
 			const token = await requestAccessToken({
@@ -218,11 +283,27 @@ export class RefreshTokenCredential extends Credential {
 
 export class AccessTokenCredential extends Credential {
 	accessToken: string;
+	/**
+	 * Creates a AccessTokenCredential instance.
+	 * @param accessObj - The accessObj value.
+	 */
 	constructor(accessObj: Record<string, string>) {
 		super();
 		this.accessToken = getAttr(accessObj, 'accessToken', 'access_token');
 	}
 
+	/**
+	 * Returns the credential token payload.
+	 *
+	 * @returns The getToken result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { zcAuth } from '@zcatalyst/auth-admin';
+	 * const app = zcAuth.init({ credential: { access_token: 'token' }, projectId: '123' }, { type: 'custom' });
+	 * // Use AccessTokenCredential.getToken in a Node request handler.
+	 * ```
+	 */
 	async getToken(): Promise<{ access_token: string }> {
 		return Promise.resolve({
 			access_token: this.accessToken
@@ -232,11 +313,27 @@ export class AccessTokenCredential extends Credential {
 
 export class TicketCredential extends Credential {
 	ticket: string;
+	/**
+	 * Creates a TicketCredential instance.
+	 * @param ticketObj - The ticketObj value.
+	 */
 	constructor(ticketObj: { [x: string]: string }) {
 		super();
 		this.ticket = getAttr(ticketObj, 'ticket', 'ticket');
 	}
 
+	/**
+	 * Returns the credential token payload.
+	 *
+	 * @returns The getToken result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { zcAuth } from '@zcatalyst/auth-admin';
+	 * const app = zcAuth.init({ credential: { access_token: 'token' }, projectId: '123' }, { type: 'custom' });
+	 * // Use TicketCredential.getToken in a Node request handler.
+	 * ```
+	 */
 	async getToken(): Promise<{ ['ticket']: string }> {
 		return Promise.resolve({ ticket: this.ticket });
 	}
@@ -245,6 +342,10 @@ export class TicketCredential extends Credential {
 export class CookieCredential extends Credential {
 	cookie: string;
 	cookieObj: { [x: string]: string };
+	/**
+	 * Creates a CookieCredential instance.
+	 * @param cookieObj - The cookieObj value.
+	 */
 	constructor(cookieObj: { [x: string]: string }) {
 		super();
 		this.cookie = getAttr(cookieObj, 'cookie', 'cookie');
@@ -267,6 +368,18 @@ export class CookieCredential extends Credential {
 		return 'zd_csrparam=' + cookieObj[CSRF_TOKEN_NAME];
 	}
 
+	/**
+	 * Returns the credential token payload.
+	 *
+	 * @returns The getToken result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { zcAuth } from '@zcatalyst/auth-admin';
+	 * const app = zcAuth.init({ credential: { access_token: 'token' }, projectId: '123' }, { type: 'custom' });
+	 * // Use CookieCredential.getToken in a Node request handler.
+	 * ```
+	 */
 	async getToken(): Promise<{ ['cookie']: string; ['zcrf_header']: string }> {
 		return Promise.resolve({ cookie: this.cookie, zcrf_header: this.getZCSRFHeader() });
 	}
@@ -282,6 +395,11 @@ export class CatalystCredential extends Credential {
 	cookieStr: string | undefined;
 	scope: string;
 	userType: string;
+	/**
+	 * Creates a CatalystCredential instance.
+	 * @param credObj - The credObj value.
+	 * @param scope - The scope value.
+	 */
 	constructor(credObj: Record<string, string | undefined>, scope?: string) {
 		super();
 		this.adminCredType = getAttr(credObj, 'adminType', CREDENTIAL_HEADER.admin_cred_type);
@@ -346,7 +464,15 @@ export class CatalystCredential extends Credential {
 		}
 	}
 
-	/** @override */
+	/** @override  * @returns The getToken result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { zcAuth } from '@zcatalyst/auth-admin';
+	 * const app = zcAuth.init({ credential: { access_token: 'token' }, projectId: '123' }, { type: 'custom' });
+	 * // Use CatalystCredential.getToken in a Node request handler.
+	 * ```
+	 */
 	async getToken(): Promise<{
 		access_token?: string;
 		ticket?: string;
@@ -374,17 +500,41 @@ export class CatalystCredential extends Credential {
 		}
 	}
 
-	/** @override */
+	/** @override  * @returns The getScope result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { zcAuth } from '@zcatalyst/auth-admin';
+	 * const app = zcAuth.init({ credential: { access_token: 'token' }, projectId: '123' }, { type: 'custom' });
+	 * // Use CatalystCredential.getScope in a Node request handler.
+	 * ```
+	 */
 	getScope(): string {
 		return this.scope;
 	}
 
-	/** @override */
+	/** @override  * @returns The getCurrentUser result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { zcAuth } from '@zcatalyst/auth-admin';
+	 * const app = zcAuth.init({ credential: { access_token: 'token' }, projectId: '123' }, { type: 'custom' });
+	 * // Use CatalystCredential.getCurrentUser in a Node request handler.
+	 * ```
+	 */
 	getCurrentUser(): string {
 		return this.scope;
 	}
 
-	/** @override */
+	/** @override  * @returns The getCurrentUserType result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { zcAuth } from '@zcatalyst/auth-admin';
+	 * const app = zcAuth.init({ credential: { access_token: 'token' }, projectId: '123' }, { type: 'custom' });
+	 * // Use CatalystCredential.getCurrentUserType in a Node request handler.
+	 * ```
+	 */
 	getCurrentUserType(): string {
 		if (this.scope === CREDENTIAL_USER.user) {
 			return this.userType;
@@ -392,7 +542,16 @@ export class CatalystCredential extends Credential {
 		return this.scope;
 	}
 
-	/** @override */
+	/** @override  * @param givenUser - The givenUser value.
+	 * @returns The switchUser result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { zcAuth } from '@zcatalyst/auth-admin';
+	 * const app = zcAuth.init({ credential: { access_token: 'token' }, projectId: '123' }, { type: 'custom' });
+	 * // Use CatalystCredential.switchUser in a Node request handler.
+	 * ```
+	 */
 	switchUser(givenUser?: string): string {
 		if (givenUser === undefined) {
 			switch (this.scope) {
@@ -411,6 +570,9 @@ export class CatalystCredential extends Credential {
 
 export class ApplicationDefaultCredential extends Credential {
 	credential: RefreshTokenCredential | AccessTokenCredential | TicketCredential;
+	/**
+	 * Creates a ApplicationDefaultCredential instance.
+	 */
 	constructor() {
 		super();
 		// It is OK to not have this file. If it is present, it must be valid.
@@ -442,6 +604,18 @@ export class ApplicationDefaultCredential extends Credential {
 		}
 	}
 
+	/**
+	 * Returns the credential token payload.
+	 *
+	 * @returns The getToken result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { zcAuth } from '@zcatalyst/auth-admin';
+	 * const app = zcAuth.init({ credential: { access_token: 'token' }, projectId: '123' }, { type: 'custom' });
+	 * // Use ApplicationDefaultCredential.getToken in a Node request handler.
+	 * ```
+	 */
 	async getToken(): Promise<{
 		access_token?: string;
 		ticket?: string;
@@ -452,6 +626,10 @@ export class ApplicationDefaultCredential extends Credential {
 
 export class ApplicationCustomCredential extends Credential {
 	credential: RefreshTokenCredential | AccessTokenCredential | TicketCredential;
+	/**
+	 * Creates a ApplicationCustomCredential instance.
+	 * @param credObj - The credObj value.
+	 */
 	constructor(credObj?: Record<string, string>) {
 		super();
 
@@ -478,6 +656,18 @@ export class ApplicationCustomCredential extends Credential {
 		}
 	}
 
+	/**
+	 * Returns the credential token payload.
+	 *
+	 * @returns The getToken result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { zcAuth } from '@zcatalyst/auth-admin';
+	 * const app = zcAuth.init({ credential: { access_token: 'token' }, projectId: '123' }, { type: 'custom' });
+	 * // Use ApplicationCustomCredential.getToken in a Node request handler.
+	 * ```
+	 */
 	async getToken(): Promise<{
 		access_token?: string;
 		ticket?: string;

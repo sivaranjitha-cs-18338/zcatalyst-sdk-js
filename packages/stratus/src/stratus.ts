@@ -13,33 +13,46 @@ import {
 	wrapValidatorsWithPromise
 } from '@zcatalyst/utils';
 
-import { version } from '../package.json';
+import pkg from '../package.json';
+const { version } = pkg;
 import { Bucket, BucketAdmin } from './bucket';
 import { CatalystStratusError } from './utils/error';
 import { IStratusBucket } from './utils/interface';
 
 const { COMPONENT, REQ_METHOD, CREDENTIAL_USER } = CONSTANTS;
 
+/**
+ * Provides user-scope access to Stratus buckets.
+ */
 export class Stratus implements Component {
 	requester: Handler;
 	constructor(app?: unknown) {
 		this.requester = new Handler(app, this);
 	}
 
+	/**
+	 * getComponentName operation.
+	 */
 	getComponentName(): string {
 		return COMPONENT.stratus;
 	}
 
+	/**
+	 * getComponentVersion operation.
+	 */
 	getComponentVersion(): string {
 		return version;
 	}
 
 	/**
-	 * Get an instance of a bucket by its name.
-	 * @param bucketName - The name of the bucket to create an instance for.
-	 * @access admin
-	 * @returns { Bucket } Instance representing the specified bucket.
-	 * @throws { CatalystStratusError } if the `bucketName` is not a valid non-empty string.
+	 * bucket operation.
+	 * @param bucketName - The Stratus bucket name.
+	 * @returns Bucket.
+	 * @throws {CatalystStratusError} when input validation fails.
+	 * @example
+	 * ```ts
+	 * const result = await stratus.bucket(bucketName);
+	 * ```
 	 */
 	bucket(bucketName: string): Bucket {
 		if (!isNonEmptyString(bucketName)) {
@@ -53,15 +66,21 @@ export class Stratus implements Component {
 	}
 }
 
+/**
+ * Provides admin-scope access to Stratus buckets.
+ */
 export class StratusAdmin extends Stratus {
 	constructor(app?: unknown) {
 		super(app);
 	}
 
 	/**
-	 * List all buckets and their metadata in a project.
-	 * @access admin
-	 * @returns {Array<Bucket>} An array of `Bucket` objects representing the buckets in the project.
+	 * listBuckets operation.
+	 * @returns A promise that resolves to Array<Bucket>.
+	 * @example
+	 * ```ts
+	 * const result = await stratusAdmin.listBuckets();
+	 * ```
 	 */
 	async listBuckets(): Promise<Array<Bucket>> {
 		const request: IRequestConfig = {
@@ -75,18 +94,23 @@ export class StratusAdmin extends Stratus {
 		};
 		const resp = await this.requester.send(request);
 		const jsonArr = resp.data.data as Array<IStratusBucket>;
-		const bucketArr: Array<Bucket> = jsonArr.map(
-			(bucket) => new Bucket(this.requester, bucket)
+		const bucketArr: Array<BucketAdmin> = jsonArr.map(
+			(bucket) => new BucketAdmin(this.requester, bucket)
 		);
 		return bucketArr;
 	}
 
 	/**
-	 * Check if a bucket exists and verify user access permissions for it.
-	 * @param bucketName - The name of the bucket to check.
-	 * @param throwErr - If `true`, throws an error if the bucket doesn't exist (optional).
-	 * @access admin
-	 * @returns {boolean}`true` if the bucket exists and is accessible; otherwise, `false`.
+	 * headBucket operation.
+	 * @param bucketName - The Stratus bucket name.
+	 * @param throwErr - Whether to rethrow not-found or access errors.
+	 * @returns A promise that resolves to boolean.
+	 * @throws {CatalystStratusError} when input validation fails.
+	 * @throws {Error} when the underlying request or stream operation fails.
+	 * @example
+	 * ```ts
+	 * const result = await stratusAdmin.headBucket(bucketName, throwErr);
+	 * ```
 	 */
 	async headBucket(bucketName: string, throwErr?: boolean): Promise<boolean> {
 		await wrapValidatorsWithPromise(() => {
@@ -116,11 +140,14 @@ export class StratusAdmin extends Stratus {
 		}
 	}
 	/**
-	 * Get an instance of a bucket by its name.
-	 * @param bucketName - The name of the bucket to create an instance for.
-	 * @access admin
-	 * @returns { Bucket } Instance representing the specified bucket.
-	 * @throws { CatalystStratusError } if the `bucketName` is not a valid non-empty string.
+	 * bucket operation.
+	 * @param bucketName - The Stratus bucket name.
+	 * @returns BucketAdmin.
+	 * @throws {CatalystStratusError} when input validation fails.
+	 * @example
+	 * ```ts
+	 * const result = await stratusAdmin.bucket(bucketName);
+	 * ```
 	 */
 	bucket(bucketName: string): BucketAdmin {
 		if (!isNonEmptyString(bucketName)) {

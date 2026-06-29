@@ -1,43 +1,43 @@
 # @zcatalyst/stratus
 
-JavaScript SDK for Catalyst Stratus - S3-Compatible Object Storage
+JavaScript SDK for Catalyst Stratus - Object Storage
 
 ## Overview
 
-The `@zcatalyst/stratus` package provides JavaScript/TypeScript methods to interact with [Catalyst Stratus](https://docs.catalyst.zoho.com/en/cloud-scale/help/stratus/introduction/), a highly durable and scalable S3-compatible object storage service. Stratus is the next-generation upgrade to File Store.
+The `@zcatalyst/stratus` package provides JavaScript/TypeScript methods to interact with [Catalyst Stratus](https://docs.catalyst.zoho.com/en/cloud-scale/help/stratus/introduction/) buckets, objects, and multipart uploads.
 
-**Catalyst Stratus** offers unlimited storage with industry-standard S3 API compatibility, making it ideal for large-scale data storage, backups, and static asset hosting.
+## Operation Scope
 
-### Key Features
+Both the Node and browser entry points export the same class names (`Stratus`, `Bucket`). The Node entry point exposes the admin-augmented surface; the browser entry point exposes only the user surface.
 
-- **Unlimited Storage**: No storage limits in production
-- **S3 Compatible**: Works with S3-compatible tools and libraries
-- **Bucket Management**: Organize objects into buckets
-- **High Performance**: Optimized for large file operations
-- **Scalable**: Handle any volume of data
-- **Transfer Manager**: Multipart uploads for large files
-- **Durability**: Multi-region redundancy
-- **Fine-Grained Control**: Lifecycle management and versioning
-
-> **Note**: Stratus is currently in Early Access. Contact [support@zohocatalyst.com](mailto:support@zohocatalyst.com) to enable it for your project.
-
-### Use Cases
-
-- Store large media files (videos, images, audio)
-- Backup and archival storage
-- Data lake and analytics storage
-- Static website hosting
-- Log file storage
-- Machine learning dataset storage
-- Distribution of large files
-- CDN content storage
+| Operation | Method | Available in |
+|---|---|---|
+| Get a `Bucket` reference (no network call) | `Stratus.bucket(name)` | Node + Browser (user) |
+| Upload an object | `Bucket.putObject(key, body, opts?)` | Node + Browser (user) |
+| Download an object | `Bucket.getObject(key, opts?)` | Node + Browser (user) |
+| Check existence / fetch headers | `Bucket.headObject(key, throwErr?)` | Node + Browser (user) |
+| Delete an object | `Bucket.deleteObject(key, opts?)` | Node + Browser (user) |
+| Start a multipart upload | `Bucket.initiateMultipartUpload(key)` | Node + Browser (user) |
+| Upload one part | `Bucket.uploadPart(stream, partNumber, opts?)` | Node + Browser (user) |
+| Finalize a multipart upload | `Bucket.completeMultipartUpload(key, uploadId)` | Node + Browser (user) |
+| Fetch multipart upload summary | `Bucket.getMultipartUploadSummary(key, uploadId)` | Node + Browser (user) |
+| List every bucket in the project | `Stratus.listBuckets()` | Node only (admin) |
+| Check if a bucket exists | `Stratus.headBucket(name, throwErr?)` | Node only (admin) |
+| Fetch bucket metadata | `Bucket.getDetails()` | Node only (admin) |
+| List objects (paged) | `Bucket.listPagedObjects(opts)` | Node only (admin) |
+| Truncate a bucket | `Bucket.truncate()` | Node only (admin) |
+| Copy / rename / delete-by-path objects | `Bucket.copyObject`, `renameObject`, `deletePath`, `deleteObjects` | Node only (admin) |
+| Generate pre-signed URL | `Bucket.generatePreSignedUrl(opts)` | Node only (admin) |
+| Purge CDN cache | `Bucket.purgeCache(opts)` | Node only (admin) |
+| Unzip an object / poll status | `Bucket.unzipObject(opts)`, `Bucket.getUnzipStatus(jobId)` | Node only (admin) |
+| Inspect / configure CORS | `Bucket.getCors()` | Node only (admin) |
+| Get a `StratusObject` reference | `Bucket.object(key)` | Node only (admin) |
 
 ### Prerequisites
 
 - A [Catalyst project](https://docs.catalyst.zoho.com/en/getting-started/catalyst-projects) set up
-- Stratus enabled (contact support for Early Access)
-- Buckets created in [Stratus Console](https://docs.catalyst.zoho.com/en/cloud-scale/help/stratus/bucket-management/)
-- Understanding of [object storage concepts](https://docs.catalyst.zoho.com/en/cloud-scale/help/stratus/architecture/)
+- Create bucket in [Catalyst Console](https://console.catalyst.zoho.com/)
+- Understanding of [object storage concepts](https://docs.catalyst.zoho.com/en/cloud-scale/help/stratus/introduction/)
 
 ## Installation
 
@@ -69,390 +69,120 @@ import { Stratus, TransferManager } from "@zcatalyst/stratus";
 
 #### Node.js Environment
 
-For server-side object storage operations:
+```ts
+import { Stratus } from '@zcatalyst/stratus';
+import fs from 'fs';
 
-```js
 const stratus = new Stratus(app);
 
-// List all buckets
-const buckets = await stratus.listBuckets();
-console.log('Available buckets:', buckets);
-
-// Check if bucket exists
-const exists = await stratus.headBucket('my-bucket');
-
-// Get bucket instance
+// Get a Bucket instance (cheap — no network call)
 const bucket = stratus.bucket('my-bucket');
 
-// Upload file to bucket
-const uploadResult = await bucket.uploadFile('./local-file.txt', 'remote-file.txt');
+// Upload an object from a stream / Buffer / string
+await bucket.putObject('reports/q1.pdf', fs.createReadStream('./q1.pdf'));
 
-// Download file from bucket
-const downloadResult = await bucket.downloadFile('remote-file.txt', './downloaded-file.txt');
+// Download — returns a Node Readable stream
+const stream = await bucket.getObject('reports/q1.pdf');
+stream.pipe(fs.createWriteStream('./local-q1.pdf'));
 
-// List files in bucket
-const files = await bucket.listFiles();
+// Page through objects under a prefix
+const page = await bucket.listPagedObjects({ prefix: 'reports/', maxKeys: 100 });
+for (const obj of page.contents) console.log(obj.key, obj.size);
+
+// Delete
+await bucket.deleteObject('reports/q1.pdf');
 ```
 
 #### Browser Environment
 
-For client-side object storage operations:
+```ts
+import { Stratus } from '@zcatalyst/stratus';
 
-```js
 const stratus = new Stratus();
+const bucket  = stratus.bucket('my-bucket');
 
-// Get bucket instance
-const bucket = stratus.bucket('my-bucket');
+const file = document.querySelector<HTMLInputElement>('#file').files![0];
 
-// Upload file from browser input
-const fileInput = document.getElementById('file-input');
-const file = fileInput.files[0];
-await bucket.uploadFile(file, 'uploaded-file.txt');
+// putObject accepts a Browser File / Blob directly
+await bucket.putObject(`uploads/${file.name}`, file);
 
-// Download file to browser
-const downloadResult = await bucket.downloadFile('remote-file.txt');
-const blob = new Blob([downloadResult.data]);
-const url = URL.createObjectURL(blob);
-
-// Create download link
-const link = document.createElement('a');
-link.href = url;
-link.download = 'downloaded-file.txt';
-link.click();
+// getObject in the browser returns a Readable-like stream that resolves to bytes
+const data = await bucket.getObject(`uploads/${file.name}`);
 ```
 
 ### Async/await
 
-We recommend using [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)
-operator to wait for the promise returned by storage operations:
+We recommend using `await` (or `.then(...)`) when calling object operations:
 
-```js
-// async/await.
+```ts
 try {
-  const result = await bucket.uploadFile(file, 'destination.txt');
-  // process result.
+  await bucket.putObject('destination.txt', file);
 } catch (error) {
-  // error handling.
-} finally {
-  // finally.
+  // error handling
 }
 ```
 
 ### Error Handling
 
-When the service returns an exception, the error will include the exception information,
-as well as response metadata (e.g. request id).
-
-```js
+```ts
 try {
-  const result = await bucket.uploadFile(file, 'destination.txt');
-  // process result.
+  await bucket.putObject('destination.txt', file);
 } catch (error) {
   const message = error.message;
-  const status = error.statusCode;
+  const status  = error.statusCode;
   console.log({ message, status });
 }
 ```
 
 ## API Reference
 
-### Bucket Management
+### `Stratus`
 
-<details>
-<summary>
-List All Buckets
-</summary>
+| Method | Description |
+|---|---|
+| `bucket(name)` | Returns a `Bucket` instance — no network call. |
 
-```js
-const buckets = await stratus.listBuckets();
+### `Bucket`
 
-buckets.forEach(bucket => {
-  console.log('Bucket name:', bucket.name);
-  console.log('Created at:', bucket.createdAt);
-  console.log('Size:', bucket.size);
-});
-```
+| Method | Description |
+|---|---|
+| `getName()` | Returns the bucket name. |
+| `putObject(key, body, options?)` | Upload an object. `body` can be a `Buffer`, string, `Readable`, `Blob`, or `File`. |
+| `getObject(key, options?)` | Download as a `Readable` stream. |
+| `headObject(key, throwErr?)` | Check existence / fetch headers. |
+| `deleteObject(key, options?)` | Delete an object. |
+| `initiateMultipartUpload(key)` | Start a multipart upload session. Returns `{ upload_id, ... }`. |
+| `uploadPart(stream, partNumber, options?)` | Upload one part of a multipart upload. |
+| `completeMultipartUpload(key, uploadId)` | Finalize a multipart upload. |
+| `getMultipartUploadSummary(key, uploadId)` | Fetch multipart upload summary. |
 
-</details>
+### `TransferManager`
 
-<details>
-<summary>
-Check Bucket Exists
-</summary>
+Helper for multipart uploads.
 
-```js
-// Check without throwing error
-const exists = await stratus.headBucket('my-bucket');
-
-// Check with error throwing
-try {
-  const exists = await stratus.headBucket('my-bucket', true);
-  console.log('Bucket exists:', exists);
-} catch (error) {
-  console.log('Bucket check failed:', error.message);
-}
-```
-
-</details>
-
-<details>
-<summary>
-Get Bucket Instance
-</summary>
-
-```js
-const bucket = stratus.bucket('my-bucket');
-
-// Now you can perform file operations on this bucket
-await bucket.uploadFile('./file.txt', 'remote-file.txt');
-```
-
-</details>
-
-### File Operations
-
-<details>
-<summary>
-Upload File (Node.js)
-</summary>
-
-```js
-const bucket = stratus.bucket('my-bucket');
-
-// Upload from file path
-const result = await bucket.uploadFile('./local-file.txt', 'remote-file.txt');
-
-console.log('Upload successful:', result.fileId);
-console.log('File URL:', result.url);
-```
-
-</details>
-
-<details>
-<summary>
-Upload File (Browser)
-</summary>
-
-```js
-const bucket = stratus.bucket('my-bucket');
-
-// Upload from file input
-const fileInput = document.getElementById('file-input');
-const file = fileInput.files[0];
-
-const result = await bucket.uploadFile(file, 'uploaded-file.txt', {
-  metadata: {
-    originalName: file.name,
-    uploadedBy: 'user123'
-  }
-});
-```
-
-</details>
-
-<details>
-<summary>
-Download File (Node.js)
-</summary>
-
-```js
-const bucket = stratus.bucket('my-bucket');
-
-// Download to file path
-await bucket.downloadFile('remote-file.txt', './downloaded-file.txt');
-
-// Download to buffer
-const buffer = await bucket.downloadFile('remote-file.txt');
-console.log('File data:', buffer.toString());
-```
-
-</details>
-
-<details>
-<summary>
-Download File (Browser)
-</summary>
-
-```js
-const bucket = stratus.bucket('my-bucket');
-
-// Download as blob
-const result = await bucket.downloadFile('remote-file.txt');
-const blob = new Blob([result.data]);
-
-// Create download link
-const url = URL.createObjectURL(blob);
-const link = document.createElement('a');
-link.href = url;
-link.download = 'downloaded-file.txt';
-link.click();
-```
-
-</details>
-
-<details>
-<summary>
-Delete File
-</summary>
-
-```js
-const bucket = stratus.bucket('my-bucket');
-await bucket.deleteFile('remote-file.txt');
-```
-
-</details>
-
-<details>
-<summary>
-List Files in Bucket
-</summary>
-
-```js
-const bucket = stratus.bucket('my-bucket');
-
-// List all files
-const files = await bucket.listFiles();
-
-// List with prefix
-const files = await bucket.listFiles({
-  prefix: 'images/',
-  delimiter: '/'
-});
-
-files.forEach(file => {
-  console.log('File name:', file.name);
-  console.log('Size:', file.size);
-  console.log('Last modified:', file.lastModified);
-});
-```
-
-</details>
-
-### Transfer Manager
-
-<details>
-<summary>
-Create Transfer Manager
-</summary>
-
-```js
+```ts
 import { TransferManager } from '@zcatalyst/stratus';
 
-const bucket = stratus.bucket('my-bucket');
-const transferManager = new TransferManager(bucket);
+const tm = new TransferManager(bucket);
+
+// Upload a large file as parts (default part size: 10 MB)
+await tm.putObjectAsParts('big.zip', largeStream, /* partSize MB */ 10);
+
+// Or get a manual handle to drive your own loop
+const mp = await tm.createMultipartInstance('big.zip');
+// → mp.uploadPart(...), mp.completeUpload(), mp.getUploadSummary()
 ```
 
-</details>
+### Supported payload types
 
-<details>
-<summary>
-Upload with Progress Tracking
-</summary>
-
-```js
-const uploadTask = transferManager.uploadFile(file, 'destination.txt');
-
-uploadTask.on('progress', (progress) => {
-  console.log(`Upload progress: ${progress.percentage}%`);
-  console.log(`Bytes uploaded: ${progress.bytesUploaded}`);
-  console.log(`Total bytes: ${progress.totalBytes}`);
-});
-
-uploadTask.on('complete', (result) => {
-  console.log('Upload complete:', result.fileId);
-});
-
-uploadTask.on('error', (error) => {
-  console.error('Upload error:', error);
-});
-
-// Start the upload
-await uploadTask.start();
-```
-
-</details>
-
-<details>
-<summary>
-Download with Progress Tracking
-</summary>
-
-```js
-const downloadTask = transferManager.downloadFile('source.txt', 'destination.txt');
-
-downloadTask.on('progress', (progress) => {
-  console.log(`Download progress: ${progress.percentage}%`);
-});
-
-downloadTask.on('complete', (result) => {
-  console.log('Download complete');
-});
-
-downloadTask.on('error', (error) => {
-  console.error('Download error:', error);
-});
-
-// Start the download
-await downloadTask.start();
-```
-
-</details>
-
-### File Metadata
-
-```js
-// Upload with metadata
-await bucket.uploadFile(file, 'destination.txt', {
-  metadata: {
-    originalName: 'original.txt',
-    uploadedBy: 'user123',
-    category: 'documents',
-    tags: ['important', 'backup']
-  },
-  contentType: 'text/plain'
-});
-```
-
-### File URLs
-
-```js
-const result = await bucket.uploadFile(file, 'destination.txt');
-
-// Get public URL
-const publicUrl = result.url;
-
-// Get temporary URL (expires in 1 hour)
-const tempUrl = bucket.getTemporaryUrl('destination.txt', {
-  expiresIn: 3600
-});
-```
-
-### Supported File Types
-
-- **Documents**: PDF, DOC, DOCX, TXT, etc.
-- **Images**: JPG, PNG, GIF, BMP, SVG, etc.
-- **Videos**: MP4, AVI, MOV, etc.
-- **Archives**: ZIP, RAR, TAR, etc.
-- **Binary**: Any file type up to size limits
-
-### Environment Support
-
-This package automatically detects the environment and uses appropriate file handling:
-
-- **Node.js**: Uses file system streams and buffers for efficient file operations
-- **Browser**: Uses File API and Blob objects for browser-compatible operations
+- **Node.js**: `Buffer`, `string`, `Readable` (file streams, network streams, etc.)
+- **Browser**: `Blob`, `File`, `ArrayBuffer`, `string`
 
 ## Resources
 
 - [Catalyst Stratus Documentation](https://docs.catalyst.zoho.com/en/cloud-scale/help/stratus/introduction/)
-- [Stratus Architecture](https://docs.catalyst.zoho.com/en/cloud-scale/help/stratus/architecture/)
-- [Bucket Management](https://docs.catalyst.zoho.com/en/cloud-scale/help/stratus/bucket-management/)
-- [Object Operations](https://docs.catalyst.zoho.com/en/cloud-scale/help/stratus/object-operations/)
-- [SDK Documentation](https://docs.catalyst.zoho.com/en/sdk/)
 
 ## Contributing
-
-Contributions to this library are always welcome and highly encouraged.
 
 See [CONTRIBUTING](../../CONTRIBUTING.md) for more information on how to get started.
 

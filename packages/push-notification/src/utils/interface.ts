@@ -17,8 +17,3 @@ interface NotificationResponseContent {
 	clientaccesstoken?: string;
 	uid: string;
 }
-
-interface NotificationResponse {
-	status?: number;
-	content: NotificationResponseContent;
-}

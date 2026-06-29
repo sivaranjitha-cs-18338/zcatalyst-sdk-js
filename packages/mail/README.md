@@ -1,32 +1,10 @@
 # @zcatalyst/mail
 
-JavaScript SDK for Catalyst Mail - Email Sending and Management
+JavaScript SDK for Catalyst Mail - Email Sending
 
 ## Overview
 
-The `@zcatalyst/mail` package provides JavaScript/TypeScript methods to interact with [Catalyst Mail](https://docs.catalyst.zoho.com/en/cloud-scale/help/mail/introduction/), a service for securely sending emails from your Catalyst application to end-users. Mail is part of Catalyst Cloud Scale services.
-
-**Catalyst Mail** allows you to configure sender email addresses, send transactional or mass communication emails, and use either Catalyst's built-in email client or configure your own SMTP settings.
-
-### Key Features
-
-- **Email Configuration**: Configure sender emails with a few clicks
-- **High Scalability**: Handles email delivery at scale with consistent performance
-- **Multiple Senders**: Store and use multiple email addresses for different purposes
-- **Domain Support**: Use public domains or configure your own organization domains
-- **SMTP Flexibility**: Use built-in client or configure external email client
-- **Rich Features**: Support for attachments, CC, BCC, HTML content
-- **Reliable Delivery**: Optimized performance and consistent email delivery
-- **Business Credibility**: Trusted email infrastructure boosts credibility
-
-### Use Cases
-
-- Send transactional emails (order confirmations, receipts)
-- User notifications (welcome emails, password resets)
-- Marketing campaigns and newsletters
-- System alerts and monitoring notifications
-- Customer support communications
-- Team collaboration and internal notifications
+The `@zcatalyst/mail` package provides JavaScript/TypeScript methods to send email through [Catalyst Mail](https://docs.catalyst.zoho.com/en/cloud-scale/help/mail/introduction/). Runs in Node.js (server-side) environments only.
 
 ### Prerequisites
 
@@ -103,9 +81,6 @@ try {
 
 ### Error Handling
 
-When the service returns an exception, the error will include the exception information,
-as well as response metadata (e.g. request id).
-
 ```js
 try {
 	const data = await mail.sendMail({
@@ -127,13 +102,8 @@ try {
 - [Catalyst Mail Documentation](https://docs.catalyst.zoho.com/en/cloud-scale/help/mail/introduction/)
 - [Email Configuration](https://docs.catalyst.zoho.com/en/cloud-scale/help/mail/email-configuration/)
 - [SMTP Configuration](https://docs.catalyst.zoho.com/en/cloud-scale/help/mail/smtp-configuration/)
-- [Domain Configuration](https://docs.catalyst.zoho.com/en/cloud-scale/help/mail/domain-config/)
-- [Mail SDK Reference](https://docs.catalyst.zoho.com/en/sdk/server-side-sdks/node-js-sdk/mail/)
-- [SDK Documentation](https://docs.catalyst.zoho.com/en/sdk/)
 
 ## Contributing
-
-Contributions to this library are always welcome and highly encouraged.
 
 See [CONTRIBUTING](../../CONTRIBUTING.md) for more information on how to get started.
 

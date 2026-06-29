@@ -3,8 +3,14 @@ import { CatalystAppError, CatalystError } from './errors';
 /**
  * Validates that a value is a byte buffer.
  *
- * @param {unknown} value The value to validate.
- * @return {boolean} Whether the value is byte buffer or not.
+ * @param value - The value to validate.
+ * @returns Whether the value is byte buffer or not.
+ *
+ * @example
+ * ```ts
+ * import { isBuffer } from '@zcatalyst/utils';
+ * const result = isBuffer();
+ * ```
  */
 export function isBuffer(value: unknown): boolean {
 	return typeof Buffer !== 'undefined' && Buffer.isBuffer(value);
@@ -13,8 +19,14 @@ export function isBuffer(value: unknown): boolean {
 /**
  * Validates that a value is an array.
  *
- * @param {unknown} value The value to validate.
- * @return {boolean} Whether the value is an array or not.
+ * @param value - The value to validate.
+ * @returns Whether the value is an array or not.
+ *
+ * @example
+ * ```ts
+ * import { isArray } from '@zcatalyst/utils';
+ * const result = isArray();
+ * ```
  */
 export function isArray(value: unknown): boolean {
 	return Array.isArray(value);
@@ -23,8 +35,14 @@ export function isArray(value: unknown): boolean {
 /**
  * Validates that a value is a boolean.
  *
- * @param {unknown} value The value to validate.
- * @return {boolean} Whether the value is a boolean or not.
+ * @param value - The value to validate.
+ * @returns Whether the value is a boolean or not.
+ *
+ * @example
+ * ```ts
+ * import { isBoolean } from '@zcatalyst/utils';
+ * const result = isBoolean();
+ * ```
  */
 export function isBoolean(value: unknown): boolean {
 	return typeof value === 'boolean';
@@ -33,8 +51,14 @@ export function isBoolean(value: unknown): boolean {
 /**
  * Validates that a value is a number.
  *
- * @param {unknown} value The value to validate.
- * @return {boolean} Whether the value is a number or not.
+ * @param value - The value to validate.
+ * @returns Whether the value is a number or not.
+ *
+ * @example
+ * ```ts
+ * import { isNumber } from '@zcatalyst/utils';
+ * const result = isNumber();
+ * ```
  */
 export function isNumber(value: unknown): boolean {
 	return typeof value === 'number' && !isNaN(value);
@@ -43,9 +67,15 @@ export function isNumber(value: unknown): boolean {
 /**
  * Validates if a value is a valid number.
  *
- * @param value the value to validate
- * @param throwErr whether to throw error or resolve to false
+ * @param value - the value to validate
+ * @param throwErr - whether to throw error or resolve to false
  * @returns if the value is a valid number or not
+ *
+ * @example
+ * ```ts
+ * import { isValidNumber } from '@zcatalyst/utils';
+ * const result = isValidNumber();
+ * ```
  */
 export function isValidNumber(value: unknown, throwErr = false): boolean {
 	if (typeof value !== 'number') {
@@ -92,8 +122,14 @@ export function isValidNumber(value: unknown, throwErr = false): boolean {
 /**
  * Validates that a value is a string.
  *
- * @param {unknown} value The value to validate.
- * @return {boolean} Whether the value is a string or not.
+ * @param value - The value to validate.
+ * @returns Whether the value is a string or not.
+ *
+ * @example
+ * ```ts
+ * import { isString } from '@zcatalyst/utils';
+ * const result = isString();
+ * ```
  */
 export function isString(value: unknown): boolean {
 	return typeof value === 'string';
@@ -102,8 +138,14 @@ export function isString(value: unknown): boolean {
 /**
  * Validates that a value is a nullable object.
  *
- * @param {unknown} value The value to validate.
- * @return {boolean} Whether the value is an object or not.
+ * @param value - The value to validate.
+ * @returns Whether the value is an object or not.
+ *
+ * @example
+ * ```ts
+ * import { isObject } from '@zcatalyst/utils';
+ * const result = isObject();
+ * ```
  */
 export function isObject(value: unknown): boolean {
 	return typeof value === 'object' && !isArray(value);
@@ -112,8 +154,14 @@ export function isObject(value: unknown): boolean {
 /**
  * Validates that a string is a valid email.
  *
- * @param {unknown} email The string to validate.
- * @return {boolean} Whether the string is valid email or not.
+ * @param email - The string to validate.
+ * @returns Whether the string is valid email or not.
+ *
+ * @example
+ * ```ts
+ * import { isEmail } from '@zcatalyst/utils';
+ * const result = isEmail();
+ * ```
  */
 export function isEmail(email: unknown): boolean {
 	if (!isString(email)) {
@@ -128,9 +176,15 @@ export function isEmail(email: unknown): boolean {
  * Modern URL validation using native URL constructor.
  * Validates that a string is a valid web URL with proper protocol.
  *
- * @param {unknown} urlStr The string to validate.
- * @param {string[]} allowedProtocols Allowed protocols (default: ['http:', 'https:'])
- * @return {boolean} Whether the string is valid web URL or not.
+ * @param urlStr - The string to validate.
+ * @param allowedProtocols - Allowed protocols (default: ['http:', 'https:'])
+ * @returns Whether the string is valid web URL or not.
+ *
+ * @example
+ * ```ts
+ * import { isURL } from '@zcatalyst/utils';
+ * const result = isURL();
+ * ```
  */
 export function isURL(
 	urlStr: unknown,
@@ -166,8 +220,15 @@ export function isURL(
 	}
 }
 
-/**
- * Alias for isURL for backward compatibility.
+/** * Alias for isURL for backward compatibility.  * @param urlStr - The urlStr value.
+ * @param allowedProtocols - The allowedProtocols value.
+ * @returns The isValidUrl result.
+ *
+ * @example
+ * ```ts
+ * import { isValidUrl } from '@zcatalyst/utils';
+ * const result = isValidUrl();
+ * ```
  */
 export function isValidUrl(urlStr: unknown, allowedProtocols?: Array<string>): boolean {
 	return isURL(urlStr, allowedProtocols);
@@ -175,11 +236,17 @@ export function isValidUrl(urlStr: unknown, allowedProtocols?: Array<string>): b
 
 /**
  * validates an object. Note : Only one level is supported
- * @param {Record<string, unknown>} obj Object to be validated
- * @param {Array<String>} properties properties to be tested for presence
- * @param {String} [objName] name of obj to be used while throwing an error
- * @param {Boolean} [throwErr] Boolean to determine if error needs to be thrown.
- * @returns {Boolean} validity of the object
+ * @param obj - Object to be validated
+ * @param properties - properties to be tested for presence
+ * @param objName - name of obj to be used while throwing an error
+ * @param throwErr - Boolean to determine if error needs to be thrown.
+ * @returns validity of the object
+ *
+ * @example
+ * ```ts
+ * import { ObjectHasProperties } from '@zcatalyst/utils';
+ * const result = ObjectHasProperties();
+ * ```
  */
 export function ObjectHasProperties(
 	obj: Record<string, unknown>,
@@ -195,7 +262,7 @@ export function ObjectHasProperties(
 			throw new CatalystError({
 				code: 'INVALID_ARGUMENT',
 				message: `Value for property ${undefinedElement} cannot be null or undefined in ${objName} object`,
-				value: obj
+				value: undefinedElement
 			});
 		}
 		return false;
@@ -206,10 +273,16 @@ export function ObjectHasProperties(
 /**
  * Validates that a value is a non-empty string.
  *
- * @param {unknown} value The value to validate.
- * @param {String} [name] The name of the value to use in error.
- * @param {Boolean} [throwErr] Boolean to determine if error needs to be thrown.
- * @return {boolean} Whether the value is a non-empty string or not.
+ * @param value - The value to validate.
+ * @param name - The name of the value to use in error.
+ * @param throwErr - Boolean to determine if error needs to be thrown.
+ * @returns Whether the value is a non-empty string or not.
+ *
+ * @example
+ * ```ts
+ * import { isNonEmptyString } from '@zcatalyst/utils';
+ * const result = isNonEmptyString();
+ * ```
  */
 export function isNonEmptyString(value: unknown, name?: string, throwErr?: boolean): boolean {
 	if (isString(value) && value !== '') {
@@ -228,10 +301,16 @@ export function isNonEmptyString(value: unknown, name?: string, throwErr?: boole
 /**
  * Validates that a value is a non-null value.
  *
- * @param {unknown} value The value to validate.
- * @param {String} [name] The name of the value to use in error.
- * @param {Boolean} [throwErr] Boolean to determine if error needs to be thrown.
- * @return {boolean} Whether the value is a non-null value or not.
+ * @param value - The value to validate.
+ * @param name - The name of the value to use in error.
+ * @param throwErr - Boolean to determine if error needs to be thrown.
+ * @returns Whether the value is a non-null value or not.
+ *
+ * @example
+ * ```ts
+ * import { isNonNullValue } from '@zcatalyst/utils';
+ * const result = isNonNullValue();
+ * ```
  */
 export function isNonNullValue(value: unknown, name?: string, throwErr?: boolean): boolean {
 	if (value !== null) {
@@ -250,10 +329,16 @@ export function isNonNullValue(value: unknown, name?: string, throwErr?: boolean
 /**
  * Validates that a value is a non-null object.
  *
- * @param {unknown} value The value to validate.
- * @param {String} [name] The name of the value to use in error.
- * @param {Boolean} [throwErr] Boolean to determine if error needs to be thrown.
- * @return {boolean} Whether the value is a non-null object or not.
+ * @param value - The value to validate.
+ * @param name - The name of the value to use in error.
+ * @param throwErr - Boolean to determine if error needs to be thrown.
+ * @returns Whether the value is a non-null object or not.
+ *
+ * @example
+ * ```ts
+ * import { isNonNullObject } from '@zcatalyst/utils';
+ * const result = isNonNullObject();
+ * ```
  */
 export function isNonNullObject(value: unknown, name?: string, throwErr?: boolean): boolean {
 	if (isObject(value) && value !== null) {
@@ -272,10 +357,16 @@ export function isNonNullObject(value: unknown, name?: string, throwErr?: boolea
 /**
  * Validates that a value is a non-null object.
  *
- * @param {unknown} value The value to validate.
- * @param {String} [name] The name of the value to use in error.
- * @param {Boolean} [throwErr] Boolean to determine if error needs to be thrown.
- * @return {boolean} Whether the value is a non-null object or not.
+ * @param value - The value to validate.
+ * @param name - The name of the value to use in error.
+ * @param throwErr - Boolean to determine if error needs to be thrown.
+ * @returns Whether the value is a non-null object or not.
+ *
+ * @example
+ * ```ts
+ * import { isNonEmptyObject } from '@zcatalyst/utils';
+ * const result = isNonEmptyObject();
+ * ```
  */
 export function isNonEmptyObject(value: unknown, name?: string, throwErr?: boolean): boolean {
 	if (
@@ -297,10 +388,16 @@ export function isNonEmptyObject(value: unknown, name?: string, throwErr?: boole
 /**
  * Validates that a value is a non-null Array.
  *
- * @param {unknown} value The value to validate.
- * @param {String} [name] The name of the value to use in error.
- * @param {Boolean} [throwErr] Boolean to determine if error needs to be thrown.
- * @return {boolean} Whether the value is a non-null array or not.
+ * @param value - The value to validate.
+ * @param name - The name of the value to use in error.
+ * @param throwErr - Boolean to determine if error needs to be thrown.
+ * @returns Whether the value is a non-null array or not.
+ *
+ * @example
+ * ```ts
+ * import { isNonEmptyArray } from '@zcatalyst/utils';
+ * const result = isNonEmptyArray();
+ * ```
  */
 export function isNonEmptyArray(value: unknown, name?: string, throwErr?: boolean): boolean {
 	if (isArray(value) && (value as Array<unknown>).length !== 0) {
@@ -319,10 +416,16 @@ export function isNonEmptyArray(value: unknown, name?: string, throwErr?: boolea
 /**
  * Validates that a value is a non-null string or number.
  *
- * @param {unknown} value The value to validate.
- * @param {String} [name] The name of the value to use in error.
- * @param {Boolean} [throwErr] Boolean to determine if error needs to be thrown.
- * @return {boolean} Whether the value is a non-null object or not.
+ * @param value - The value to validate.
+ * @param name - The name of the value to use in error.
+ * @param throwErr - Boolean to determine if error needs to be thrown.
+ * @returns Whether the value is a non-null object or not.
+ *
+ * @example
+ * ```ts
+ * import { isNonEmptyStringOrNumber } from '@zcatalyst/utils';
+ * const result = isNonEmptyStringOrNumber();
+ * ```
  */
 export function isNonEmptyStringOrNumber(
 	value: unknown,
@@ -345,11 +448,17 @@ export function isNonEmptyStringOrNumber(
 /**
  * Validates that a value is of particular type.
  *
- * @param {unknown} value The value to validate.
- * @param {string} type The type to be validated with.
- * @param {String} [name] The name of the value to use in error.
- * @param {Boolean} [throwErr] Boolean to determine if CatalystAppError needs to be thrown.
- * @return {Boolean} Whether the value is of proper type.
+ * @param value - The value to validate.
+ * @param type - The type to be validated with.
+ * @param name - The name of the value to use in error.
+ * @param throwErr - Boolean to determine if CatalystAppError needs to be thrown.
+ * @returns Whether the value is of proper type.
+ *
+ * @example
+ * ```ts
+ * import { isValidType } from '@zcatalyst/utils';
+ * const result = isValidType();
+ * ```
  */
 export function isValidType(
 	value: unknown,
@@ -373,9 +482,15 @@ export function isValidType(
 /**
  * Validates that a value is a proper app instance.
  *
- * @param {unknown} app The value to validate.
- * @param {Boolean} throwErr Boolean to determine if CatalystAppError needs to be thrown.
- * @return {Boolean} Whether the value is a proper app instance.
+ * @param app - The value to validate.
+ * @param throwErr - Boolean to determine if CatalystAppError needs to be thrown.
+ * @returns Whether the value is a proper app instance.
+ *
+ * @example
+ * ```ts
+ * import { isValidApp } from '@zcatalyst/utils';
+ * const result = isValidApp();
+ * ```
  */
 export function isValidApp(app: unknown, throwErr: boolean): boolean {
 	// todo: change this to app instance once that is converted to TS
@@ -400,12 +515,18 @@ export function isValidApp(app: unknown, throwErr: boolean): boolean {
 /**
  * Validates the object.
  *
- * @param {Record<string, unknown>} object The object to validate.
- * @param {string} depProp The property which is deprecated.
- * @param {string} prop The changed property to validate with.
- * @param {boolean} throwWarn Boolean to determine if warning needs to be thrown.
- * @param {boolean} del Boolean to determine if deprecated property needs to be delete.
- * @return {boolean} Whether object contains a property or not.
+ * @param object - The object to validate.
+ * @param depProp - The property which is deprecated.
+ * @param prop - The changed property to validate with.
+ * @param throwWarn - Boolean to determine if warning needs to be thrown.
+ * @param del - Boolean to determine if deprecated property needs to be delete.
+ * @returns Whether object contains a property or not.
+ *
+ * @example
+ * ```ts
+ * import { ObjectHasDeprecatedProperty } from '@zcatalyst/utils';
+ * const result = ObjectHasDeprecatedProperty();
+ * ```
  */
 export function ObjectHasDeprecatedProperty(
 	object: Record<string, unknown>,
@@ -433,9 +554,15 @@ export function ObjectHasDeprecatedProperty(
 /**
  * Wraps the validators in a promise so that the promise chain wont fail.
  *
- * @param {function} targetFunction The function that will be executed.
- * @param {CatalystAppError} errorInstance Error that should be thrown.
- * @return {Promise} if the target functions doesnt throw error this will resolve else reject.
+ * @param targetFunction - The function that will be executed.
+ * @param errorInstance - Error that should be thrown.
+ * @returns if the target functions doesnt throw error this will resolve else reject.
+ *
+ * @example
+ * ```ts
+ * import { wrapValidatorsWithPromise } from '@zcatalyst/utils';
+ * const result = wrapValidatorsWithPromise();
+ * ```
  */
 export function wrapValidatorsWithPromise(
 	targetFunction: () => void,
@@ -460,8 +587,14 @@ export function wrapValidatorsWithPromise(
 /**
  * Executes the target function and throws a custom error if it fails.
  *
- * @param {function} targetFunction The function that will be executed.
- * @param {CatalystAppError} errorInstance Error that should be thrown.
+ * @param targetFunction - The function that will be executed.
+ * @param errorInstance - Error that should be thrown.
+ *
+ * @example
+ * ```ts
+ * import { wrapValidators } from '@zcatalyst/utils';
+ * const result = wrapValidators();
+ * ```
  */
 export function wrapValidators(
 	targetFunction: () => void,
@@ -481,10 +614,16 @@ export function wrapValidators(
 /**
  * Validates that a value is a non-empty string.
  *
- * @param {unknown} value The value to validate.
- * @param {String} [name] The name of the value to use in error.
- * @param {Boolean} [throwErr] Boolean to determine if error needs to be thrown.
- * @return {boolean} Whether the value is a non-empty string or not.
+ * @param value - The value to validate.
+ * @param name - The name of the value to use in error.
+ * @param throwErr - Boolean to determine if error needs to be thrown.
+ * @returns Whether the value is a non-empty string or not.
+ *
+ * @example
+ * ```ts
+ * import { isValidInputString } from '@zcatalyst/utils';
+ * const result = isValidInputString();
+ * ```
  */
 export function isValidInputString(value: unknown, name?: string, throwErr?: boolean): boolean {
 	if (isNonEmptyString(value, name, throwErr)) {

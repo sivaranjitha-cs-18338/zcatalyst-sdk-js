@@ -3,14 +3,14 @@ import {
 	Auth_Protocol,
 	collectZCRFToken,
 	ConfigStore,
-	CURRENT_CLIENT_PAGE_ORIGIN,
 	getToken,
 	JWT_COOKIE_PREFIX,
 	PROJECT_ID
 } from '@zcatalyst/auth-client';
 import { CatalystService, CONSTANTS, getServicePath } from '@zcatalyst/utils';
 
-import { version } from '../package.json';
+import pkg from '../package.json';
+const { version } = pkg;
 import {
 	HTTP_HEADER_MAP as HEADER_MAP,
 	HTTP_HEADER_MAP,
@@ -28,10 +28,6 @@ import {
 import { requestTimeout } from './utils/request-timeout';
 
 const { REQ_METHOD } = CONSTANTS;
-
-export const keepAliveSupport = {
-	supported: undefined as undefined | boolean
-};
 
 type ICatalystDataRes =
 	| Record<string, string>
@@ -58,12 +54,28 @@ export class DefaultHttpResponse {
 	headers: HeadersInit;
 	config: RequestHandlerOptions;
 	resp: ICatalystClientRes;
+	/**
+	 * Creates a DefaultHttpResponse instance.
+	 * @param resp - The resp value.
+	 */
 	constructor(resp: ICatalystClientRes) {
 		this.statusCode = resp.statusCode as number;
 		this.headers = resp.headers;
 		this.config = resp.config;
 		this.resp = resp;
 	}
+	/**
+	 * Returns the data value for this DefaultHttpResponse instance.
+	 *
+	 * @returns The response payload.
+	 * @throws {CatalystAPIError} when the request or response cannot be processed.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Handler } from '@zcatalyst/transport';
+	 * const result = undefined;
+	 * ```
+	 */
 	get data() {
 		if (this.resp.data === undefined) {
 			throw new CatalystAPIError(
@@ -80,24 +92,51 @@ export class DefaultHttpResponse {
 
 // ResponseHandler class
 export class ResponseHandler {
-	static apiDomain = CURRENT_CLIENT_PAGE_ORIGIN;
+	static apiDomain = typeof document !== 'undefined' ? document.location.origin : '';
 
+	/**
+	 * Creates a ResponseHandler instance.
+	 */
 	constructor() {}
 
+	/**
+	 * Sends a browser fetch request with SDK authentication, timeout and response handling.
+	 *
+	 * @param options - The initialization or request options.
+	 * @param options.requestCore - The Fetch API request configuration.
+	 * @param options.url - The URL to update or request.
+	 * @param requestOptions - The request handling options.
+	 * @returns The fire general request result.
+	 * @throws {CatalystAPIError} when the request or response cannot be processed.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Handler } from '@zcatalyst/transport';
+	 * const response = await ResponseHandler.fireGeneralRequest({ url: '/baas/v1/project/123', method: 'GET', headers: {} });
+	 * ```
+	 */
 	public static async fireGeneralRequest(
 		{ requestCore, url }: { requestCore: RequestInit; url: string },
 		requestOptions: RequestHandlerOptions = {}
 	): Promise<DefaultHttpResponse | void> {
 		try {
 			const headers = requestCore.headers || {};
+			const method = requestCore.method;
+			const methodAllowsBody = method !== REQ_METHOD.get && method !== REQ_METHOD.head;
 			const options: RequestInit = {
-				method: requestCore.method,
+				method,
 				headers,
 				credentials: requestOptions.auth ? 'include' : 'omit',
-				body: requestCore.method !== REQ_METHOD.get ? requestCore.body : undefined
+				body: methodAllowsBody ? requestCore.body : undefined
 			};
 
-			if (requestOptions.auth) {
+			// Catalyst-specific headers (CSRF/JWT + Accept/CATALYST-ORG/etc.)
+			// must only ride on first-party Catalyst calls. External services
+			// such as Stratus live on different origins (e.g. *.zohostratus.com)
+			// and reject the extra headers via CORS preflight, so we skip them
+			// whenever auth is disabled or the call targets EXTERNAL.
+			const isExternal = requestOptions.service === CatalystService.EXTERNAL;
+			if (requestOptions.auth && !isExternal) {
 				options.headers = await ResponseHandler.attachZCAuthHeaders(headers);
 				options.headers = this.#attachAppSpecificHeaders(headers);
 			}
@@ -131,7 +170,7 @@ export class ResponseHandler {
 						...requestOptions,
 						request: requestCore
 					});
-				} catch (error) {
+				} catch {
 					requestOptions.retry--;
 					return this.fireGeneralRequest({ requestCore, url }, requestOptions);
 				}
@@ -167,30 +206,55 @@ export class ResponseHandler {
 		}
 	}
 
+	/**
+	 * Wraps a Fetch API response in the SDK response object.
+	 *
+	 * @param response - The response to wrap.
+	 * @param options - The initialization or request options.
+	 * @returns The wrap response result.
+	 * @throws {CatalystAPIError} when the request or response cannot be processed.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Handler } from '@zcatalyst/transport';
+	 * const response = await ResponseHandler.wrapResponse({ url: '/baas/v1/project/123', method: 'GET', headers: {} });
+	 * ```
+	 */
 	public static async wrapResponse(
 		response: Response,
 		options?: RequestHandlerOptions
 	): Promise<DefaultHttpResponse> {
 		try {
+			// HEAD responses (and 204/304) carry no body. Attempting to parse
+			// them with `.json()` / `.blob()` throws a SyntaxError, which would
+			// otherwise mask the real (success) status code from the caller —
+			// e.g. `bucket.headObject()` checking `resp.statusCode === 200`.
+			const method = (options?.request as RequestInit | undefined)?.method?.toUpperCase();
+			const hasNoBody =
+				method === REQ_METHOD.head || response.status === 204 || response.status === 304;
 			let data: ICatalystDataRes;
-			switch (options?.expecting || ResponseType.JSON) {
-				case ResponseType.BUFFER:
-					data = await response.arrayBuffer();
-					break;
-				case ResponseType.RAW:
-					data = await response.blob();
-					break;
-				case ResponseType.JSON:
-					data = await response.json();
-					break;
-				case ResponseType.STRING:
-					data = await response.text();
-					break;
-				default:
-					throw new CatalystAPIError(
-						'UNSUPPORTED_RESPONSE_TYPE',
-						`Unsupported response type: ${options?.expecting}`
-					);
+			if (hasNoBody) {
+				data = '' as ICatalystDataRes;
+			} else {
+				switch (options?.expecting || ResponseType.JSON) {
+					case ResponseType.BUFFER:
+						data = await response.arrayBuffer();
+						break;
+					case ResponseType.RAW:
+						data = await response.blob();
+						break;
+					case ResponseType.JSON:
+						data = await response.json();
+						break;
+					case ResponseType.STRING:
+						data = await response.text();
+						break;
+					default:
+						throw new CatalystAPIError(
+							'UNSUPPORTED_RESPONSE_TYPE',
+							`Unsupported response type: ${options?.expecting}`
+						);
+				}
 			}
 
 			return new DefaultHttpResponse({
@@ -210,6 +274,19 @@ export class ResponseHandler {
 	}
 
 	// Method to fire a raw request (no retry logic)
+	/**
+	 * Sends a browser fetch request without retry handling.
+	 *
+	 * @param requestCore - The Fetch API request configuration.
+	 * @param reqOptions - The raw request handling options.
+	 * @returns The fire raw request result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Handler } from '@zcatalyst/transport';
+	 * const response = await ResponseHandler.fireRawRequest({ url: '/baas/v1/project/123', method: 'GET', headers: {} });
+	 * ```
+	 */
 	public static async fireRawRequest(
 		requestCore: CoreType,
 		reqOptions: RequestHandlerOptions
@@ -241,6 +318,18 @@ export class ResponseHandler {
 	}
 
 	// Method to attach authentication headers
+	/**
+	 * Attaches browser authentication headers according to the configured auth protocol.
+	 *
+	 * @param headers - The headers object to mutate or extend.
+	 * @returns The attach zcauth headers result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Handler } from '@zcatalyst/transport';
+	 * const response = await ResponseHandler.attachZCAuthHeaders({ url: '/baas/v1/project/123', method: 'GET', headers: {} });
+	 * ```
+	 */
 	public static async attachZCAuthHeaders(headers: HeadersInit): Promise<HeadersInit> {
 		const authProtocol: Auth_Protocol = ConfigStore.get('AUTH_PROTOCOL') as Auth_Protocol;
 		switch (authProtocol) {
@@ -275,6 +364,17 @@ export class ResponseHandler {
 	}
 
 	// Method to get JWT authentication token
+	/**
+	 * Builds the browser JWT authorization token from the configured cookie.
+	 *
+	 * @returns The get jwtzcauth token result.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Handler } from '@zcatalyst/transport';
+	 * const response = await ResponseHandler.getJWTZCAuthToken({ url: '/baas/v1/project/123', method: 'GET', headers: {} });
+	 * ```
+	 */
 	public static getJWTZCAuthToken(): Promise<jwtAccessTokenResponse> {
 		const jwtPrefix = ConfigStore.get(JWT_COOKIE_PREFIX);
 		return new Promise((resolve, reject) => {
@@ -289,6 +389,19 @@ export class ResponseHandler {
 		});
 	}
 
+	/**
+	 * Appends query parameters to a URL.
+	 *
+	 * @param url - The URL to update or request.
+	 * @param qs - The query string values to append.
+	 * @returns The URL with encoded query parameters.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Handler } from '@zcatalyst/transport';
+	 * const response = await ResponseHandler.appendQueryString({ url: '/baas/v1/project/123', method: 'GET', headers: {} });
+	 * ```
+	 */
 	static appendQueryString(
 		url: string,
 		qs?: Record<string, string | number | boolean | undefined>
@@ -316,18 +429,40 @@ export class ResponseHandler {
 		return ResponseHandler.fireGeneralRequest({ url, requestCore }, options);
 	}
 
+	/**
+	 * Sends a Catalyst HTTP request and returns the wrapped response.
+	 *
+	 * @param options - The initialization or request options.
+	 * @param componentName - The component name for user-agent metadata.
+	 * @param componentVersion - The component version for user-agent metadata.
+	 * @returns The send result.
+	 * @throws {CatalystAPIError} when the request or response cannot be processed.
+	 *
+	 * @example
+	 * ```ts
+	 * import { Handler } from '@zcatalyst/transport';
+	 * const response = await ResponseHandler.send({ url: '/baas/v1/project/123', method: 'GET', headers: {} });
+	 * ```
+	 */
 	static async send(
 		options: IRequestConfig,
 		componentName?: string,
 		componentVersion?: string
 	): Promise<DefaultHttpResponse | void> {
 		const headers = options.headers || {};
+		const isExternal = options.service === CatalystService.EXTERNAL;
 
-		let userAgent = CONSTANTS.USER_AGENT.PREFIX + version;
-		if (componentName) {
-			userAgent += ` ${componentName}/${componentVersion || 'unknown'}`;
+		// Catalyst-branded user agent must not leak into external (Stratus,
+		// IAM redirect, etc.) calls — those endpoints reject the custom
+		// header during CORS preflight. Mirrors the http-handler convention
+		// (`req.service !== CatalystService.EXTERNAL`).
+		if (!isExternal) {
+			let userAgent = CONSTANTS.USER_AGENT.PREFIX + version;
+			if (componentName) {
+				userAgent += ` ${componentName}/${componentVersion || 'unknown'}`;
+			}
+			headers['X-Catalyst-User-Agent'] = userAgent;
 		}
-		headers['X-Catalyst-User-Agent'] = userAgent;
 
 		let data = options.data;
 		if (data !== undefined) {
@@ -361,7 +496,7 @@ export class ResponseHandler {
 		if (this.apiDomain === null && !options.origin) {
 			throw new CatalystAPIError('API_REQUEST_ERROR', 'Unable to get the base url');
 		}
-		if (options.service !== CatalystService.EXTERNAL && options.path) {
+		if (!isExternal && options.path) {
 			options.path = `${getServicePath(options.service)}/project/${ConfigStore.get(PROJECT_ID)}${options.path}`;
 		}
 
@@ -375,7 +510,8 @@ export class ResponseHandler {
 		request.url = this.appendQueryString(request.url, options.qs);
 		return await this.#sendRequest(request, {
 			expecting: options.expecting,
-			auth: options.auth ?? true
+			auth: options.auth ?? true,
+			service: options.service
 		});
 	}
 }
