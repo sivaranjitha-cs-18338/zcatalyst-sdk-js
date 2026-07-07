@@ -42,38 +42,124 @@ const SECRET_KEY = 'secret_key';
  */
 export class Connector {
 	connectorName: string;
-	authUrl: string;
-	refreshUrl: string;
-	refreshToken: string;
-	clientId: string;
-	clientSecret: string;
 	expiresIn: number;
 	expiresAt: number | null;
-	redirectUrl: string;
 	refreshIn: number;
 	accessToken: null | string;
 	secretKey?: string;
+	private _authUrl: string;
+	private _refreshUrl: string;
+	private _refreshToken: string;
+	private _clientId: string;
+	private _clientSecret: string;
+	private _redirectUrl: string;
+	private _connectionName: string | null; // lazy init of connector cache key based on config hash
 	private app: unknown;
 	private requester: Handler;
 	constructor(connectionInstance: Connection, connectorDetails: { [x: string]: string }) {
 		this.connectorName = connectorDetails[CONNECTOR_NAME];
-		this.authUrl = connectorDetails[AUTH_URL];
-		this.refreshUrl = connectorDetails[REFRESH_URL];
-		this.refreshToken = connectorDetails[REFRESH_TOKEN];
-		this.clientId = connectorDetails[CLIENT_ID];
-		this.clientSecret = connectorDetails[CLIENT_SECRET];
+		this._authUrl = connectorDetails[AUTH_URL];
+		this._refreshUrl = connectorDetails[REFRESH_URL];
+		this._refreshToken = connectorDetails[REFRESH_TOKEN];
+		this._clientId = connectorDetails[CLIENT_ID];
+		this._clientSecret = connectorDetails[CLIENT_SECRET];
 		this.expiresIn = parseInt(connectorDetails[EXPIRES_IN]);
 		this.refreshIn = parseInt(connectorDetails[REFRESH_IN]) * 1000;
-		this.redirectUrl = connectorDetails[REDIRECT_URL];
+		this._redirectUrl = connectorDetails[REDIRECT_URL];
 		this.secretKey = connectorDetails[SECRET_KEY];
 		this.accessToken = null;
 		this.expiresAt = null;
+		this._connectionName = null;
 		this.app = connectionInstance.app;
 		this.requester = connectionInstance.requester;
 	}
 
+	get authUrl(): string {
+		return this._authUrl;
+	}
+
+	set authUrl(value: string) {
+		this._authUrl = value;
+		this._connectionName = null;
+	}
+
+	get refreshUrl(): string {
+		return this._refreshUrl;
+	}
+
+	set refreshUrl(value: string) {
+		this._refreshUrl = value;
+		this._connectionName = null;
+	}
+
+	get refreshToken(): string {
+		return this._refreshToken;
+	}
+
+	set refreshToken(value: string) {
+		this._refreshToken = value;
+		this._connectionName = null;
+	}
+
+	get clientId(): string {
+		return this._clientId;
+	}
+
+	set clientId(value: string) {
+		this._clientId = value;
+		this._connectionName = null;
+	}
+
+	get clientSecret(): string {
+		return this._clientSecret;
+	}
+
+	set clientSecret(value: string) {
+		this._clientSecret = value;
+		this._connectionName = null;
+	}
+
+	get redirectUrl(): string {
+		return this._redirectUrl;
+	}
+
+	set redirectUrl(value: string) {
+		this._redirectUrl = value;
+		this._connectionName = null;
+	}
+
+	/**
+	 * Calculates a hash based on all connector configuration parameters.
+	 * This ensures that any change in refresh token, client credentials, or URLs
+	 * results in a new cache key, preventing stale access tokens from being served.
+	 * Uses polynomial rolling hash (base 31) to generate a deterministic hash converted to
+	 * a 5-digit hexadecimal string. This provides a good balance between uniqueness and brevity for cache keys.
+	 */
+	private getConnectorHash(): string {
+		const configStr = [
+			this.refreshToken,
+			this.clientId,
+			this.clientSecret,
+			this.authUrl,
+			this.refreshUrl,
+			this.redirectUrl
+		]
+			.filter((config) => config)
+			.join(':');
+		let strHash = 0;
+		for (let i = 0; i < configStr.length; i++) {
+			strHash = (strHash * 31 + configStr.charCodeAt(i)) | 0;
+		}
+		const hash = (31 + strHash) | 0;
+		const masked = (hash >>> 0) & 0xfffff; // 20-bit or 5-digit hex
+		return masked.toString(16).padStart(5, '0').toLowerCase();
+	}
+
 	private get _connectorName(): string {
-		return 'ZC_CONN_' + this.connectorName;
+		if (this._connectionName === null) {
+			this._connectionName = 'ZC_CONN_' + this.connectorName + ':' + this.getConnectorHash();
+		}
+		return this._connectionName;
 	}
 	/**
 	 * Retrieves a valid access token, refreshing or reading from cache when needed.
