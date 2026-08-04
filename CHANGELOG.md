@@ -4,11 +4,11 @@
 
 #### `@zcatalyst/connector@v0.0.4`
 - **Bug Fixes**
-  - default header inclusion in external endpoint issue (#35)[`#35`](https://github.com/catalystbyzoho/zcatalyst-sdk-js/pull/35)
+  - Stop attaching the default Catalyst auth headers to external OAuth token/refresh requests, and enforce HTTPS on configured auth/refresh URLs (loopback exempted for local development).[`#35`](https://github.com/catalystbyzoho/zcatalyst-sdk-js/pull/35)
 
 #### `@zcatalyst/stratus@v0.0.4`
 - **Bug Fixes**
-  - bucket name and url validation issue (#34)[`#34`](https://github.com/catalystbyzoho/zcatalyst-sdk-js/pull/34)
+  - Validate and sanitize bucket names to prevent authority-injection attacks that could redirect bucket requests (and their bearer tokens) to an attacker-controlled host, and verify the resolved bucket URL's origin.[`#34`](https://github.com/catalystbyzoho/zcatalyst-sdk-js/pull/34)
 
 ## [v0.0.3](https://github.com/catalystbyzoho/zcatalyst-sdk-js/releases/tag/v0.0.3) - 2026-06-30
 
