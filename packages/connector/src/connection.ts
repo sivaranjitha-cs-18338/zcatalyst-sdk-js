@@ -92,11 +92,17 @@ export class Connector {
 				`The ${fieldName} must be a valid, absolute URL.`
 			);
 		}
-		const parsedUrl = new URL(url);
+		let parsedUrl: URL;
+		try {
+			parsedUrl = new URL(url);
+		} catch {
+			throw new CatalystConnectorError(
+				'INVALID_OAUTH_URL',
+				`The ${fieldName} must be a valid, absolute URL.`
+			);
+		}
 		const isLoopbackHost =
-			parsedUrl.hostname === 'localhost' ||
-			parsedUrl.hostname === '127.0.0.1' ||
-			parsedUrl.hostname === '::1';
+			parsedUrl.hostname === 'localhost' || parsedUrl.hostname === '127.0.0.1';
 		if (parsedUrl.protocol !== 'https:' && !isLoopbackHost) {
 			throw new CatalystConnectorError(
 				'INSECURE_OAUTH_URL',
