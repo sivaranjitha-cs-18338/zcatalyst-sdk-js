@@ -3,10 +3,10 @@ name: Release
 on:
   push:
     branches:
-      - release_test
+      - release
 
 concurrency:
-  group: release_test
+  group: release
   cancel-in-progress: false
 
 jobs:
