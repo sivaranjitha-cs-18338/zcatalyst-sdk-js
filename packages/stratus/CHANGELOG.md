@@ -1,5 +1,10 @@
 # @zcatalyst/stratus
 
+## [0.0.4](https://github.com/catalystbyzoho/zcatalyst-sdk-js/releases/tag/v0.0.4) - 2026-08-04
+
+### Bug Fixes
+- bucket name and url validation issue (#34)[`#34`](https://github.com/catalystbyzoho/zcatalyst-sdk-js/pull/34)
+
 ## [0.0.3](https://github.com/catalystbyzoho/zcatalyst-sdk-js/releases/tag/v0.0.3) - 2026-06-30
 
 ### Bug Fixes

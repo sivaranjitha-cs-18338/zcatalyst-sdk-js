@@ -45,7 +45,7 @@ for (const pkg of packages) {
 				stdio: 'inherit'
 			});
 		} else {
-			execSync(`pnpm publish --registry ${registry} --no-git-checks --tag ${tag}`, {
+			execSync(`pnpm publish --registry ${registry} --no-git-checks --provenance --tag ${tag}`, {
 				cwd: pkgDir,
 				stdio: 'inherit'
 			});

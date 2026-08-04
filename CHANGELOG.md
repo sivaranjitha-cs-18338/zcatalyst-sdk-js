@@ -1,5 +1,15 @@
 # Change Log
 
+## [v0.0.4](https://github.com/catalystbyzoho/zcatalyst-sdk-js/releases/tag/v0.0.4) - 2026-08-04
+
+#### `@zcatalyst/connector@v0.0.4`
+- **Bug Fixes**
+  - default header inclusion in external endpoint issue (#35)[`#35`](https://github.com/catalystbyzoho/zcatalyst-sdk-js/pull/35)
+
+#### `@zcatalyst/stratus@v0.0.4`
+- **Bug Fixes**
+  - bucket name and url validation issue (#34)[`#34`](https://github.com/catalystbyzoho/zcatalyst-sdk-js/pull/34)
+
 ## [v0.0.3](https://github.com/catalystbyzoho/zcatalyst-sdk-js/releases/tag/v0.0.3) - 2026-06-30
 
 #### `@zcatalyst/auth@v0.0.3`
