@@ -61,6 +61,13 @@ export class Bucket {
 					: (window.__catalyst?.environment as string)?.toLowerCase();
 			const domainSuffix =
 				typeof window === 'undefined' ? STRATUS_SUFFIX : window.__catalyst?.stratus_suffix;
+			if (!domainSuffix) {
+				throw new CatalystStratusError(
+					'invalid-argument',
+					'Unable to resolve Stratus domain suffix for bucket URL construction.',
+					bucket
+				);
+			}
 			const suffix =
 				environment === 'development' ? `-development${domainSuffix}` : domainSuffix;
 			const bucketUrl = `https://${bucket}${suffix}`;
