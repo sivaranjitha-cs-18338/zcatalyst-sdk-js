@@ -84,13 +84,12 @@ export class DataStreamsWebSocket extends EventEmitter {
 		isNonEmptyString(config.url, 'url', true);
 		isNonEmptyString(config.key, 'key', true);
 		isNonEmptyString(config.zuid, 'zuid', true);
-		// Prevent authority-injection (SSRF) via a crafted host containing
-		// `/`, `@`, `:`, etc. before it is interpolated into the WebSocket URL.
-		assertValidHost(config.url, 'url');
+		const validatedUrl = assertValidHost(config.url, 'url');
 
 		this.config = {
 			enableLogging: config.enableLogging || false,
-			...config
+			...config,
+			url: validatedUrl
 		};
 
 		this.url = this.config.url;
@@ -288,8 +287,9 @@ export class DataStreamsWebSocket extends EventEmitter {
 					const msg = jsonData[0].msg as Record<string, string>;
 					const newHost = msg[msg.primarydc];
 
+					let validatedHost: string;
 					try {
-						assertValidHost(newHost, 'url');
+						validatedHost = assertValidHost(newHost, 'url');
 					} catch (validationError) {
 						const errorEvent: CustomEvent = {
 							code: 1007,
@@ -299,7 +299,7 @@ export class DataStreamsWebSocket extends EventEmitter {
 						break;
 					}
 
-					this.url = newHost;
+					this.url = validatedHost;
 
 					if (this.conn && this.conn.readyState === this.conn.OPEN) {
 						this.conn.close(
