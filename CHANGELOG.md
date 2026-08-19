@@ -4,15 +4,15 @@
 
 #### `@zcatalyst/auth@v0.0.4`
 - **Bug Fixes**
-  - fixed the change password query parameter issue (#40)[`#40`](https://github.com/catalystbyzoho/zcatalyst-sdk-js/pull/40)
+  - fixed the change password query parameter issue [`#40`](https://github.com/catalystbyzoho/zcatalyst-sdk-js/pull/40)
 
 #### `@zcatalyst/auth-admin@v0.0.4`
 - **Bug Fixes**
-  - fixed the auth object properties exist in error issue (#42)[`#42`](https://github.com/catalystbyzoho/zcatalyst-sdk-js/pull/42)
+  - fixed the auth object properties exist in error issue [`#42`](https://github.com/catalystbyzoho/zcatalyst-sdk-js/pull/42)
 
 #### `@zcatalyst/stratus@v0.0.5`
 - **Bug Fixes**
-  - fixed the bucket url formation issue (#39)[`#39`](https://github.com/catalystbyzoho/zcatalyst-sdk-js/pull/39)
+  - fixed the bucket url formation issue [`#39`](https://github.com/catalystbyzoho/zcatalyst-sdk-js/pull/39)
 
 ## [v0.0.4](https://github.com/catalystbyzoho/zcatalyst-sdk-js/releases/tag/v0.0.4) - 2026-08-04
 
