@@ -33,8 +33,14 @@ const SENSITIVE_FIELDS = new Set(
 		PROJECT_HEADER.key,
 		PROJECT_HEADER.projectSecretKey,
 		'access_token',
+		'accessToken',
 		'refresh_token',
+		'refreshToken',
 		'client_secret',
+		'clientSecret',
+		'adminToken',
+		'userToken',
+		'cookie',
 		'ticket'
 	].map((field) => field.toLowerCase())
 );
