@@ -41,7 +41,9 @@ const SENSITIVE_FIELDS = new Set(
 		'adminToken',
 		'userToken',
 		'cookie',
-		'ticket'
+		'ticket',
+		CSRF_TOKEN_NAME,
+		'zcrf_header'
 	].map((field) => field.toLowerCase())
 );
 
