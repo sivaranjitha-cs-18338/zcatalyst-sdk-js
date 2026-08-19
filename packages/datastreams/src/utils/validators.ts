@@ -45,9 +45,14 @@ export function assertValidHost(host: unknown, name: string): asserts host is st
  * an authority-injection (SSRF) bypass.
  * @param wsUrl - The constructed WebSocket URL to verify.
  * @param expectedHost - The host that `wsUrl` is expected to resolve to.
+ * @returns The parsed, verified `URL` instance. Callers should use this
+ * returned object (e.g. its `href`) as the actual value passed to the
+ * WebSocket constructor, rather than the original `wsUrl` string, so that
+ * the connection is opened from a value that has been demonstrably parsed
+ * and validated rather than merely checked and discarded.
  * @throws {CatalystDataStreamError} when the URL does not match the expected authority.
  */
-export function assertValidWebSocketUrl(wsUrl: string, expectedHost: string): void {
+export function assertValidWebSocketUrl(wsUrl: string, expectedHost: string): URL {
 	let parsed: URL;
 	try {
 		parsed = new URL(wsUrl);
@@ -70,4 +75,5 @@ export function assertValidWebSocketUrl(wsUrl: string, expectedHost: string): vo
 			wsUrl
 		);
 	}
+	return parsed;
 }

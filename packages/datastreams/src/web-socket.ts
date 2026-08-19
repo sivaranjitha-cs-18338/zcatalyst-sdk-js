@@ -110,7 +110,12 @@ export class DataStreamsWebSocket extends EventEmitter {
 	 */
 	private async createWebSocketConnection(): Promise<void> {
 		try {
-			assertValidWebSocketUrl(this.finalUrl, this.url);
+			// `verifiedUrl` is the parsed, validated URL returned by the
+			// assertion above; using its `.href` (rather than the original
+			// `this.finalUrl` string) as the connection target ensures the
+			// value handed to the WebSocket constructor has been directly
+			// derived from a validated `URL` instance.
+			const verifiedUrl = assertValidWebSocketUrl(this.finalUrl, this.url);
 
 			let WebSocketConstructor: new (url: string) => WebSocketLike;
 
@@ -143,7 +148,7 @@ export class DataStreamsWebSocket extends EventEmitter {
 				throw new Error('WebSocket not available in this environment');
 			}
 
-			this.conn = new WebSocketConstructor(this.finalUrl);
+			this.conn = new WebSocketConstructor(verifiedUrl.href);
 			this.setupEventHandlers();
 		} catch (error) {
 			const errorMessage =
