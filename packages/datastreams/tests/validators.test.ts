@@ -2,12 +2,12 @@ import { CatalystDataStreamError } from '../src/utils/errors';
 import { assertValidHost, assertValidWebSocketUrl } from '../src/utils/validators';
 
 describe('assertValidHost', () => {
-	it('should accept a plain hostname', () => {
-		expect(() => assertValidHost('example.com', 'url')).not.toThrow();
+	it('should accept an allow-listed DataStreams hostname', () => {
+		expect(() => assertValidHost('us4-dms.zoho.com', 'url')).not.toThrow();
 	});
 
-	it('should accept a hostname with hyphenated labels', () => {
-		expect(() => assertValidHost('my-catalyst-domain.example.com', 'url')).not.toThrow();
+	it('should accept an allow-listed DataStreams hostname regardless of case', () => {
+		expect(() => assertValidHost('US4-DMS.ZOHO.COM', 'url')).not.toThrow();
 	});
 
 	it('should reject a non-string value', () => {
@@ -19,14 +19,20 @@ describe('assertValidHost', () => {
 		expect(() => assertValidHost('', 'url')).toThrow(CatalystDataStreamError);
 	});
 
+	it('should reject an arbitrary hostname not on the allow-list', () => {
+		expect(() => assertValidHost('example.com', 'url')).toThrow(CatalystDataStreamError);
+	});
+
 	it.each([
-		['a path segment', 'example.com/evil'],
-		['embedded credentials', 'example.com@attacker.example'],
-		['a port delimiter', 'example.com:1234'],
-		['a fragment', 'example.com#frag'],
-		['a query string', 'example.com?x=1'],
-		['whitespace', 'example.com '],
-		['a backslash', 'example.com\\evil']
+		['a path segment', 'us4-dms.zoho.com/evil'],
+		['embedded credentials', 'us4-dms.zoho.com@attacker.example'],
+		['a port delimiter', 'us4-dms.zoho.com:1234'],
+		['a fragment', 'us4-dms.zoho.com#frag'],
+		['a query string', 'us4-dms.zoho.com?x=1'],
+		['whitespace', 'us4-dms.zoho.com '],
+		['a backslash', 'us4-dms.zoho.com\\evil'],
+		['a private/internal-style host', '169.254.169.254'],
+		['a localhost-style host', 'localhost']
 	])('should reject a host containing %s', (_desc, host) => {
 		expect(() => assertValidHost(host, 'url')).toThrow(CatalystDataStreamError);
 	});

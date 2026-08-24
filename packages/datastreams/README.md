@@ -100,7 +100,7 @@ const tokenPair = await fetch('/api/get-token-pair').then(res => res.json());
 
 // Create WebSocket connection
 const ws = new DataStreamsWebSocket({
-  url: 'your-catalyst-domain.com',
+  url: tokenPair.url,
   key: tokenPair.key,
   zuid: tokenPair.zuid,
   enableLogging: true
@@ -300,7 +300,7 @@ Create WebSocket Connection
 
 ```js
 const ws = new DataStreamsWebSocket({
-  url: 'your-catalyst-domain.com',
+  url: 'us4-dms.zoho.com',
   key: 'websocket-auth-key',
   zuid: 'user-id',
   enableLogging: true    // Optional: enable debug logging

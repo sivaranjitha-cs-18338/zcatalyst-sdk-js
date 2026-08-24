@@ -33,7 +33,7 @@ const webSocketCtor = jest.fn(() => mockWebSocket);
 	WebSocket: webSocketCtor
 };
 
-const baseConfig = { url: 'example.com', zuid: 'user123', key: 'key123' };
+const baseConfig = { url: 'us4-dms.zoho.com', zuid: 'user123', key: 'key123' };
 
 function connectMessage(sid = 'sid-1', uid = 'uid-1') {
 	return JSON.stringify([{ mtype: '0', msg: { sid, uid } }]);
@@ -60,7 +60,7 @@ describe('DataStreamsWebSocket', () => {
 			websocket = new DataStreamsWebSocket(baseConfig);
 
 			expect(webSocketCtor).toHaveBeenCalledWith(
-				'wss://example.com/wsconnect?prd=CY&zuid=user123&key=key123'
+				'wss://us4-dms.zoho.com/wsconnect?prd=CY&zuid=user123&key=key123'
 			);
 		});
 
@@ -97,9 +97,10 @@ describe('DataStreamsWebSocket', () => {
 		});
 
 		it.each([
-			['a path segment', 'example.com/evil'],
-			['embedded credentials', 'example.com@attacker.example'],
-			['a port delimiter', 'example.com:1234']
+			['a path segment', 'us4-dms.zoho.com/evil'],
+			['embedded credentials', 'us4-dms.zoho.com@attacker.example'],
+			['a port delimiter', 'us4-dms.zoho.com:1234'],
+			['a host not on the allow-list', 'attacker.example']
 		])('should reject a url containing %s (SSRF guard)', (_desc, url) => {
 			expect(() => new DataStreamsWebSocket({ ...baseConfig, url })).toThrow();
 			expect(webSocketCtor).not.toHaveBeenCalled();
@@ -233,7 +234,9 @@ describe('DataStreamsWebSocket', () => {
 
 			mockWebSocket.trigger(
 				'message',
-				JSON.stringify([{ mtype: '-1', msg: { primarydc: 'dc1', dc1: 'new-host.com' } }])
+				JSON.stringify([
+					{ mtype: '-1', msg: { primarydc: 'dc1', dc1: 'us3-dms.zoho.com' } }
+				])
 			);
 
 			expect(mockWebSocket.close).toHaveBeenCalled();
