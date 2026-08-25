@@ -2584,6 +2584,38 @@ exports.responses = {
 			statusCode: 200,
 			data: { status: 'success', data: { size: 0 } }
 		}
+	},
+
+	// -------------------------------------------------------------------------
+	// Connections component
+	// -------------------------------------------------------------------------
+	'/connection-details': {
+		GET: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: {
+					headers: {
+						Authorization: 'Zoho-oauthtoken xxxxxxxxx'
+					},
+					parameters: {}
+				}
+			}
+		}
+	},
+	'/connection-details?connection-link-name=connectionName': {
+		GET: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: {
+					headers: {
+						Authorization: 'Zoho-oauthtoken xxxxxxxxx'
+					},
+					parameters: {}
+				}
+			}
+		}
 	}
 
 };
