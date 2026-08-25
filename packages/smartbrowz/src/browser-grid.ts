@@ -106,7 +106,6 @@ export class BrowserGrid {
 			track: true,
 			user: CREDENTIAL_USER.admin
 		};
-		const resp = await this.#requester.send(request);
-		return resp.data.data;
+		await this.#requester.send(request);
 	}
 }
