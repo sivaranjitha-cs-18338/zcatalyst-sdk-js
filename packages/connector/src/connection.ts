@@ -55,6 +55,7 @@ export class Connector {
 	private _clientSecret: string;
 	private _redirectUrl: string;
 	private _connectionName: string | null; // lazy init of connector cache key based on config hash
+	private _cachedConnectorName: string | null; // connectorName used when _connectionName was last computed
 	private app: unknown;
 	private requester: Handler;
 	constructor(connectionInstance: Connection, connectorDetails: { [x: string]: string }) {
@@ -71,6 +72,7 @@ export class Connector {
 		this.accessToken = null;
 		this.expiresAt = null;
 		this._connectionName = null;
+		this._cachedConnectorName = null;
 		this.app = connectionInstance.app;
 		this.requester = connectionInstance.requester;
 	}
@@ -81,7 +83,7 @@ export class Connector {
 
 	set authUrl(value: string) {
 		this._authUrl = value;
-		this._connectionName = null;
+		this.#invalidateCache();
 	}
 
 	get refreshUrl(): string {
@@ -90,7 +92,7 @@ export class Connector {
 
 	set refreshUrl(value: string) {
 		this._refreshUrl = value;
-		this._connectionName = null;
+		this.#invalidateCache();
 	}
 
 	get refreshToken(): string {
@@ -99,7 +101,7 @@ export class Connector {
 
 	set refreshToken(value: string) {
 		this._refreshToken = value;
-		this._connectionName = null;
+		this.#invalidateCache();
 	}
 
 	get clientId(): string {
@@ -108,7 +110,7 @@ export class Connector {
 
 	set clientId(value: string) {
 		this._clientId = value;
-		this._connectionName = null;
+		this.#invalidateCache();
 	}
 
 	get clientSecret(): string {
@@ -117,7 +119,7 @@ export class Connector {
 
 	set clientSecret(value: string) {
 		this._clientSecret = value;
-		this._connectionName = null;
+		this.#invalidateCache();
 	}
 
 	get redirectUrl(): string {
@@ -126,39 +128,45 @@ export class Connector {
 
 	set redirectUrl(value: string) {
 		this._redirectUrl = value;
+		this.#invalidateCache();
+	}
+
+	/**
+	 * Invalidates the memoized cache key and any in-memory access token state.
+	 * Called whenever a configuration property changes so that a stale token
+	 * (issued under the previous configuration) is never served after the change,
+	 * forcing the next getAccessToken() call to re-check the cache/refresh.
+	 */
+	#invalidateCache(): void {
 		this._connectionName = null;
+		this.accessToken = null;
+		this.expiresAt = null;
 	}
 
 	/**
 	 * Calculates a hash based on all connector configuration parameters.
 	 * This ensures that any change in refresh token, client credentials, or URLs
 	 * results in a new cache key, preventing stale access tokens from being served.
-	 * Uses polynomial rolling hash (base 31) to generate a deterministic hash converted to
-	 * a 5-digit hexadecimal string. This provides a good balance between uniqueness and brevity for cache keys.
+	 * Hashes a structured (JSON) representation of the config with SHA-256 so that
+	 * values containing ':' cannot cause distinct configs to collide, and takes a
+	 * 16-character hex prefix of the digest for the cache key.
 	 */
 	private getConnectorHash(): string {
-		const configStr = [
-			this.refreshToken,
-			this.clientId,
-			this.clientSecret,
-			this.authUrl,
-			this.refreshUrl,
-			this.redirectUrl
-		]
-			.filter((config) => config)
-			.join(':');
-		let strHash = 0;
-		for (let i = 0; i < configStr.length; i++) {
-			strHash = (strHash * 31 + configStr.charCodeAt(i)) | 0;
-		}
-		const hash = (31 + strHash) | 0;
-		const masked = (hash >>> 0) & 0xfffff; // 20-bit or 5-digit hex
-		return masked.toString(16).padStart(5, '0').toLowerCase();
+		const configStr = JSON.stringify({
+			refreshToken: this.refreshToken,
+			clientId: this.clientId,
+			clientSecret: this.clientSecret,
+			authUrl: this.authUrl,
+			refreshUrl: this.refreshUrl,
+			redirectUrl: this.redirectUrl
+		});
+		return crypto.createHash('sha256').update(configStr).digest('hex').slice(0, 16);
 	}
 
 	private get _connectorName(): string {
-		if (this._connectionName === null) {
+		if (this._connectionName === null || this._cachedConnectorName !== this.connectorName) {
 			this._connectionName = 'ZC_CONN_' + this.connectorName + ':' + this.getConnectorHash();
+			this._cachedConnectorName = this.connectorName;
 		}
 		return this._connectionName;
 	}
@@ -288,8 +296,8 @@ export class Connector {
 				true
 			);
 		}, CatalystConnectorError);
-		this.accessToken = tokenObj[ACCESS_TOKEN] as string;
 		this.refreshToken = tokenObj[REFRESH_TOKEN] as string;
+		this.accessToken = tokenObj[ACCESS_TOKEN] as string;
 		this.expiresIn = parseInt(tokenObj[EXPIRES_IN] as string);
 		const expires = Date.now() + (this.expiresIn * 1000 - 900000); // Convert expiryIn seconds to milliseconds and subtract 15 minutes
 		this.expiresAt = this.refreshIn ? Date.now() + this.refreshIn : expires;
