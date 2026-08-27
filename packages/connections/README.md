@@ -95,21 +95,6 @@ connections.getConnectionCredentials('connection_link_name')
 	});
 ```
 
-#### Callbacks
-
-We do not recommend using callbacks because of [callback hell](http://callbackhell.com/),
-but they are supported by the send operation.
-
-```js
-// callbacks.
-connections.getConnectionCredentials(
-	'connection_link_name',
-	(err, data) => {
-		// process err and data.
-	}
-);
-```
-
 ### Troubleshooting
 
 When the service returns an exception, the error will include the exception information,
@@ -134,16 +119,4 @@ See [CONTRIBUTING](../../CONTRIBUTING.md) for more information on how to get sta
 
 ## License
 
-This SDK is distributed under the Apache License 2.0. See [LICENSE](../../LICENCE) file for more information.
-
-## Connections operations
-
-<details>
-<summary>
-getConnectionCredentials
-</summary>
-
-<!-- [SDK Samples](https://docs.catalyst.zoho.com/en/sdk/nodejs/v2/cloud-scale/file-store/retrieve-folder-details/)[API References]() -->
-
-</details>
-
+This SDK is distributed under the Apache License 2.0. See [LICENSE](./LICENCE) file for more information.
