@@ -289,8 +289,8 @@ describe('DataStreams', () => {
 				data: {
 					status: 'success',
 					data: {
-						wss_id: 'session123',
-						channel_id: '123',
+						'wss-id': 'session123',
+						'channel-id': '123',
 						key: 'token-key',
 						url: 'ws.example.com'
 					}
@@ -320,8 +320,8 @@ describe('DataStreams', () => {
 				data: {
 					status: 'success',
 					data: {
-						wss_id: 'session123',
-						channel_id: '123',
+						'wss-id': 'session123',
+						'channel-id': '123',
 						key: 'token-key',
 						url: 'ws.example.com'
 					}
@@ -386,8 +386,8 @@ describe('DataStreams', () => {
 				data: {
 					status: 'success',
 					data: {
-						wss_id: 'session123',
-						channel_id: '123',
+						'wss-id': 'session123',
+						'channel-id': '123',
 						key: 'token-key',
 						url: 'ws.example.com'
 					}

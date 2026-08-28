@@ -245,8 +245,39 @@ export class DataStreamsWebSocket extends EventEmitter {
 	 * Handle WebSocket error event
 	 */
 	private handleWebSocketErrorEvent(event: unknown): void {
-		this.log(`WebSocket error: ${JSON.stringify(event)}`);
+		try {
+			this.log(`WebSocket error: ${this.safeStringify(event)}`);
+		} catch (loggingError) {
+			// Logging must never crash the process (e.g. TLS errors carry
+			// circular references such as issuerCertificate)
+			this.log(
+				`WebSocket error (failed to stringify event: ${
+					loggingError instanceof Error ? loggingError.message : String(loggingError)
+				})`
+			);
+		}
 		this.emit('error', event);
+	}
+
+	/**
+	 * JSON.stringify wrapper that tolerates circular references (e.g. TLS
+	 * error events whose `issuerCertificate` chain references itself) instead
+	 * of throwing and taking down the process.
+	 */
+	private safeStringify(value: unknown): string {
+		const seen = new WeakSet<object>();
+		return JSON.stringify(value, (_key, val) => {
+			if (val instanceof Error) {
+				return { name: val.name, message: val.message, stack: val.stack };
+			}
+			if (typeof val === 'object' && val !== null) {
+				if (seen.has(val)) {
+					return '[Circular]';
+				}
+				seen.add(val);
+			}
+			return val;
+		});
 	}
 
 	/**

@@ -4,12 +4,18 @@
 export interface TokenResponse {
 	/**
 	 * WebSocket session identifier
+	 *
+	 * Note: the API returns this field as `wss-id` (hyphenated), so the
+	 * property must be accessed via bracket notation, e.g. `tokenPair['wss-id']`.
 	 */
-	wss_id: string;
+	'wss-id': string;
 	/**
 	 * Channel identifier
+	 *
+	 * Note: the API returns this field as `channel-id` (hyphenated), so the
+	 * property must be accessed via bracket notation, e.g. `tokenPair['channel-id']`.
 	 */
-	channel_id: string;
+	'channel-id': string;
 	/**
 	 * Authentication key for the connection
 	 */
@@ -21,17 +27,35 @@ export interface TokenResponse {
 }
 
 /**
+ * User reference embedded in channel details (e.g. `created_by`/`modified_by`).
+ */
+export interface ChannelUser {
+	/**
+	 * Catalyst user's unique ZUID
+	 */
+	zuid: string;
+	/**
+	 * Email address of the user
+	 */
+	email_id: string;
+	/**
+	 * Type of the user (e.g. "admin", "user")
+	 */
+	user_type: string;
+}
+
+/**
  * Individual channel information.
  */
 export interface ChannelDetails {
 	/**
 	 * Parent channel ID
 	 */
-	parentId: number;
+	parentId: string;
 	/**
 	 * Unique channel identifier
 	 */
-	id: number;
+	id: string;
 	/**
 	 * Channel name
 	 */
@@ -41,21 +65,21 @@ export interface ChannelDetails {
 	 */
 	service: string;
 	/**
-	 * ID of user who created the channel
+	 * User who created the channel
 	 */
-	created_by: number;
+	created_by: ChannelUser;
 	/**
-	 * ID of user who last modified the channel
+	 * User who last modified the channel
 	 */
-	modified_by: number;
+	modified_by: ChannelUser;
 	/**
-	 * Timestamp when channel was created
+	 * Formatted date string of when the channel was created
 	 */
-	created_time: number;
+	created_time: string;
 	/**
-	 * Timestamp when channel was last modified
+	 * Formatted date string of when the channel was last modified
 	 */
-	modified_time: number;
+	modified_time: string;
 	/**
 	 * Project ID this channel belongs to
 	 */
@@ -76,6 +100,10 @@ export interface ChannelDetails {
 	 * Channel status (e.g., "open")
 	 */
 	status: string;
+	/**
+	 * Data retention period configured for the channel
+	 */
+	retention: number;
 }
 
 /**
