@@ -147,20 +147,27 @@ export class Connector {
 	 * Calculates a hash based on all connector configuration parameters.
 	 * This ensures that any change in refresh token, client credentials, or URLs
 	 * results in a new cache key, preventing stale access tokens from being served.
-	 * Hashes a structured (JSON) representation of the config with SHA-256 so that
-	 * values containing ':' cannot cause distinct configs to collide, and takes a
-	 * 16-character hex prefix of the digest for the cache key.
+	 * Uses polynomial rolling hash (base 31) to generate a deterministic hash converted to
+	 * a 5-digit hexadecimal string. This provides a good balance between uniqueness and brevity for cache keys.
 	 */
 	private getConnectorHash(): string {
-		const configStr = JSON.stringify({
-			refreshToken: this.refreshToken,
-			clientId: this.clientId,
-			clientSecret: this.clientSecret,
-			authUrl: this.authUrl,
-			refreshUrl: this.refreshUrl,
-			redirectUrl: this.redirectUrl
-		});
-		return crypto.createHash('sha256').update(configStr).digest('hex').slice(0, 16);
+		const configStr = [
+			this.refreshToken,
+			this.clientId,
+			this.clientSecret,
+			this.authUrl,
+			this.refreshUrl,
+			this.redirectUrl
+		]
+			.filter((config) => config)
+			.join(':');
+		let strHash = 0;
+		for (let i = 0; i < configStr.length; i++) {
+			strHash = (strHash * 31 + configStr.charCodeAt(i)) | 0;
+		}
+		const hash = (31 + strHash) | 0;
+		const masked = (hash >>> 0) & 0xfffff; // 20-bit or 5-digit hex
+		return masked.toString(16).padStart(5, '0').toLowerCase();
 	}
 
 	private get _connectorName(): string {
