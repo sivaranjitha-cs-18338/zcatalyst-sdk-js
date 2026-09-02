@@ -1,6 +1,6 @@
 {
   "name": "zcatalyst-sdk-js",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/catalystbyzoho/zcatalyst-sdk-js.git"
@@ -22,6 +22,8 @@
     "lint-fix": "turbo run lint -- --fix",
     "format": "turbo run format --parallel",
     "prepare": "husky || true",
+    "publish-all": "node scripts/publish-packages.js",
+    "unpublish-all": "node scripts/publish-packages.js --unpublish",
     "version:update": "node scripts/version-update.js",
     "changelog:update": "node ./scripts/change-log.js",
     "release": "node scripts/release-packages.js"
