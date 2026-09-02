@@ -579,27 +579,8 @@ export class HttpClient {
 				getServicePath(req.service) + `/project/${this.app.config.projectId}` + req.path;
 		}
 		try {
-			let resp: IAPIResponse;
-			if (req.track && apmTrackerName && IS_APM === 'true') {
-				try {
-					// @ts-ignore
-					const apminsight = await import('apminsight');
-					resp = await apminsight.startTracker(
-						APM_INSIGHT.tracker_name,
-						apmTrackerName,
-						() => sendRequest(req, apmTrackerName, componentVersion)
-					);
-				} catch (err) {
-					throw new CatalystAPIError(
-						'APM_TRACKER_ERROR',
-						'To enable APM tracking locally, please download the apminsight package from the UI and place it in the node_modules directory of your project.',
-						err,
-						400
-					);
-				}
-			} else {
-				resp = await sendRequest(req, apmTrackerName, componentVersion);
-			}
+			const resp: IAPIResponse = await sendRequest(req, apmTrackerName, componentVersion);
+
 			return new DefaultHttpResponse(resp);
 		} catch (err) {
 			if (err instanceof Error) {

@@ -71,7 +71,7 @@
     "ts-jest": "^29.2.5"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=21"
   },
   "files": [
     "dist-*/**"

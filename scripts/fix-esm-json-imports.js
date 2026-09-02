@@ -15,6 +15,15 @@
  * syntax is a hard compile error - TS2823). So the attribute is injected
  * here, as a post-build step, into the compiled ESM output only.
  *
+ * Why `with` and not `assert`:
+ * `with { type: 'json' }` is the modern (TC39-final) syntax, required on
+ * Node >=22 (`assert` was removed there - hard SyntaxError). The older
+ * `assert { type: 'json' }` only works on Node <22 and was never valid
+ * before Node 20.10.0/18.20.0/21.0.0. There is no single syntax that works
+ * across all of Node >=20, so this repo's `engines.node` is pinned to
+ * ">=20.10.0" (the first release supporting `with`) to keep this script's
+ * output valid on every Node version this repo claims to support.
+ *
  * Usage:
  *   node ../../scripts/fix-esm-json-imports.js [outputDir]
  *

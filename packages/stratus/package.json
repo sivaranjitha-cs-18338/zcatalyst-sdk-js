@@ -61,7 +61,7 @@
     "process": false
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=21"
   },
   "files": [
     "dist-*/**"

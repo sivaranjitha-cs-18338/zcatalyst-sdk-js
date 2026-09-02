@@ -23,7 +23,7 @@
     "format": "prettier  --ignore-path ../.prettierignore --write \"{src, test}/*.ts\""
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=21"
   },
   "files": [
     "dist-*/**"
