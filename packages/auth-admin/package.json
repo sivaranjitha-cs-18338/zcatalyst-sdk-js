@@ -24,6 +24,9 @@
   "dependencies": {
     "@zcatalyst/utils": "workspace:^"
   },
+  "engines": {
+    "node": ">=21"
+  },
   "files": [
     "dist-*/**"
   ],

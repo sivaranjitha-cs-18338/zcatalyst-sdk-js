@@ -21,8 +21,13 @@
  * `assert { type: 'json' }` only works on Node <22 and was never valid
  * before Node 20.10.0/18.20.0/21.0.0. There is no single syntax that works
  * across all of Node >=20, so this repo's `engines.node` is pinned to
- * ">=20.10.0" (the first release supporting `with`) to keep this script's
- * output valid on every Node version this repo claims to support.
+ * ">=21" (safely past the 20.10.0/18.20.0 cutoff where `with` first
+ * landed, and clear of the ambiguous 20.0.0-20.9.x range) to keep this
+ * script's output valid on every Node version this repo claims to support.
+ * IMPORTANT: if `engines.node` in the package.jsons is ever changed, this
+ * comment (and the syntax choice above) must be re-verified against
+ * Node's `with`/`assert` support matrix, or JSON imports in `dist-es`
+ * output will throw a SyntaxError on affected runtimes.
  *
  * Usage:
  *   node ../../scripts/fix-esm-json-imports.js [outputDir]
