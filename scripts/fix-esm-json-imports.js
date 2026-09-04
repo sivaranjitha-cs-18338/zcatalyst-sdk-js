@@ -1,9 +1,13 @@
 #!/usr/bin/env node
 
 /**
- * Fix ESM JSON Imports Script
+ * Fix ESM Output Script (JSON import attributes + module type)
  *
- * Purpose:
+ * This script performs two related post-build fixups on the compiled
+ * `dist-es` output, both needed for it to actually run as ESM on Node:
+ *
+ * 1. JSON import attributes
+ * ---------------------------------------------------------------------
  * Node's native ESM loader refuses to load JSON modules without a
  * `with { type: 'json' }` import attribute (`ERR_IMPORT_ATTRIBUTE_MISSING`).
  * Several packages do `import pkg from '../package.json'` to read their
@@ -29,6 +33,26 @@
  * comment (and the syntax choice above) must be re-verified against
  * Node's `with`/`assert` support matrix, or JSON imports in `dist-es`
  * output will throw a SyntaxError on affected runtimes.
+ *
+ * 2. Declaring `dist-es` as an ESM module tree
+ * ---------------------------------------------------------------------
+ * No package.json in this repo sets a top-level `"type"` field (the root
+ * and every package default to CommonJS), so without any further hint,
+ * `dist-es/*.js` files are ambiguous: Node first tries to parse them as
+ * CommonJS, and only reparses them as ESM if it detects `import`/`export`
+ * syntax (the "module syntax detection" fallback). That fallback only
+ * became enabled by default in Node 22.7.0 (nodejs/node#53619) - on Node
+ * 22.0.0-22.6.x it requires the `--experimental-detect-module` flag, so
+ * relying on it alone is not safe across this repo's whole `engines.node
+ * >=22` range. It also always incurs a "reparsing as ES module" perf
+ * warning/overhead even when it does work.
+ *
+ * To make `dist-es` output unambiguously ESM on every Node >=22 patch
+ * version - independent of syntax detection - this script writes a
+ * `dist-es/package.json` containing `{ "type": "module" }`. This is
+ * scoped to the `dist-es` directory only, so it has no effect on the
+ * separately-built `dist-cjs` output (which stays CommonJS via the
+ * absence of a `"type"` field, i.e. the Node default).
  *
  * Usage:
  *   node ../../scripts/fix-esm-json-imports.js [outputDir]
@@ -61,6 +85,12 @@ function fixFile(filePath) {
   return changed;
 }
 
+function writeEsmPackageJson(outputDir) {
+  const pkgJsonPath = path.join(outputDir, 'package.json');
+  fs.writeFileSync(pkgJsonPath, JSON.stringify({ type: 'module' }, null, 2) + '\n', 'utf8');
+  return pkgJsonPath;
+}
+
 function walk(dir, onFile) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const entryPath = path.join(dir, entry.name);
@@ -87,8 +117,13 @@ function main() {
     }
   });
 
+  const pkgJsonPath = writeEsmPackageJson(outputDir);
+
   console.log(
     `[fix-esm-json-imports] Fixed ${fixedCount} file(s) in ${path.relative(process.cwd(), outputDir)}`
+  );
+  console.log(
+    `[fix-esm-json-imports] Wrote ${path.relative(process.cwd(), pkgJsonPath)} with "type": "module"`
   );
 }
 
