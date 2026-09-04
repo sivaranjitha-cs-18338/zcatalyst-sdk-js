@@ -49,7 +49,7 @@
     "@zcatalyst/auth-client": "workspace:^"
   },
   "engines": {
-    "node": ">=21"
+    "node": ">=22"
   },
   "files": [
     "dist-*/**"
