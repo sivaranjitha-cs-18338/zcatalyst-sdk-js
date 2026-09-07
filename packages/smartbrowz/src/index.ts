@@ -1,6 +1,7 @@
 /**
  * Catalyst SmartBrowz — cloud-hosted headless browser automation.
  *
+ * @module @zcatalyst/smartbrowz
  * @packageDocumentation
  */
 
@@ -48,6 +49,7 @@ export class Smartbrowz implements Component {
 
 	/**
 	 * getComponentName operation.
+	 * @category Component Info
 	 */
 	getComponentName(): string {
 		return 'smartbrowz';
@@ -55,6 +57,7 @@ export class Smartbrowz implements Component {
 
 	/**
 	 * getComponentVersion operation.
+	 * @category Component Info
 	 */
 	getComponentVersion(): string {
 		return version;
@@ -97,6 +100,7 @@ export class Smartbrowz implements Component {
 	 * ```ts
 	 * const pdf = await smartbrowz.convertToPdf('https://example.com');
 	 * ```
+	 * @category Rendering
 	 */
 	async convertToPdf(source: string, options?: ICatalystSmartbrowzPdf): Promise<Readable> {
 		await wrapValidatorsWithPromise(() => {
@@ -129,6 +133,7 @@ export class Smartbrowz implements Component {
 	 * ```ts
 	 * const screenshot = await smartbrowz.takeScreenshot('https://example.com');
 	 * ```
+	 * @category Rendering
 	 */
 	async takeScreenshot(source: string, options?: ICatalystSmartbrowzScrShot): Promise<Readable> {
 		await wrapValidatorsWithPromise(() => {
@@ -161,6 +166,7 @@ export class Smartbrowz implements Component {
 	 * ```ts
 	 * const output = await smartbrowz.generateFromTemplate('template-id', { output_options: { output_type: 'pdf' } });
 	 * ```
+	 * @category Rendering
 	 */
 	async generateFromTemplate(
 		id: string,
@@ -187,6 +193,7 @@ export class Smartbrowz implements Component {
 	 * ```ts
 	 * const leads = await smartbrowz.getEnrichedLead({ websiteUrl: 'https://example.com' });
 	 * ```
+	 * @category Dataverse
 	 */
 	async getEnrichedLead({
 		email,
@@ -204,6 +211,7 @@ export class Smartbrowz implements Component {
 	 * ```ts
 	 * const stack = await smartbrowz.findTechStack('https://example.com');
 	 * ```
+	 * @category Dataverse
 	 */
 	async findTechStack(
 		websiteUrl: Parameters<Dataverse['findTechStack']>[0]
@@ -221,6 +229,7 @@ export class Smartbrowz implements Component {
 	 * ```ts
 	 * const companies = await smartbrowz.getSimilarCompanies({ leadName: 'Example Inc' });
 	 * ```
+	 * @category Dataverse
 	 */
 	async getSimilarCompanies({
 		leadName,
@@ -238,6 +247,7 @@ export class Smartbrowz implements Component {
 	 * ```ts
 	 * const grids = await smartbrowz.browserGrid().getGrid();
 	 * ```
+	 * @category Browser Grid
 	 */
 	browserGrid(): BrowserGrid {
 		return this.#browserGrid;

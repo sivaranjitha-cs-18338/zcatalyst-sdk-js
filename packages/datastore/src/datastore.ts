@@ -32,12 +32,16 @@ export class Datastore implements Component {
 		this.requester = new Handler(app, this);
 	}
 
-	/** Retrieves the datastore component name. */
+	/** Retrieves the datastore component name.
+	 * @category Component Info
+	 */
 	getComponentName(): string {
 		return COMPONENT.datastore;
 	}
 
-	/** Retrieves the package version used by this component. */
+	/** Retrieves the package version used by this component.
+	 * @category Component Info
+	 */
 	getComponentVersion(): string {
 		return version;
 	}
@@ -53,6 +57,7 @@ export class Datastore implements Component {
 	 * const datastore = new Datastore();
 	 * const tableById = datastore.table('12345');
 	 * const tableByName = datastore.table('Users');
+	 * @category Table Access
 	 */
 	table(id: string): Table {
 		wrapValidators(() => {
@@ -76,6 +81,7 @@ export class Datastore implements Component {
 	 * const rows = await datastore.executeZCQLQuery(
 	 *   "SELECT * FROM Users WHERE status = 'active'"
 	 * );
+	 * @category Query Operations
 	 */
 	async executeZCQLQuery(query: string): Promise<Array<ICatalystZCQLResult>> {
 		await wrapValidatorsWithPromise(() => {
@@ -110,6 +116,7 @@ export class Datastore implements Component {
 	 * const rows = await datastore.executeOLAPQuery(
 	 *   "SELECT * FROM Users WHERE status = 'active'"
 	 * );
+	 * @category Query Operations
 	 */
 	async executeOLAPQuery(query: string): Promise<Array<ICatalystZCQLResult>> {
 		await wrapValidatorsWithPromise(() => {
@@ -145,6 +152,7 @@ export class Datastore implements Component {
 	 *   search: 'example',
 	 *   search_table_columns: { Users: ['name', 'email'] }
 	 * });
+	 * @category Query Operations
 	 */
 	async executeSearchQuery(searchQuery: ICatalystSearch): Promise<ICatalystSearchResults> {
 		await wrapValidatorsWithPromise(() => {
@@ -185,6 +193,7 @@ export class DatastoreAdmin extends Datastore {
 	 * @example
 	 * const datastore = new DatastoreAdmin();
 	 * const tables = await datastore.getAllTables();
+	 * @category Table Access
 	 */
 	async getAllTables(): Promise<Array<Table>> {
 		const request: IRequestConfig = {
@@ -213,6 +222,7 @@ export class DatastoreAdmin extends Datastore {
 	 * @example
 	 * const datastore = new DatastoreAdmin();
 	 * const tableDetails = await datastore.getTableDetails('12345');
+	 * @category Table Access
 	 */
 	async getTableDetails(id: string): Promise<Table> {
 		await wrapValidatorsWithPromise(() => {
@@ -241,6 +251,7 @@ export class DatastoreAdmin extends Datastore {
 	 * const datastore = new Datastore();
 	 * const tableById = datastore.table('12345');
 	 * const tableByName = datastore.table('Users');
+	 * @category Table Access
 	 */
 	table(id: string): TableAdmin {
 		wrapValidators(() => {
