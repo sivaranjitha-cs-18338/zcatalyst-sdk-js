@@ -2,7 +2,7 @@ name: Deploy TypeDoc to GitHub Pages
 
 on:
   push:
-    branches: [fix/github_doc_issue]
+    branches: [release]
 
 concurrency:
   group: docs-deploy
