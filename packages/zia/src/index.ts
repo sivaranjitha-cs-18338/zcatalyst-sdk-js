@@ -19,7 +19,7 @@ import fs from 'fs';
 
 import pkg from '../package.json';
 const { version } = pkg;
-import { CatalystZiaError } from './utils/errors';
+import { CatalystZiaError } from './utils/errors.js';
 import {
 	ICatalsytZiaKeywordExtraction,
 	ICatalystZiaAutoML,
@@ -32,13 +32,13 @@ import {
 	ICatalystZiaOCR,
 	ICatalystZiaSentimentAnalysis,
 	ICatalystZiaTextAnalytics
-} from './utils/interfaces';
+} from './utils/interfaces.js';
 import {
 	_getKeywordExtraction,
 	_getNERPrediction,
 	_getSentimentAnalysis,
 	_getTextAnalytics
-} from './zia-text-analysis';
+} from './zia-text-analysis.js';
 
 const { REQ_METHOD, COMPONENT, CREDENTIAL_USER } = CONSTANTS;
 
