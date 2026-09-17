@@ -5,4 +5,4 @@
  * @packageDocumentation
  */
 
-export { StratusAdmin as Stratus, TransferManager } from './stratus';
+export { StratusAdmin as Stratus, TransferManager } from './stratus.js';

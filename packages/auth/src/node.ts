@@ -1,4 +1,4 @@
-import { ICatalystAppConfig, ICatalystCredentials } from './utils/interface';
+import { ICatalystAppConfig, ICatalystCredentials } from './utils/interface.js';
 
 /** Provides the Node.js authentication facade exported as `zcAuth`. */
 export class Authentication {
@@ -78,6 +78,6 @@ export class Authentication {
 	}
 }
 
-export { USER_STATUS, UserManagementAdmin as UserManagement } from './user-management';
+export { USER_STATUS, UserManagementAdmin as UserManagement } from './user-management.js';
 
 export const zcAuth = new Authentication();

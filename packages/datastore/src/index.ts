@@ -5,4 +5,4 @@
  * @packageDocumentation
  */
 
-export { DatastoreAdmin as Datastore } from './datastore';
+export { DatastoreAdmin as Datastore } from './datastore.js';

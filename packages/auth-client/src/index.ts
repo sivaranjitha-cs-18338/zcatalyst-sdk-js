@@ -5,7 +5,7 @@
  * @packageDocumentation
  */
 
-import { ConfigStore } from './config-store';
+import { ConfigStore } from './config-store.js';
 import {
 	API_DOMAIN,
 	CSRF_TOKEN,
@@ -22,12 +22,12 @@ import {
 	STRATUS_DOMAIN,
 	URL_DIVIDER,
 	ZAID
-} from './utils/constants';
-import { Auth_Protocol } from './utils/enums';
-import { CatalystAuthError } from './utils/errors';
-import { setGlobal } from './utils/functions';
-import { CatalystConfig } from './utils/interfaces';
-import { syncProjectSession } from './utils/session';
+} from './utils/constants.js';
+import { Auth_Protocol } from './utils/enums.js';
+import { CatalystAuthError } from './utils/errors.js';
+import { setGlobal } from './utils/functions.js';
+import { CatalystConfig } from './utils/interfaces.js';
+import { syncProjectSession } from './utils/session.js';
 
 /**
  * Fetches browser project credentials and stores them for Catalyst client authentication.
@@ -235,7 +235,7 @@ export async function collectZCRFToken(): Promise<unknown> {
 }
 
 export { Auth_Protocol, ConfigStore };
-export * from './utils/constants';
+export * from './utils/constants.js';
 export {
 	clearStratusJwt,
 	getStratusJwtExpiry,
@@ -247,4 +247,4 @@ export {
 	STRATUS_JWT_EXPIRY_SKEW_MS,
 	STRATUS_SESSION_VERSION_KEY,
 	syncProjectSession
-} from './utils/session';
+} from './utils/session.js';
