@@ -1,132 +1,80 @@
-// TODO(test-infra): Pre-existing failures — see connection.test.ts.
-import moment from 'moment';
+import { CONSTANTS } from '@zcatalyst/utils';
 
 import { Connection, Connector } from '../src';
+import { getConnectorJson } from '../src/utils/validators';
 
-// set current date
-Date.now = jest.fn(() => 1487076708000);
-
-//segment mock
-jest.mock('../src/cache/segment', () => {
-	return {
-		Segment: class {
-			app: unknown;
-			constructor(app: unknown) {
-				this.app = app;
-			}
-
-			async get(cacheKey: string): Promise<unknown> {
-				if (cacheKey === 'ZC_CONN_testConnector') {
-					return {
-						cache_name: 'ZC_CONN_testConnector',
-						cache_value:
-							'{ "access_token": "token","expiry_in_seconds": null,"expires_at": null}',
-						project_details: { project_name: 'testProject', id: 12345 },
-						segment_details: { segment_name: 'Default', id: 123 },
-						expires_in: moment(moment.now()).format('MMM DD, YYYY hh:mm A'),
-						expiry_in_hours: 5,
-						ttl_in_milliseconds: 50000
-					};
-				}
-				return {
-					cache_name: 'ZC_CONN_falseConnector',
-					cache_value: null,
-					project_details: { project_name: 'testProject', id: 12345 },
-					segment_details: { segment_name: 'Default', id: 123 },
-					expires_in: moment(moment.now()).format('MMM DD, YYYY hh:mm A'),
-					expiry_in_hours: 2,
-					ttl_in_milliseconds: 2 * 60 * 60 * 1000
-				};
-			}
-
-			async put(key: string, value: string, expiry?: number): Promise<unknown> {
-				return {
-					cache_name: key,
-					cache_value: value,
-					project_details: { project_name: 'testProject', id: 12345 },
-					segment_details: { segment_name: 'Default', id: 123 },
-					expires_in: moment(moment.now()).format('MMM DD, YYYY hh:mm A'),
-					expiry_in_hours: expiry,
-					ttl_in_milliseconds: 18000000
-				};
-			}
-		}
-	};
-});
+const pkg = require('../package.json');
+const { COMPONENT } = CONSTANTS;
 
 const propJson = {
 	falseConnector: {
 		client_id: 'false_client_id',
 		client_secret: 'false_client_secret',
-		auth_url: 'false_auth_url',
-		refresh_url: 'false_refresh_url',
+		auth_url: 'https://oauth.example.com/false/authorize',
+		refresh_url: 'https://oauth.example.com/false/refresh',
 		refresh_token: 'false_refresh_token',
-		redirect_url: 'false_redirect_url'
+		redirect_url: 'https://app.example.com/false/callback'
 	},
 	testConnector: {
 		client_id: 'test_client_id',
 		client_secret: 'test_client_secret',
-		auth_url: 'test_auth_url',
-		refresh_url: 'test_refresh_url',
+		auth_url: 'https://oauth.example.com/test/authorize',
+		refresh_url: 'https://oauth.example.com/test/refresh',
 		refresh_token: 'test_refresh_token',
-		redirect_url: 'test_redirect_url'
+		redirect_url: 'https://app.example.com/test/callback'
 	},
 	empty: {}
 };
 
 describe('testing connection', () => {
-	it('Get connector', () => {
-		const connection: Connection = new Connection('./tests/connection_properties.json');
+	it('returns connector instances and component metadata for object input', () => {
+		const connection = new Connection(propJson);
+
+		expect(connection.getComponentName()).toBe(COMPONENT.connector);
+		expect(connection.getComponentVersion()).toBe(pkg.version);
 		expect(connection.getConnector('testConnector')).toBeInstanceOf(Connector);
 		expect(connection.getConnector('falseConnector')).toBeInstanceOf(Connector);
-		expect(() => {
-			try {
-				connection.getConnector('empty');
-			} catch (error) {
-				throw error;
-			}
-		}).toThrowError();
-		expect(() => {
-			try {
-				connection.getConnector('noConnector');
-			} catch (error) {
-				throw error;
-			}
-		}).toThrowError();
-		connection.connectionJson = null;
-		expect(() => {
-			try {
-				connection.getConnector('noConnector');
-			} catch (error) {
-				throw error;
-			}
-		}).toThrowError();
 	});
-	it('Get connector', () => {
-		const connection: Connection = new Connection(propJson);
+
+	it('loads connector definitions from a JSON file path', () => {
+		const connection = new Connection('./tests/connection_properties.json');
+
 		expect(connection.getConnector('testConnector')).toBeInstanceOf(Connector);
 		expect(connection.getConnector('falseConnector')).toBeInstanceOf(Connector);
-		expect(() => {
-			try {
-				connection.getConnector('empty');
-			} catch (error) {
-				throw error;
-			}
-		}).toThrowError();
-		expect(() => {
-			try {
-				connection.getConnector('noConnector');
-			} catch (error) {
-				throw error;
-			}
-		}).toThrowError();
+	});
+
+	it('throws for invalid connector definitions and invalid connection input', () => {
+		const connection = new Connection(propJson);
+
+		expect(() => connection.getConnector('empty')).toThrowError();
+		expect(() => connection.getConnector('noConnector')).toThrowError();
+
 		connection.connectionJson = null;
-		expect(() => {
-			try {
-				connection.getConnector('noConnector');
-			} catch (error) {
-				throw error;
-			}
-		}).toThrowError();
+		expect(() => connection.getConnector('testConnector')).toThrowError(
+			'The input passed to connector must be a valid JSON object'
+		);
+
+		const badConnection = new Connection('./tests/missing-connection.json');
+		expect(() => badConnection.getConnector('testConnector')).toThrowError(
+			'The input passed to connector must be a valid JSON object'
+		);
+	});
+});
+
+describe('testing connection validator', () => {
+	it('returns connector JSON from an object or a valid file', () => {
+		expect(getConnectorJson(propJson)).toBe(propJson);
+		expect(getConnectorJson('./tests/connection_properties.json')).toEqual(
+			expect.objectContaining({
+				testConnector: expect.any(Object),
+				falseConnector: expect.any(Object)
+			})
+		);
+	});
+
+	it('returns null for missing files, malformed files, or null input', () => {
+		expect(getConnectorJson('./tests/missing-connection.json')).toBeNull();
+		expect(getConnectorJson('./tests/invalid-connection.json')).toBeNull();
+		expect(getConnectorJson(null)).toBeNull();
 	});
 });

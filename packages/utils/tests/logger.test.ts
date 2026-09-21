@@ -1,14 +1,30 @@
-import { LEVEL, LOGGER } from '../src/logger';
+import { createLogger, LEVEL, LOGGER } from '../src/logger';
 
 describe('Logger', () => {
 	let consoleLogSpy: jest.SpyInstance;
+	const originalLogLevel = process.env.ZC_LOG_LVL;
+	const globalWithWindow = global as Record<string, unknown>;
+	const originalWindow = globalWithWindow.window;
 
 	beforeEach(() => {
 		consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+		delete process.env.ZC_LOG_LVL;
+		delete globalWithWindow.window;
 	});
 
 	afterEach(() => {
 		consoleLogSpy.mockRestore();
+		jest.resetModules();
+		if (originalLogLevel === undefined) {
+			delete process.env.ZC_LOG_LVL;
+		} else {
+			process.env.ZC_LOG_LVL = originalLogLevel;
+		}
+		if (originalWindow === undefined) {
+			delete globalWithWindow.window;
+		} else {
+			globalWithWindow.window = originalWindow;
+		}
 	});
 
 	describe('log levels', () => {
@@ -95,6 +111,48 @@ describe('Logger', () => {
 			LOGGER.info('test');
 			const logCall = consoleLogSpy.mock.calls[0][0];
 			expect(logCall).toMatch(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
+		});
+	});
+
+	describe('createLogger', () => {
+		it('should create an independent logger with the requested level', () => {
+			const logger = createLogger(LEVEL.WARN);
+
+			logger.info('skip info');
+			logger.warn('emit warn');
+
+			expect(consoleLogSpy).toHaveBeenCalledTimes(1);
+			expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('[WARN ]'));
+		});
+	});
+
+	describe('environment log level', () => {
+		it('should initialize LOGGER from process.env.ZC_LOG_LVL', () => {
+			process.env.ZC_LOG_LVL = 'debug';
+
+			jest.isolateModules(() => {
+				const { LOGGER: envLogger } = require('../src/logger');
+
+				envLogger.fine('fine');
+				envLogger.debug('debug');
+
+				expect(consoleLogSpy).toHaveBeenCalledTimes(1);
+				expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('[DEBUG]'));
+			});
+		});
+
+		it('should initialize LOGGER from window.ZC_LOG_LVL when process env is absent', () => {
+			globalWithWindow.window = { ZC_LOG_LVL: 'warn' };
+
+			jest.isolateModules(() => {
+				const { LOGGER: envLogger } = require('../src/logger');
+
+				envLogger.info('info');
+				envLogger.warn('warn');
+
+				expect(consoleLogSpy).toHaveBeenCalledTimes(1);
+				expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('[WARN ]'));
+			});
 		});
 	});
 });
