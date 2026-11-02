@@ -39,6 +39,25 @@ export interface ICatalystSignupConfig extends ICatalystJSON {
 	};
 }
 
+export interface ICatalystUserPageOpts {
+	/** Zero-based position of the first user to return. */
+	offset?: number;
+	/** Maximum number of users to return. */
+	count?: number;
+}
+
+export interface ICatalystSearchUserOpts extends ICatalystUserPageOpts {
+	email?: string;
+	orgId?: string;
+	status?: string;
+	isConfirmed?: boolean;
+	firstName?: string;
+	lastName?: string;
+	roleName?: string;
+}
+
+export type ICatalystNewUser = ICatalystSignupConfig & { user_details: ICatalystUser };
+
 export interface ICatalystSignupUserConfig extends ICatalystJSON {
 	first_name: string;
 	last_name?: string;

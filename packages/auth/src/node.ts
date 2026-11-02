@@ -76,6 +76,17 @@ export class Authentication {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		return (instance as any).app(name);
 	}
+
+	/**
+	 * Removes a registered Catalyst app instance by name.
+	 *
+	 * @param name - Name of the app to remove.
+	 */
+	async removeApp(name: string): Promise<void> {
+		const instance = await this.getAuthInstance();
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		(instance as any).removeApp(name);
+	}
 }
 
 export { USER_STATUS, UserManagementAdmin as UserManagement } from './user-management.js';

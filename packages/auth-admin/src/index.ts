@@ -238,6 +238,15 @@ export class ZCAuth {
 		return this.#appCollection[appName];
 	}
 
+	/**
+	 * Removes a registered Catalyst app instance from the collection.
+	 *
+	 * @param appName - The registered app name. Defaults to the default app.
+	 */
+	removeApp(appName: string = DEFAULT_APP_NAME): void {
+		delete this.#appCollection[appName];
+	}
+
 	#loadOptionsFromObj(obj: Record<string, string>): Record<string, string | number | boolean> {
 		const projectId = obj[PROJECT_HEADER.id];
 		const projectKey = obj[PROJECT_HEADER.key];

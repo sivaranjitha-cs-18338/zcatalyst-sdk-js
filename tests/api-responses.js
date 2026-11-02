@@ -2412,6 +2412,87 @@ exports.responses = {
 			}
 		}
 	},
+	'/project-user?count=100&offset=0': {
+		GET: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: [
+					{
+						user_id: '123',
+						email_id: 'email',
+						first_name: 'firstname',
+						last_name: 'lastname',
+						zuid: '12345',
+						zaaid: '1234'
+					}
+				]
+			}
+		}
+	},
+	'/project-user?count=50&offset=0': {
+		GET: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: [
+					{
+						user_id: '123',
+						email_id: 'email',
+						first_name: 'firstname',
+						last_name: 'lastname',
+						zuid: '12345',
+						zaaid: '1234'
+					}
+				]
+			}
+		}
+	},
+	'/project-user?email_id=email': {
+		GET: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: [
+					{
+						user_id: '123',
+						email_id: 'email',
+						first_name: 'firstname',
+						last_name: 'lastname',
+						zuid: '12345',
+						zaaid: '1234'
+					}
+				]
+			}
+		}
+	},
+	'/project-user?count=100&email_id=email&offset=0': {
+		GET: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: [
+					{
+						user_id: '123',
+						email_id: 'email',
+						first_name: 'firstname',
+						last_name: 'lastname',
+						zuid: '12345',
+						zaaid: '1234'
+					}
+				]
+			}
+		}
+	},
+	'/project-user/reinvite': {
+		POST: {
+			statusCode: 200,
+			data: {
+				status: 'success',
+				data: {}
+			}
+		}
+	},
 	'/project-user/123/enable': {
 		POST: {
 			statusCode: 200,

@@ -17,16 +17,42 @@ import { CatalystUserManagementError } from './utils/error.js';
 import {
 	ICatalystCustomTokenDetails,
 	ICatalystCustomTokenResponse,
+	ICatalystNewUser,
+	ICatalystSearchUserOpts,
 	ICatalystSignupConfig,
 	ICatalystSignupUserConfig,
 	ICatalystSignupValidationReq,
-	ICatalystUser
+	ICatalystUser,
+	ICatalystUserPageOpts
 } from './utils/interface.js';
 
-type ICatalystNewUser = ICatalystSignupConfig & { user_details: ICatalystUser };
+const DEFAULT_PAGE_SIZE = 100;
 
 const { CREDENTIAL_USER, REQ_METHOD, COMPONENT, REQUEST_TYPE, ADD_USER, REQUEST_DETAILS } =
 	CONSTANTS;
+
+function definedOnly(qs: Record<string, string | number | boolean | undefined>) {
+	return Object.fromEntries(Object.entries(qs).filter(([, v]) => v !== undefined)) as Record<
+		string,
+		string | number | boolean
+	>;
+}
+
+function validatePageOpts(opts: ICatalystUserPageOpts): void {
+	const { offset, count } = opts ?? {};
+	if (offset !== undefined && (!Number.isInteger(offset) || offset < 0)) {
+		throw new CatalystUserManagementError(
+			'Invalid pagination options',
+			`'offset' must be a non-negative integer`
+		);
+	}
+	if (count !== undefined && (!Number.isInteger(count) || count <= 0)) {
+		throw new CatalystUserManagementError(
+			'Invalid pagination options',
+			`'count' must be a positive integer`
+		);
+	}
+}
 
 export enum USER_STATUS {
 	ENABLE = 'enable',
@@ -474,5 +500,180 @@ export class UserManagementAdmin extends UserManagement {
 		};
 		const resp = await this.requester.send(request);
 		return resp.data.data as ICatalystUser;
+	}
+
+	/**
+	 * Retrieves a single page of project users.
+	 *
+	 * @param opts - Pagination options (`offset`, `count`) and an optional `orgId`.
+	 * @returns A promise that resolves to the users in the requested page.
+	 * @throws {CatalystUserManagementError} when pagination options are invalid.
+	 *
+	 * @example
+	 * ```ts
+	 * const users = await userManagement.getPagedUsers({ offset: 0, count: 50 });
+	 * ```
+	 * @category User Lookup
+	 */
+	async getPagedUsers(
+		opts: ICatalystUserPageOpts & { orgId?: string } = {}
+	): Promise<Array<ICatalystUser>> {
+		await wrapValidatorsWithPromise(() => {
+			validatePageOpts(opts);
+		}, CatalystUserManagementError);
+		const request: IRequestConfig = {
+			method: REQ_METHOD.get,
+			path: `/project-user`,
+			service: CatalystService.BAAS,
+			track: true,
+			user: CREDENTIAL_USER.admin,
+			qs: definedOnly({ org_id: opts.orgId, offset: opts.offset, count: opts.count })
+		};
+		const resp = await this.requester.send(request);
+		return resp.data.data as Array<ICatalystUser>;
+	}
+
+	/**
+	 * Iterates over all project users, fetching them page by page.
+	 *
+	 * @param orgId - Optional organization ID used to filter users.
+	 * @returns An async generator yielding users one by one.
+	 *
+	 * @example
+	 * ```ts
+	 * for await (const user of userManagement.getAllUsersIterable()) {
+	 *   console.log(user.email_id);
+	 * }
+	 * ```
+	 * @category User Lookup
+	 */
+	async *getAllUsersIterable(orgId?: string): AsyncGenerator<ICatalystUser, void> {
+		let offset = 0;
+		for (;;) {
+			const page = await this.getPagedUsers({ offset, count: DEFAULT_PAGE_SIZE, orgId });
+			if (!Array.isArray(page) || page.length === 0) {
+				return;
+			}
+			yield* page;
+			if (page.length < DEFAULT_PAGE_SIZE) {
+				return;
+			}
+			offset += page.length;
+		}
+	}
+
+	/**
+	 * Searches users by email with optional pagination.
+	 *
+	 * @param email - Email (or part of it) to search for.
+	 * @param opts - Pagination options.
+	 * @returns A promise that resolves to the matching users.
+	 * @throws {CatalystUserManagementError} when the email or pagination options are invalid.
+	 *
+	 * @example
+	 * ```ts
+	 * const users = await userManagement.searchUsers('@company.com', { offset: 0, count: 100 });
+	 * ```
+	 * @category User Lookup
+	 */
+	async searchUsers(
+		email: string,
+		opts: ICatalystUserPageOpts = {}
+	): Promise<Array<ICatalystUser>> {
+		await wrapValidatorsWithPromise(() => {
+			isNonEmptyString(email, 'email', true);
+			validatePageOpts(opts);
+		}, CatalystUserManagementError);
+		return this.#search({ ...opts, email });
+	}
+
+	/**
+	 * Iterates over users matching the given search criteria, page by page.
+	 *
+	 * @param opts - Search criteria (`email`, `orgId`, `status`, `isConfirmed`, `firstName`, `lastName`, `roleName`).
+	 * @returns An async generator yielding matching users one by one.
+	 * @throws {CatalystUserManagementError} when the options are invalid.
+	 *
+	 * @example
+	 * ```ts
+	 * for await (const user of userManagement.searchUsersIterable({ email: '@company.com', status: 'ACTIVE' })) {
+	 *   console.log(user.email_id);
+	 * }
+	 * ```
+	 * @category User Lookup
+	 */
+	async *searchUsersIterable(opts: ICatalystSearchUserOpts): AsyncGenerator<ICatalystUser, void> {
+		await wrapValidatorsWithPromise(() => {
+			isNonEmptyObject(opts, 'opts', true);
+			validatePageOpts(opts);
+		}, CatalystUserManagementError);
+		let offset = opts.offset ?? 0;
+		const count = opts.count ?? DEFAULT_PAGE_SIZE;
+		for (;;) {
+			const page = await this.#search({ ...opts, offset, count });
+			if (!Array.isArray(page) || page.length === 0) {
+				return;
+			}
+			yield* page;
+			if (page.length < count) {
+				return;
+			}
+			offset += page.length;
+		}
+	}
+
+	async #search(opts: ICatalystSearchUserOpts): Promise<Array<ICatalystUser>> {
+		const request: IRequestConfig = {
+			method: REQ_METHOD.get,
+			path: `/project-user`,
+			service: CatalystService.BAAS,
+			track: true,
+			user: CREDENTIAL_USER.admin,
+			qs: definedOnly({
+				org_id: opts.orgId,
+				offset: opts.offset,
+				count: opts.count,
+				email_id: opts.email,
+				status: opts.status,
+				is_confirmed: opts.isConfirmed,
+				first_name: opts.firstName,
+				last_name: opts.lastName,
+				role_name: opts.roleName
+			})
+		};
+		const resp = await this.requester.send(request);
+		return resp.data.data as Array<ICatalystUser>;
+	}
+
+	/**
+	 * Re-sends the signup invitation to a user.
+	 *
+	 * @param email - Email ID of the user to re-invite.
+	 * @param signupConfig - Signup configuration (`platform_type` is required).
+	 * @returns A promise that resolves once the invitation is sent.
+	 * @throws {CatalystUserManagementError} when the email or signup configuration is invalid.
+	 *
+	 * @example
+	 * ```ts
+	 * await userManagement.reinviteUser('user@example.com', { platform_type: 'web' });
+	 * ```
+	 * @category Registration
+	 */
+	async reinviteUser(email: string, signupConfig: ICatalystSignupConfig): Promise<void> {
+		await wrapValidatorsWithPromise(() => {
+			isNonEmptyString(email, 'email', true);
+			isNonEmptyObject(signupConfig, 'signupConfig', true);
+			ObjectHasProperties(signupConfig, ['platform_type'], 'signupConfig', true);
+		}, CatalystUserManagementError);
+		const request: IRequestConfig = {
+			method: REQ_METHOD.post,
+			path: `/project-user/reinvite`,
+			data: { ...signupConfig, user_details: { email_id: email } },
+			type: RequestType.JSON,
+			service: CatalystService.BAAS,
+			track: true,
+			user: CREDENTIAL_USER.admin
+		};
+		await this.requester.send(request);
 	}
 }

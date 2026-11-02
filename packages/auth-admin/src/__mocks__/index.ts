@@ -36,6 +36,10 @@ export class ZCAuth {
 	config: Record<string, string | number | Credential | Object> = {};
 	#appCollection: Record<string, CatalystApp> = {};
 
+	removeApp(appName: string = DEFAULT_APP_NAME): void {
+		delete this.#appCollection[appName];
+	}
+
 	init(
 		options?: Record<string, string | number | Credential | Object>,
 		{ type, appName }: { type?: string; appName?: string } = { type: 'auto' }

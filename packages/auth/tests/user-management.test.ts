@@ -136,4 +136,30 @@ describe('user management', () => {
 			)('123', { email: 'smapleemail@sample.com' })
 		).rejects.toThrowError();
 	});
+	it('get paged users', async () => {
+		await expect(userManagement.getPagedUsers({ offset: 0, count: 50 })).resolves.toHaveLength(
+			1
+		);
+		await expect(userManagement.getPagedUsers({ offset: -1 })).rejects.toThrowError();
+		await expect(userManagement.getPagedUsers({ count: 0 })).rejects.toThrowError();
+	});
+	it('iterate and search users', async () => {
+		const all = [];
+		for await (const u of userManagement.getAllUsersIterable()) {
+			all.push(u);
+		}
+		expect(all).toHaveLength(1);
+		await expect(userManagement.searchUsers('email')).resolves.toHaveLength(1);
+		await expect(userManagement.searchUsers('')).rejects.toThrowError();
+		const found = [];
+		for await (const u of userManagement.searchUsersIterable({ email: 'email' })) {
+			found.push(u);
+		}
+		expect(found).toHaveLength(1);
+	});
+	it('reinvite user', async () => {
+		await expect(userManagement.reinviteUser('email', signUpConfig)).resolves.toBeUndefined();
+		await expect(userManagement.reinviteUser('', signUpConfig)).rejects.toThrowError();
+		await expect((userManagement as any).reinviteUser('email', {})).rejects.toThrowError();
+	});
 });
