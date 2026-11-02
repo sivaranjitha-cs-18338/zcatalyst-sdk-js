@@ -24,6 +24,27 @@ const queryResp = { statusCode: 200, headers: {}, data: JSON.stringify([{ id: 1 
 const opts = {};
 
 describe('postgres browser entry', () => {
+	it('reads cluster id and domain saved from /sdk/init when env and headers are absent', async () => {
+		const prev = { ...process.env };
+		delete process.env.CLUSTER_ID;
+		delete process.env.POSTGRESS_DOMAIN;
+		delete process.env.POSTGRES_DOMAIN;
+		// @ts-expect-error simulate a browser global scope
+		globalThis.window = {};
+		sessionStorage.setItem('CLUSTER_ID', 'init-c');
+		sessionStorage.setItem('POSTGRES_DOMAIN', 'https://init.example.com');
+		adminUser = false;
+		sendMock.mockReset();
+		sendMock.mockResolvedValueOnce(tokenResp()).mockResolvedValue(queryResp);
+		await new UserPostgres().from('t').select();
+		expect(sendMock.mock.calls[0][0].path).toBe('/postgres/init-c/token');
+		expect(sendMock.mock.calls[1][0].url).toMatch(/^https:\/\/init\.example\.com\/t/);
+		sessionStorage.clear();
+		// @ts-expect-error restore the node global scope
+		delete globalThis.window;
+		process.env = prev;
+	});
+
 	it('does not expose asUser', () => {
 		const { Postgres: BrowserPostgres } = require('../src/index.browser');
 		const pg = new BrowserPostgres();
