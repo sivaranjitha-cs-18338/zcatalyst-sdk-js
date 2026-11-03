@@ -2,6 +2,7 @@ import { ConfigStore } from '@zcatalyst/auth-client';
 import { isNonEmptyString, isValidInputString, wrapValidators } from '@zcatalyst/utils';
 
 import { CatalystPostgresError } from './error.js';
+import { IPostgresOptions } from './types.js';
 
 // `process` is absent in browsers, where the values come from the /sdk/init response
 const env = (key: string): string | undefined =>
@@ -22,15 +23,34 @@ export function resolveClusterId(app?: AppWithConfig): string {
 	return clusterId as string;
 }
 
-/** Resolves the query domain: env `POSTGRESS_DOMAIN`, then the `x-zc-directdb-pdomain` request header, then (browser) the `/sdk/init` value. */
-export function resolveDomain(app?: AppWithConfig): string {
-	const domain =
-		env('POSTGRESS_DOMAIN') ??
-		env('POSTGRES_DOMAIN') ??
-		app?.config?.postgresDomain ??
-		stored('POSTGRES_DOMAIN');
+/** Resolves the optional instance id: `options.instanceId`, then env `POSTGRES_INSTANCE_ID`. */
+export function resolveInstanceId(options: IPostgresOptions): string | undefined {
+	const instanceId = options.instanceId || env('POSTGRES_INSTANCE_ID');
+	if (instanceId === undefined) {
+		return undefined;
+	}
+	wrapValidators(() => {
+		isValidInputString(instanceId, 'instance_id', true);
+	}, CatalystPostgresError);
+	return instanceId;
+}
+
+/** Domain set through env, if any. */
+export function resolveEnvDomain(): string | undefined {
+	return env('POSTGRESS_DOMAIN') ?? env('POSTGRES_DOMAIN');
+}
+
+/** Validates a domain and strips trailing slashes. */
+export function normalizeDomain(domain: string | undefined): string {
 	wrapValidators(() => {
 		isNonEmptyString(domain, 'postgres_domain', true);
 	}, CatalystPostgresError);
 	return (domain as string).replace(/\/+$/, '');
+}
+
+/** Resolves the query domain: env `POSTGRESS_DOMAIN`, then the `x-zc-directdb-pdomain` request header, then (browser) the `/sdk/init` value. */
+export function resolveDomain(app?: AppWithConfig): string {
+	return normalizeDomain(
+		resolveEnvDomain() ?? app?.config?.postgresDomain ?? stored('POSTGRES_DOMAIN')
+	);
 }

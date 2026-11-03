@@ -22,13 +22,20 @@ interface ICachedToken {
 export class TokenManager {
 	#requester: Handler;
 	#getClusterId: () => string;
+	#getInstanceId: () => string | undefined;
 	#scope: TokenScope;
 	#cached?: ICachedToken;
 	#inflight?: Promise<string>;
 
-	constructor(requester: Handler, getClusterId: () => string, scope: TokenScope) {
+	constructor(
+		requester: Handler,
+		getClusterId: () => string,
+		scope: TokenScope,
+		getInstanceId: () => string | undefined = () => undefined
+	) {
 		this.#requester = requester;
 		this.#getClusterId = getClusterId;
+		this.#getInstanceId = getInstanceId;
 		this.#scope = scope;
 	}
 
@@ -59,13 +66,18 @@ export class TokenManager {
 
 	async #generateToken(): Promise<string> {
 		const clusterId = this.#getClusterId();
+		const instanceId = this.#getInstanceId();
+		// instance-level token when an instance id is configured, else the cluster-level token
+		const tokenPath = instanceId
+			? `/postgres/${clusterId}/instances/${instanceId}/token`
+			: `/postgres/${clusterId}/token`;
 		const scope = this.#scope;
 		let request: IRequestConfig;
 		if (scope.kind === 'user') {
-			request = { path: `/postgres/${clusterId}/token`, user: CREDENTIAL_USER.user };
+			request = { path: tokenPath, user: CREDENTIAL_USER.user };
 		} else {
 			request = {
-				path: `/postgres/${clusterId}/token`,
+				path: tokenPath,
 				user: CREDENTIAL_USER.admin,
 				qs:
 					scope.userId === 'anon'

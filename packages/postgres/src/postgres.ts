@@ -5,11 +5,17 @@ import pkg from '../package.json';
 const { version } = pkg;
 import { PostgresQueryBuilder } from './query-builder.js';
 import { TokenManager, TokenScope } from './token-manager.js';
-import { resolveClusterId, resolveDomain } from './utils/config.js';
+import {
+	normalizeDomain,
+	resolveClusterId,
+	resolveDomain,
+	resolveEnvDomain,
+	resolveInstanceId
+} from './utils/config.js';
 import { CatalystPostgresError } from './utils/error.js';
-import { IPostgresOptions } from './utils/types.js';
+import { IPostgresClusterInstance, IPostgresOptions } from './utils/types.js';
 
-const { COMPONENT, AUTH_HEADER, CREDENTIAL_USER } = CONSTANTS;
+const { COMPONENT, AUTH_HEADER, CREDENTIAL_USER, REQ_METHOD } = CONSTANTS;
 
 /**
  * User-scoped access to a Catalyst Postgres cluster (Supabase-style table API).
@@ -20,6 +26,7 @@ export class Postgres implements Component {
 	protected readonly options: IPostgresOptions;
 	protected readonly requester: Handler;
 	#tokens?: TokenManager;
+	#instanceDomain?: Promise<string>;
 
 	/** Creates a Postgres client. Cluster id and domain come from env or request headers. */
 	constructor(app?: unknown, options: IPostgresOptions = {}) {
@@ -37,7 +44,8 @@ export class Postgres implements Component {
 		this.#tokens ??= new TokenManager(
 			this.requester,
 			() => resolveClusterId(this.requester.app),
-			this.tokenScope()
+			this.tokenScope(),
+			() => resolveInstanceId(this.options)
 		);
 		return this.#tokens;
 	}
@@ -50,6 +58,49 @@ export class Postgres implements Component {
 	/** Retrieves the package version used by this component. */
 	getComponentVersion(): string {
 		return version;
+	}
+
+	/**
+	 * Fetches the details of the configured instance
+	 * (`GET /postgres/{clusterId}/instances/{instanceId}`), including `data_api_url`, its query domain.
+	 * @returns The instance details.
+	 * @throws {CatalystPostgresError} when no instance id is configured.
+	 */
+	async getClusterInstance(): Promise<IPostgresClusterInstance> {
+		const instanceId = resolveInstanceId(this.options);
+		if (!instanceId) {
+			throw new CatalystPostgresError(
+				'INVALID_OPERATION',
+				'instanceId (option or POSTGRES_INSTANCE_ID env) is required to fetch instance details.'
+			);
+		}
+		const res = await this.requester.send({
+			method: REQ_METHOD.get,
+			path: `/postgres/${resolveClusterId(this.requester.app)}/instances/${instanceId}`,
+			service: CatalystService.BAAS,
+			track: true,
+			user: this.tokenScope().kind === 'admin' ? CREDENTIAL_USER.admin : CREDENTIAL_USER.user
+		});
+		const body = res.data as { data?: IPostgresClusterInstance } & IPostgresClusterInstance;
+		return (body?.data ?? body) as IPostgresClusterInstance;
+	}
+
+	/**
+	 * Query domain. With an instance id and no domain in env (a backup cluster), it is read from
+	 * the instance details; otherwise env, request headers or `/sdk/init` are used.
+	 */
+	async #resolveQueryDomain(): Promise<string> {
+		if (!resolveInstanceId(this.options) || resolveEnvDomain()) {
+			return resolveDomain(this.requester.app);
+		}
+		this.#instanceDomain ??= this.getClusterInstance().then(
+			(cluster) => normalizeDomain(cluster.data_api_url),
+			(e) => {
+				this.#instanceDomain = undefined;
+				throw e;
+			}
+		);
+		return this.#instanceDomain;
 	}
 
 	/**
@@ -89,7 +140,7 @@ export class Postgres implements Component {
 		body?: unknown;
 		asString?: boolean;
 	}) {
-		const domain = resolveDomain(this.requester.app);
+		const domain = await this.#resolveQueryDomain();
 		const origin = /^https?:\/\//.test(domain) ? domain : `https://${domain}`;
 		const url = `${origin}${req.path}${req.query ? `?${req.query}` : ''}`;
 

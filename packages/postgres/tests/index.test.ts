@@ -89,6 +89,63 @@ describe('postgres', () => {
 		});
 	});
 
+	it('requests an instance token when instanceId is given as an option or env', async () => {
+		adminUser = false;
+		sendMock.mockResolvedValue(tokenResp());
+		await new UserPostgres(undefined, { instanceId: 'i1' }).from('t').select();
+		expect(sendMock.mock.calls[0][0].path).toBe('/postgres/c1/instances/i1/token');
+
+		sendMock.mockReset();
+		adminUser = true;
+		sendMock.mockResolvedValueOnce(tokenResp()).mockResolvedValue(queryResp);
+		process.env.POSTGRES_INSTANCE_ID = 'env-i';
+		try {
+			await new Postgres(undefined, opts).asUser('9').from('t').select();
+		} finally {
+			delete process.env.POSTGRES_INSTANCE_ID;
+		}
+		expect(sendMock.mock.calls[0][0]).toMatchObject({
+			user: 'admin',
+			path: '/postgres/c1/instances/env-i/token',
+			qs: { role: 'authenticated', user_id: '9' }
+		});
+	});
+
+	it('with an instanceId and no env domain, reads the domain from the instance details', async () => {
+		adminUser = false;
+		delete process.env.POSTGRESS_DOMAIN;
+		appConfig = { postgresId: 'c1', postgresDomain: 'primary.example.com' };
+		sendMock
+			.mockResolvedValueOnce({
+				data: { data: { id: 'c1', data_api_url: 'https://backup.example.com/' } }
+			})
+			.mockResolvedValueOnce(tokenResp())
+			.mockResolvedValue(queryResp);
+		const pg = new UserPostgres(undefined, { instanceId: 'i1' });
+		await pg.from('t').select();
+		await pg.from('t').select();
+		appConfig = undefined;
+
+		const calls = sendMock.mock.calls.map((c) => c[0]);
+		expect(calls[0]).toMatchObject({
+			method: 'GET',
+			path: '/postgres/c1/instances/i1',
+			user: 'user'
+		});
+		expect(calls[1].path).toBe('/postgres/c1/instances/i1/token');
+		expect(calls[2].url).toBe('https://backup.example.com/t?select=*');
+		expect(calls.filter((c) => c.path === '/postgres/c1/instances/i1')).toHaveLength(1);
+	});
+
+	it('with an instanceId but a domain in env, does not call getClusterInstance()', async () => {
+		adminUser = false;
+		sendMock.mockResolvedValueOnce(tokenResp()).mockResolvedValue(queryResp);
+		await new UserPostgres(undefined, { instanceId: 'i1' }).from('t').select();
+		expect(sendMock.mock.calls.some((c) => c[0].path === '/postgres/c1/instances/i1')).toBe(
+			false
+		);
+	});
+
 	it('refreshes the token once on 401 and retries', async () => {
 		sendMock
 			.mockResolvedValueOnce(tokenResp('old'))

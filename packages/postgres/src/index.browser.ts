@@ -10,6 +10,7 @@ export { Postgres } from './postgres.js';
 export { PostgresQueryBuilder } from './query-builder.js';
 export { CatalystPostgresError } from './utils/error.js';
 export type {
+	IPostgresClusterInstance,
 	IPostgresOptions,
 	IPostgresResponse,
 	PostgresCountType,

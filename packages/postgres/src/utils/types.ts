@@ -5,6 +5,23 @@ export interface IPostgresOptions {
 	 * When set, no token is generated and it is used as is; `asUser()` still generates its own.
 	 */
 	anonToken?: string;
+	/**
+	 * Postgres instance id. When set (or when env `POSTGRES_INSTANCE_ID` is set), the token is
+	 * requested for that instance; otherwise the cluster-level token is used.
+	 */
+	instanceId?: string;
+}
+
+/** Cluster details returned by `getClusterInstance()`. */
+export interface IPostgresClusterInstance {
+	id: string;
+	instance_id?: string;
+	is_primary?: boolean;
+	status?: string;
+	/** Query (data API) domain of this cluster. */
+	data_api_url?: string;
+	data_api_enabled?: boolean;
+	[key: string]: unknown;
 }
 
 /** Result of a table operation (`from(...)`). */

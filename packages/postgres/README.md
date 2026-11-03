@@ -44,6 +44,8 @@ Modifiers: `order limit range single`. Table routes are `https://<domain>/<table
 | Value | Source |
 |---|---|
 | Cluster id | env `CLUSTER_ID`, else request header `x-zc-directdb-cluster-id` |
+| Instance id (optional) | `options.instanceId`, else env `POSTGRES_INSTANCE_ID`; when set, the token is requested from `/postgres/{clusterId}/instances/{instanceId}/token` |
+| Instance domain | with an instance id and no env domain (backup cluster), `getClusterInstance()` (`GET /postgres/{clusterId}/instances/{instanceId}`) supplies `data_api_url`; the primary cluster domain always comes from the headers |
 | Query domain | env `POSTGRESS_DOMAIN`, else request header `x-zc-directdb-pdomain` |
 
 ## Notes
