@@ -12,11 +12,9 @@ const env = (key: string): string | undefined =>
 const stored = (key: string): string | undefined =>
 	(typeof window !== 'undefined' ? ConfigStore.get(key) : undefined) || undefined;
 
-type AppWithConfig = { config?: { postgresId?: string; postgresDomain?: string } } | undefined;
-
-/** Resolves the cluster id: env `CLUSTER_ID`, then the `x-zc-directdb-cluster-id` request header, then (browser) the `/sdk/init` value. */
-export function resolveClusterId(app?: AppWithConfig): string {
-	const clusterId = env('CLUSTER_ID') ?? app?.config?.postgresId ?? stored('CLUSTER_ID');
+/** Resolves the cluster id: env `CLUSTER_ID`, then `ZC_CLUSTER_ID`, then (browser) the `/sdk/init` value. */
+export function resolveClusterId(): string {
+	const clusterId = env('CLUSTER_ID') ?? env('ZC_CLUSTER_ID') ?? stored('CLUSTER_ID');
 	wrapValidators(() => {
 		isValidInputString(clusterId, 'cluster_id', true);
 	}, CatalystPostgresError);
@@ -37,7 +35,7 @@ export function resolveInstanceId(options: IPostgresOptions): string | undefined
 
 /** Domain set through env, if any. */
 export function resolveEnvDomain(): string | undefined {
-	return env('POSTGRESS_DOMAIN') ?? env('POSTGRES_DOMAIN');
+	return env('POSTGRES_DOMAIN') ?? env('ZC_POSTGRES_DOMAIN');
 }
 
 /** Validates a domain and strips trailing slashes. */
@@ -48,9 +46,7 @@ export function normalizeDomain(domain: string | undefined): string {
 	return (domain as string).replace(/\/+$/, '');
 }
 
-/** Resolves the query domain: env `POSTGRESS_DOMAIN`, then the `x-zc-directdb-pdomain` request header, then (browser) the `/sdk/init` value. */
-export function resolveDomain(app?: AppWithConfig): string {
-	return normalizeDomain(
-		resolveEnvDomain() ?? app?.config?.postgresDomain ?? stored('POSTGRES_DOMAIN')
-	);
+/** Resolves the query domain: env `POSTGRES_DOMAIN`, then `ZC_POSTGRES_DOMAIN`, then (browser) the `/sdk/init` value. */
+export function resolveDomain(): string {
+	return normalizeDomain(resolveEnvDomain() ?? stored('POSTGRES_DOMAIN'));
 }

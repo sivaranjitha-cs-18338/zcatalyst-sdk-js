@@ -42,7 +42,6 @@ const {
 	ACCOUNTS_PORTAL_ORIGIN,
 	STRATUS_SUFFIX,
 	DOMAIN_HEADER,
-	POSTGRES_HEADER,
 	SERVED_BY_CLI_HEADER,
 	IS_LOCAL,
 	AUTH_HEADER,
@@ -282,9 +281,7 @@ export class ZCAuth {
 				'X_ZOHO_STRATUS_RESOURCE_SUFFIX',
 				STRATUS_SUFFIX
 			),
-			servedByCLI: (obj[SERVED_BY_CLI_HEADER] ?? IS_LOCAL) === 'true',
-			postgresId: obj[POSTGRES_HEADER.clusterId],
-			postgresDomain: obj[POSTGRES_HEADER.domain]
+			servedByCLI: (obj[SERVED_BY_CLI_HEADER] ?? IS_LOCAL) === 'true'
 		};
 	}
 
@@ -364,9 +361,7 @@ export class CatalystApp {
 			apiDomain: (options.apiDomain as string) || CATALYST_ORIGIN,
 			authPortalDomain: (options.authPortalDomain as string) || ACCOUNTS_PORTAL_ORIGIN,
 			stratusSuffix: (options.stratusSuffix as string) || STRATUS_SUFFIX,
-			servedByCLI: (options.servedByCLI as boolean | undefined) ?? IS_LOCAL === 'true',
-			postgresId: options.postgresId as string | undefined,
-			postgresDomain: options.postgresDomain as string | undefined
+			servedByCLI: (options.servedByCLI as boolean | undefined) ?? IS_LOCAL === 'true'
 		};
 	}
 

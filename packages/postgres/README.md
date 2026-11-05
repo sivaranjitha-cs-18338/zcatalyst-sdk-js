@@ -8,7 +8,7 @@ import { Postgres } from '@zcatalyst/postgres';
 const pg = new Postgres(app);
 const { data } = await pg.from('orders').select();
 
-// admin credentials only
+// admin credentials only. The plain admin client runs as service_role (bypasses RLS)
 await pg.asUser('74367458236584').from('orders').select();
 
 // admin as the anonymous (anon role) user: leave asUser empty
@@ -37,16 +37,18 @@ await pg.from('people').delete().eq('id', 1);
 ```
 
 Filters: `eq neq gt gte lt lte like ilike is isDistinct in regexMatch regexIMatch contains containedBy overlaps textSearch match not or filter`.
-Modifiers: `order limit range single`. Table routes are `https://<domain>/<table>`, as in PostgREST.
+Modifiers: `order limit range single maybeSingle` (`maybeSingle` returns `null` data for no row and fails with `MULTIPLE_ROWS` for more than one).
+
+Stored functions: `await pg.rpc('add_them', { a: 1, b: 2 })`; pass `{ get: true }` (or `head`, `count`) as the third argument for read-only calls. The result supports the same filters and modifiers. Table routes are `https://<domain>/<table>`, as in PostgREST.
 
 ## Configuration
 
 | Value | Source |
 |---|---|
-| Cluster id | env `CLUSTER_ID`, else request header `x-zc-directdb-cluster-id` |
+| Cluster id | env `CLUSTER_ID`, else `ZC_CLUSTER_ID` (browser: the `/sdk/init` value) |
 | Instance id (optional) | `options.instanceId`, else env `POSTGRES_INSTANCE_ID`; when set, the token is requested from `/postgres/{clusterId}/instances/{instanceId}/token` |
-| Instance domain | with an instance id and no env domain (backup cluster), `getClusterInstance()` (`GET /postgres/{clusterId}/instances/{instanceId}`) supplies `data_api_url`; the primary cluster domain always comes from the headers |
-| Query domain | env `POSTGRESS_DOMAIN`, else request header `x-zc-directdb-pdomain` |
+| Instance domain | with an instance id and no env domain (backup cluster), `getClusterInstance()` (`GET /postgres/{clusterId}/instances/{instanceId}`) supplies `data_api_url`; with no instance id the domain comes from env |
+| Query domain | env `POSTGRES_DOMAIN`, else `ZC_POSTGRES_DOMAIN` (browser: the `/sdk/init` value) |
 
 ## Notes
 
@@ -67,5 +69,5 @@ The token is used as is (never refreshed). Restrict what the `anon` role can acc
 ## Browser vs Node
 
 - **Classes:** `Postgres` (user, from `postgres.ts`) is exported by the browser entry. The Node entry exports `PostgresAdmin` as `Postgres`; both live in `postgres.ts`. `asUser()` returns a scoped admin client.
-- **Node:** admin credentials work (`anon` token by default, `asUser` for a specific user); cluster id and domain can come from env.
-- **Browser:** user-only. `asUser` is not part of the browser build (separate `index.browser` entry), there is no `process.env`, so the cluster id and domain come from the request-header app config. The query domain must allow CORS for your origin.
+- **Node:** admin credentials work. Without `asUser()` the token has no role, so queries run as `service_role` (full access, RLS bypassed); use `asUser()` for the `anon` role or a specific user; cluster id and domain can come from env.
+- **Browser:** user-only. `asUser` is not part of the browser build (separate `index.browser` entry), there is no `process.env`, so the cluster id and domain come from the `/sdk/init` response. The query domain must allow CORS for your origin.

@@ -3,7 +3,7 @@ import { CatalystService, Component, CONSTANTS, isValidInputString } from '@zcat
 
 import pkg from '../package.json';
 const { version } = pkg;
-import { PostgresQueryBuilder } from './query-builder.js';
+import { PostgresExecutor, PostgresQueryBuilder } from './query-builder.js';
 import { TokenManager, TokenScope } from './token-manager.js';
 import {
 	normalizeDomain,
@@ -12,8 +12,8 @@ import {
 	resolveEnvDomain,
 	resolveInstanceId
 } from './utils/config.js';
-import { CatalystPostgresError } from './utils/error.js';
-import { IPostgresClusterInstance, IPostgresOptions } from './utils/types.js';
+import { CatalystPostgresError, toPostgresError } from './utils/error.js';
+import { IPostgresClusterInstance, IPostgresOptions, PostgresCountType } from './utils/types.js';
 
 const { COMPONENT, AUTH_HEADER, CREDENTIAL_USER, REQ_METHOD } = CONSTANTS;
 
@@ -43,7 +43,7 @@ export class Postgres implements Component {
 	get #tokenManager(): TokenManager {
 		this.#tokens ??= new TokenManager(
 			this.requester,
-			() => resolveClusterId(this.requester.app),
+			() => resolveClusterId(),
 			this.tokenScope(),
 			() => resolveInstanceId(this.options)
 		);
@@ -76,7 +76,7 @@ export class Postgres implements Component {
 		}
 		const res = await this.requester.send({
 			method: REQ_METHOD.get,
-			path: `/postgres/${resolveClusterId(this.requester.app)}/instances/${instanceId}`,
+			path: `/postgres/${resolveClusterId()}/instances/${instanceId}`,
 			service: CatalystService.BAAS,
 			track: true,
 			user: this.tokenScope().kind === 'admin' ? CREDENTIAL_USER.admin : CREDENTIAL_USER.user
@@ -91,7 +91,7 @@ export class Postgres implements Component {
 	 */
 	async #resolveQueryDomain(): Promise<string> {
 		if (!resolveInstanceId(this.options) || resolveEnvDomain()) {
-			return resolveDomain(this.requester.app);
+			return resolveDomain();
 		}
 		this.#instanceDomain ??= this.getClusterInstance().then(
 			(cluster) => normalizeDomain(cluster.data_api_url),
@@ -119,18 +119,42 @@ export class Postgres implements Component {
 	 * ```
 	 */
 	from<T = Record<string, unknown>>(table: string): PostgresQueryBuilder<T> {
-		return new PostgresQueryBuilder<T>(async (req) => {
-			const res = await this.#send({
-				method: req.method,
-				path: `/${req.table}`,
-				query: req.query,
-				headers: req.headers,
-				body: req.body,
-				asString: true
-			});
-			return { statusCode: res.statusCode, headers: res.headers, data: res.data };
-		}, table);
+		return new PostgresQueryBuilder<T>(this.#executor, table);
 	}
+
+	/**
+	 * Calls a stored function (`/rpc/{fn}`). The returned builder supports the same filters and
+	 * modifiers as `from()`, e.g. `.eq()`, `.order()`, `.limit()`, `.single()`, `.maybeSingle()`.
+	 * @param fn - Function name.
+	 * @param args - Named function arguments.
+	 * @param options - `get` sends the arguments as a GET query (for read-only functions), `head`
+	 * sends a HEAD request, `count` requests a row count.
+	 *
+	 * @example
+	 * ```ts
+	 * const { data } = await postgres.rpc('add_them', { a: 1, b: 2 });
+	 * const { data: rows } = await postgres.rpc('active_people', {}, { get: true }).limit(10);
+	 * ```
+	 */
+	rpc<T = Record<string, unknown>>(
+		fn: string,
+		args: Record<string, unknown> = {},
+		options: { get?: boolean; head?: boolean; count?: PostgresCountType } = {}
+	): PostgresQueryBuilder<T> {
+		return new PostgresQueryBuilder<T>(this.#executor, fn, { args, ...options });
+	}
+
+	#executor: PostgresExecutor = async (req) => {
+		const res = await this.#send({
+			method: req.method,
+			path: `/${req.table}`,
+			query: req.query,
+			headers: req.headers,
+			body: req.body,
+			asString: true
+		});
+		return { statusCode: res.statusCode, headers: res.headers, data: res.data };
+	};
 
 	async #send(req: {
 		method: string;
@@ -163,14 +187,21 @@ export class Postgres implements Component {
 		} catch (e) {
 			// token may have been revoked server-side; refresh once and retry
 			if (this.#tokenManager.isStatic || (e as { statusCode?: number })?.statusCode !== 401) {
-				throw e;
+				throw toPostgresError(e);
 			}
+		}
+		try {
 			return await send(await this.#tokenManager.getToken(true));
+		} catch (e) {
+			throw toPostgresError(e);
 		}
 	}
 }
 
-/** Admin-scoped Postgres client. Queries run as the `anon` role unless scoped with `asUser()`. */
+/**
+ * Admin-scoped Postgres client. Queries run as `service_role` (full access, RLS bypassed) unless
+ * scoped with `asUser()`.
+ */
 export class PostgresAdmin extends Postgres {
 	readonly #userId?: string;
 

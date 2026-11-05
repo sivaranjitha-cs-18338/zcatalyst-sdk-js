@@ -22,6 +22,14 @@ export interface IPostgresTableRequest {
 	body?: unknown;
 }
 
+/** Internal options for a stored function call (`rpc`). */
+export interface IPostgresRpcInit {
+	args?: Record<string, unknown>;
+	get?: boolean;
+	head?: boolean;
+	count?: PostgresCountType;
+}
+
 export type PostgresExecutor = (request: IPostgresTableRequest) => Promise<IRawPostgresResponse>;
 
 type FilterValue = string | number | boolean | null | Array<unknown> | Record<string, unknown>;
@@ -59,6 +67,31 @@ function readHeader(headers: unknown, name: string): string | null {
 	return Array.isArray(value) ? String(value[0]) : ((value as string | undefined) ?? null);
 }
 
+/** Removes whitespace from a column list, keeping it inside double-quoted names. */
+function stripWhitespace(columns: string): string {
+	let quoted = false;
+	let out = '';
+	for (const ch of columns) {
+		if (ch === '"') {
+			quoted = !quoted;
+		}
+		if (quoted || !/\s/.test(ch)) {
+			out += ch;
+		}
+	}
+	return out;
+}
+
+function assertNonNegativeInt(value: unknown, name: string): void {
+	if (typeof value !== 'number' || !Number.isInteger(value) || value < 0) {
+		throw new CatalystPostgresError(
+			'INVALID_ARGUMENT',
+			`The value provided for ${name} must be a non-negative integer.`,
+			value
+		);
+	}
+}
+
 /**
  * Supabase-style query builder over the PostgREST table API.
  * It is thenable, so it can be awaited directly: `await pg.from('people').select().eq('id', 1)`.
@@ -67,7 +100,7 @@ export class PostgresQueryBuilder<T = Record<string, unknown>> implements Promis
 	IPostgresResponse<T>
 > {
 	#executor: PostgresExecutor;
-	#table: string;
+	#table = '';
 	#method = 'GET';
 	#params: Array<[string, string]> = [];
 	#headers: Record<string, string> = {};
@@ -77,16 +110,50 @@ export class PostgresQueryBuilder<T = Record<string, unknown>> implements Promis
 	#isMutation = false;
 	#head = false;
 	#single = false;
+	#maybeSingle = false;
+	#rpc = false;
 
-	constructor(executor: PostgresExecutor, table: string) {
+	constructor(executor: PostgresExecutor, table: string, rpc?: IPostgresRpcInit) {
 		if (typeof table !== 'string' || !/^[A-Za-z_][A-Za-z0-9_$]*$/.test(table)) {
 			throw new CatalystPostgresError(
 				'INVALID_ARGUMENT',
-				'The value provided for table is invalid. Use a plain table or view name.'
+				rpc
+					? 'The value provided for function name is invalid. Use a plain function name.'
+					: 'The value provided for table is invalid. Use a plain table or view name.'
 			);
 		}
 		this.#executor = executor;
-		this.#table = table;
+		if (rpc) {
+			this.#initRpc(table, rpc);
+		} else {
+			this.#table = table;
+		}
+	}
+
+	#initRpc(fn: string, rpc: IPostgresRpcInit): void {
+		const args = rpc.args ?? {};
+		if (typeof args !== 'object' || args === null || Array.isArray(args)) {
+			throw new CatalystPostgresError(
+				'INVALID_ARGUMENT',
+				'The value provided for args must be an object.'
+			);
+		}
+		this.#rpc = true;
+		this.#table = `rpc/${fn}`;
+		if (rpc.head || rpc.get) {
+			// GET/HEAD pass the arguments as query parameters
+			this.#method = rpc.head ? 'HEAD' : 'GET';
+			this.#head = !!rpc.head;
+			for (const [key, value] of Object.entries(args)) {
+				this.#params.push([key, formatValue(value as FilterValue)]);
+			}
+		} else {
+			this.#method = 'POST';
+			this.#body = args;
+		}
+		if (rpc.count) {
+			this.#prefer.count = rpc.count;
+		}
 	}
 
 	/**
@@ -97,13 +164,18 @@ export class PostgresQueryBuilder<T = Record<string, unknown>> implements Promis
 		columns = '*',
 		options: { count?: PostgresCountType; head?: boolean } = {}
 	): PostgresQueryBuilder<T> {
-		if (!this.#isMutation) {
+		if (this.#rpc) {
+			// keep the method chosen by rpc(); only a GET call can become HEAD
+			if (options.head && this.#method === 'GET') {
+				this.#method = 'HEAD';
+			}
+		} else if (!this.#isMutation) {
 			this.#method = options.head ? 'HEAD' : 'GET';
 		} else {
 			this.#prefer.return = 'representation';
 		}
-		this.#head = !!options.head;
-		this.#setParam('select', columns.replace(/\s+/g, ''));
+		this.#head = this.#head || !!options.head;
+		this.#setParam('select', stripWhitespace(columns));
 		if (options.count) {
 			this.#prefer.count = options.count;
 		}
@@ -310,12 +382,22 @@ export class PostgresQueryBuilder<T = Record<string, unknown>> implements Promis
 
 	/** Limits the number of rows. */
 	limit(count: number): PostgresQueryBuilder<T> {
+		assertNonNegativeInt(count, 'count');
 		this.#setParam('limit', String(count));
 		return this;
 	}
 
 	/** Returns rows from index `from` to `to` (inclusive, zero based). */
 	range(from: number, to: number): PostgresQueryBuilder<T> {
+		assertNonNegativeInt(from, 'from');
+		assertNonNegativeInt(to, 'to');
+		if (to < from) {
+			throw new CatalystPostgresError(
+				'INVALID_ARGUMENT',
+				'The value provided for to must be greater than or equal to from.',
+				to
+			);
+		}
 		this.#setParam('offset', String(from));
 		this.#setParam('limit', String(to - from + 1));
 		return this;
@@ -324,6 +406,15 @@ export class PostgresQueryBuilder<T = Record<string, unknown>> implements Promis
 	/** Expects exactly one row and returns it as an object instead of an array. */
 	single(): PostgresQueryBuilder<T> {
 		this.#single = true;
+		return this;
+	}
+
+	/**
+	 * Returns at most one row: the object, or `null` data when no row matches.
+	 * Fails with `MULTIPLE_ROWS` when more than one row is returned.
+	 */
+	maybeSingle(): PostgresQueryBuilder<T> {
+		this.#maybeSingle = true;
 		return this;
 	}
 
@@ -367,6 +458,15 @@ export class PostgresQueryBuilder<T = Record<string, unknown>> implements Promis
 					'Unable to parse the Postgres response.'
 				);
 			}
+		}
+		if (this.#maybeSingle && Array.isArray(data)) {
+			if (data.length > 1) {
+				throw new CatalystPostgresError(
+					'MULTIPLE_ROWS',
+					'maybeSingle() expects at most one row but the query returned more.'
+				);
+			}
+			data = data.length === 1 ? data[0] : null;
 		}
 		// Content-Range: 0-9/42 (or */42)
 		const total = readHeader(res.headers, 'content-range')?.split('/')[1];
