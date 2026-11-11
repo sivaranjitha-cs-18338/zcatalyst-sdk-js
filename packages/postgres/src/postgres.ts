@@ -62,7 +62,7 @@ export class Postgres implements Component {
 
 	/**
 	 * Fetches the details of the configured instance
-	 * (`GET /postgres/{clusterId}/instances/{instanceId}`), including `data_api_url`, its query domain.
+	 * (`GET /postgres/{clusterId}/instance/{instanceId}`), including `data_api_url`, its query domain.
 	 * @returns The instance details.
 	 * @throws {CatalystPostgresError} when no instance id is configured.
 	 */
@@ -76,7 +76,7 @@ export class Postgres implements Component {
 		}
 		const res = await this.requester.send({
 			method: REQ_METHOD.get,
-			path: `/postgres/${resolveClusterId()}/instances/${instanceId}`,
+			path: `/postgres/${resolveClusterId()}/instance/${instanceId}`,
 			service: CatalystService.BAAS,
 			track: true,
 			user: this.tokenScope().kind === 'admin' ? CREDENTIAL_USER.admin : CREDENTIAL_USER.user

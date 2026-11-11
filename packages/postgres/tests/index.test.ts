@@ -843,7 +843,7 @@ describe('10. Stored functions (rpc)', () => {
 		sendMock.mockReset();
 		queueToken('u-jwt');
 		await admin().asUser('42').rpc('my_orders');
-		expect(sendMock.mock.calls[0][0].qs).toEqual({ role: 'authenticated', user_id: '42' });
+		expect(sendMock.mock.calls[0][0].data).toEqual({ role: 'authenticated', user_id: '42' });
 		expect(lastReq()).toMatchObject({
 			url: 'https://pg.example.com/rpc/my_orders',
 			headers: { Authorization: bearer('u-jwt') }
@@ -929,8 +929,7 @@ describe('11. Admin: acting as a user', () => {
 		await admin().from('t').select();
 		expect(sendMock.mock.calls[0][0]).toMatchObject({
 			user: 'admin',
-			path: '/postgres/c1/token',
-			qs: {}
+			path: '/postgres/c1/token'
 		});
 	});
 
@@ -940,7 +939,8 @@ describe('11. Admin: acting as a user', () => {
 		expect(sendMock.mock.calls[0][0]).toMatchObject({
 			user: 'admin',
 			path: '/postgres/c1/token',
-			qs: { role: 'authenticated', user_id: '123' }
+			data: { role: 'authenticated', user_id: '123' },
+			type: 'json'
 		});
 	});
 
@@ -951,7 +951,7 @@ describe('11. Admin: acting as a user', () => {
 
 		queueToken();
 		await pg.from('t').select();
-		expect(sendMock.mock.calls[0][0].qs).toEqual({});
+		expect(sendMock.mock.calls[0][0].data).toBeUndefined();
 	});
 
 	it('asUser() and asUser("") act as the anonymous role', async () => {
@@ -961,14 +961,15 @@ describe('11. Admin: acting as a user', () => {
 		expect(sendMock.mock.calls[0][0]).toMatchObject({
 			user: 'admin',
 			path: '/postgres/c1/token',
-			qs: { role: 'anon' }
+			data: { role: 'anon' },
+			type: 'json'
 		});
 		expect(sendMock.mock.calls[1][0].headers.Authorization).toBe(bearer('anon-1'));
 
 		sendMock.mockReset();
 		queueToken('anon-2');
 		await pg.asUser('').from('t').select();
-		expect(sendMock.mock.calls[0][0].qs).toEqual({ role: 'anon' });
+		expect(sendMock.mock.calls[0][0].data).toEqual({ role: 'anon' });
 	});
 
 	it('throws INVALID_OPERATION without admin credentials', () => {
@@ -1023,7 +1024,7 @@ describe('13. Instances (backup cluster)', () => {
 		adminUser = false;
 		queueToken();
 		await user({ instanceId: 'i1' }).from('t').select();
-		expect(sendMock.mock.calls[0][0].path).toBe('/postgres/c1/instances/i1/token');
+		expect(sendMock.mock.calls[0][0].path).toBe('/postgres/c1/instance/i1/token');
 	});
 
 	it('requests an instance token when POSTGRES_INSTANCE_ID is set', async () => {
@@ -1032,8 +1033,8 @@ describe('13. Instances (backup cluster)', () => {
 		await admin().asUser('9').from('t').select();
 		expect(sendMock.mock.calls[0][0]).toMatchObject({
 			user: 'admin',
-			path: '/postgres/c1/instances/env-i/token',
-			qs: { role: 'authenticated', user_id: '9' }
+			path: '/postgres/c1/instance/env-i/token',
+			data: { role: 'authenticated', user_id: '9' }
 		});
 	});
 
@@ -1041,7 +1042,7 @@ describe('13. Instances (backup cluster)', () => {
 		process.env.POSTGRES_INSTANCE_ID = 'env-i';
 		queueToken();
 		await admin({ instanceId: 'opt-i' }).from('t').select();
-		expect(sendMock.mock.calls[0][0].path).toBe('/postgres/c1/instances/opt-i/token');
+		expect(sendMock.mock.calls[0][0].path).toBe('/postgres/c1/instance/opt-i/token');
 	});
 
 	it('with no env domain, reads data_api_url from the instance once and caches it', async () => {
@@ -1060,12 +1061,12 @@ describe('13. Instances (backup cluster)', () => {
 		const calls = allReqs();
 		expect(calls[0]).toMatchObject({
 			method: 'GET',
-			path: '/postgres/c1/instances/i1',
+			path: '/postgres/c1/instance/i1',
 			user: 'user'
 		});
-		expect(calls[1].path).toBe('/postgres/c1/instances/i1/token');
+		expect(calls[1].path).toBe('/postgres/c1/instance/i1/token');
 		expect(calls[2].url).toBe('https://backup.example.com/t?select=*');
-		expect(calls.filter((c) => c.path === '/postgres/c1/instances/i1')).toHaveLength(1);
+		expect(calls.filter((c) => c.path === '/postgres/c1/instance/i1')).toHaveLength(1);
 	});
 
 	it('retries the instance lookup after a failure instead of caching the error', async () => {
@@ -1085,7 +1086,7 @@ describe('13. Instances (backup cluster)', () => {
 		adminUser = false;
 		queueToken();
 		await user({ instanceId: 'i1' }).from('t').select();
-		expect(allReqs().some((c) => c.path === '/postgres/c1/instances/i1')).toBe(false);
+		expect(allReqs().some((c) => c.path === '/postgres/c1/instance/i1')).toBe(false);
 	});
 
 	describe('getClusterInstance()', () => {
@@ -1102,7 +1103,7 @@ describe('13. Instances (backup cluster)', () => {
 			);
 			expect(lastReq()).toMatchObject({
 				method: 'GET',
-				path: '/postgres/c1/instances/i1',
+				path: '/postgres/c1/instance/i1',
 				user: 'admin'
 			});
 		});

@@ -1,4 +1,4 @@
-import { Handler, IRequestConfig } from '@zcatalyst/transport';
+import { Handler, IRequestConfig, RequestType } from '@zcatalyst/transport';
 import { CatalystService, CONSTANTS } from '@zcatalyst/utils';
 
 import { CatalystPostgresError } from './utils/error.js';
@@ -69,22 +69,23 @@ export class TokenManager {
 		const instanceId = this.#getInstanceId();
 		// instance-level token when an instance id is configured, else the cluster-level token
 		const tokenPath = instanceId
-			? `/postgres/${clusterId}/instances/${instanceId}/token`
+			? `/postgres/${clusterId}/instance/${instanceId}/token`
 			: `/postgres/${clusterId}/token`;
 		const scope = this.#scope;
 		let request: IRequestConfig;
 		if (scope.kind === 'user') {
 			request = { path: tokenPath, user: CREDENTIAL_USER.user };
 		} else {
+			const body =
+				scope.userId === 'anon'
+					? { role: 'anon' }
+					: scope.userId
+						? { role: 'authenticated', user_id: scope.userId }
+						: undefined;
 			request = {
 				path: tokenPath,
 				user: CREDENTIAL_USER.admin,
-				qs:
-					scope.userId === 'anon'
-						? { role: 'anon' }
-						: scope.userId
-							? { role: 'authenticated', user_id: scope.userId }
-							: {}
+				...(body ? { data: body, type: RequestType.JSON } : {})
 			};
 		}
 		request = { ...request, method: REQ_METHOD.post, service: CatalystService.BAAS };

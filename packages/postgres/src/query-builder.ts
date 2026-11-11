@@ -182,7 +182,11 @@ export class PostgresQueryBuilder<T = Record<string, unknown>> implements Promis
 		return this;
 	}
 
-	/** Inserts one row or many rows. */
+	/**
+	 * Inserts one row or many rows.
+	 * @param options.columns - Restricts the payload (PostgREST `columns=`); it does not choose the returned
+	 * columns. Chain `.select('id')` to return rows or generated ids.
+	 */
 	insert(
 		values: Record<string, unknown> | Array<Record<string, unknown>>,
 		options: { count?: PostgresCountType; columns?: Array<string> } = {}
